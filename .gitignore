@@ -1,0 +1,15 @@
+# Node dependencies
+node_modules/
+
+# Expo/React Native stuff
+.expo/
+.expo-shared/
+
+# Environment files
+.env
+backend/.env
+frontend/.env
+
+# OS-specific (optional)
+.DS_Store
+Thumbs.db
