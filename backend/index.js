@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
 });
 
 const router = require('./routes/routesIndex');
-app.use('/server', router);
+app.use('/routes', router);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
