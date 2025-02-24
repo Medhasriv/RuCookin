@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Platform, ActivityIndicator, View } from 'react-native';
+import { Image, Text, StyleSheet, Platform, ActivityIndicator, View } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+
+import LoginPage from './LoginPage'; // importing Login Page
 
 export default function HomeScreen() {
   const [message, setMessage] = useState<string>('');
@@ -67,32 +67,24 @@ export default function HomeScreen() {
     );
   }
 
-  // Otherwise, render the original ParallaxScrollView plus the fetched message
+  // Otherwise, render the homepage!
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
 
-      {/* Original instructions */}
-      <ThemedView style={styles.stepContainer}>
+    <ThemedView >
+      <LoginPage />
+      <ThemedText >{message ? `Message: ${message}` : 'No message received yet'}</ThemedText>
+    </ThemedView>
+
+      /* Original instructions */
+      /* <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 1: Try it</ThemedText>
         <ThemedText>
           Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
         </ThemedText>
-      </ThemedView>
+      </ThemedView> */
 
-      {/* ...the other original steps remain unchanged... */}
-      <ThemedView style={styles.stepContainer}>
+      /* ...the other original steps remain unchanged... */
+      /* <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 2: Explore</ThemedText>
         <ThemedText>Tap the Explore tab to learn more about this starter app.</ThemedText>
       </ThemedView>
@@ -102,15 +94,14 @@ export default function HomeScreen() {
         <ThemedText>
           When you're ready, run <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText>.
         </ThemedText>
-      </ThemedView>
+      </ThemedView> 
 
-      {/* New block: display backend response */}
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 4: Backend Data</ThemedText>
         <ThemedText>Message from backend:</ThemedText>
         <ThemedText type="defaultSemiBold">{message || 'No message received yet.'}</ThemedText>
       </ThemedView>
-    </ParallaxScrollView>
+      */
   );
 }
 
@@ -124,13 +115,6 @@ const styles = StyleSheet.create({
   stepContainer: {
     gap: 8,
     marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
   },
   centerContainer: {
     flex: 1,
