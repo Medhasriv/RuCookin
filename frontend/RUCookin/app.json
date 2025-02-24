@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "RUCookin",
-    "slug": "RUCookin",
+    "slug": "rucookin",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "rucookin",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
