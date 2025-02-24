@@ -4,7 +4,7 @@ const db = require('../../dbSetup');
 const { default: mongoose } = require('mongoose');
 const router = express.Router();
 
-require('../../schemas/User.js')
+require('../../schemas/User.js');
 const User = mongoose.model("UserInfo");
 
 router.post('/', async (req,res) => {
