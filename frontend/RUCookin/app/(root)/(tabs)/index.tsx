@@ -1,10 +1,6 @@
 import { Link, useRouter } from "expo-router";
-import { Button, Platform, StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import { SafeAreaView, SafeAreaProvider, SafeAreaInsetsContext, useSafeAreaInsets, } from 'react-native-safe-area-context';
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Login from "@/app/Login";
-import SignUp from "@/app/Login";
+import { Platform, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 export default function Index() {
   const router = useRouter();
   return (
@@ -17,7 +13,7 @@ export default function Index() {
           web: styles.webLogoText,
         })}
         numberOfLines={1}
-        adjustsFontSizeToFit={Platform.OS !== 'web'} // Only works on native
+        adjustsFontSizeToFit={Platform.OS !== 'web'}
       >
         RUCookin
       </Text>
