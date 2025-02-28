@@ -1,8 +1,12 @@
 import { Link, useRouter } from "expo-router";
-import { Platform, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Platform, StyleSheet, Text, TouchableOpacity, useColorScheme } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 export default function Index() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+  const styles = createStyles(isDarkMode);
+  
   return (
     <SafeAreaView style={styles.container}>
       {/* RUCookin Logo/Name */}
@@ -15,7 +19,7 @@ export default function Index() {
         numberOfLines={1}
         adjustsFontSizeToFit={Platform.OS !== 'web'}
       >
-        RUCookin
+        RUCookin'
       </Text>
       {/* Login Button */}
       <TouchableOpacity style={styles.button} onPress={() => router.push('/Login')}>
@@ -33,37 +37,39 @@ export default function Index() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFCF99',
-  },
-  iosLogoText: {
-    width: 200,
-    fontSize: 32,
-    fontFamily: 'InknutAntiqua-SemiBold',
-    color: '#721121',
-  },
-  webLogoText: {
-    fontSize: 48,
-    fontFamily: 'InknutAntiqua-SemiBold',
-    color: '#721121',
-  },
-  button: {
-    alignContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#721121',
-    margin:10,
-    padding: 14,
-    borderRadius: 8,
-    width: 327,
-  },
-  buttonText: {
-    alignContent: 'center',
-    color: '#FFFFFF',
-    fontFamily:'Inter-SemiBold',
-    fontSize: 16,
-  },
-});
+function createStyles(isDarkMode: boolean) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: isDarkMode ? "#721121" : "#FFCF99",
+    },
+    iosLogoText: {
+      width: 200,
+      fontSize: 48,
+      fontFamily: 'InknutAntiqua-SemiBold',
+      color: isDarkMode ? "#FFCF99" : "#721121",
+    },
+    webLogoText: {
+      fontSize: 48,
+      fontFamily: 'InknutAntiqua-SemiBold',
+      color: isDarkMode ? "#FFCF99" : "#721121",
+    },
+    button: {
+      alignContent: 'center',
+      alignItems: 'center',
+      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
+      margin:10,
+      padding: 14,
+      borderRadius: 8,
+      width: 327,
+    },
+    buttonText: {
+      alignContent: 'center',
+      color: isDarkMode ? "#000000" : "#FFFFFF",
+      fontFamily:'Inter-SemiBold',
+      fontSize: 16,
+    },
+  });
+}
