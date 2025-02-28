@@ -22,11 +22,12 @@ const createStyles = (isDarkMode: boolean) =>
       flexDirection: "row",
       alignItems: "center",
       marginVertical: 20,
+      width: 327,
     },
     dividerLine: {
       flex: 1,
-      height: 1,
-      backgroundColor: isDarkMode ? "#FFCF99" : "#ccc",
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
     },
     dividerText: {
       marginHorizontal: 10,

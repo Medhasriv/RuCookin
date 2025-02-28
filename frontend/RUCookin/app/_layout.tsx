@@ -19,5 +19,13 @@ export default function RootLayout() {
   if (!fontsLoaded) {
     return null;
   }
-  return <Stack screenOptions={{headerShown:false}} />;
+  return (
+    <Stack
+      screenOptions={({ route }) => ({
+        // Disable swipe on the Login screen
+        gestureEnabled: !["Login", "SignUp"].includes(route.name),
+        headerShown: false,
+      })}
+    />
+  );
 }
