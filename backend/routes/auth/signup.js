@@ -1,5 +1,5 @@
 const express = require('express');
-//const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 const db = require('../../dbSetup');
 const { default: mongoose } = require('mongoose');
 const router = express.Router();
@@ -18,7 +18,9 @@ router.post('/', async (req,res) => {
     return res.status(400).json({ message: 'Email already exists' });
   }
   else {
-    const newUser = new User ({ username: username, password: password, email:email});
+    const encrpyVal = 11;
+    const hashedPassword = await bcrypt.hash(password, encrpyVal);
+    const newUser = new User ({ username: username, password: hashedPassword, email:email});
     await newUser.save();
     res.status(200).json({message: 'Successfully created user'})
   }
