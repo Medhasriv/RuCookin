@@ -1,7 +1,8 @@
 import { Link, useRouter } from "expo-router";
-import { Platform, StyleSheet, Text, TouchableOpacity, TextInput } from "react-native";
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRef, useState } from "react";
+import { Divider } from "../components/Divider";
 export default function Index() {
   // Global Variable Declarations
   const router = useRouter(); // Routing through the different screens
@@ -18,7 +19,7 @@ export default function Index() {
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
-  // Backend Error Handling - CHANGE LATER
+  // Backend Login Submit Handling - CHANGE LATER
   const handleSubmit = () => {
     if (validateForm()) {
       console.log("Submitted", username, password); // debug for now
@@ -28,6 +29,11 @@ export default function Index() {
       router.push('/TempHome'); // This function will go to the home page. For now, it is going to temp home page.
     }
   };
+  // Backend Login via Google Handling - CHANGE LATER
+  const handleGoogleSubmit = () => {
+    console.log("Google Login"); // debug for now
+  };
+  
   return (
     <SafeAreaView style={styles.container}>
       {/* RUCookin Logo/Name */}
@@ -88,6 +94,20 @@ export default function Index() {
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
+
+      {/* Divider for Alternative Log In Options */}
+      <Divider />
+      
+      {/* Google Login Button */}
+      <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSubmit}>
+        <View style={styles.googleButtonContent}>
+          <Image
+            source={require('../assets/icons/google.png')}
+            style={styles.googleIcon}
+          />
+          <Text style={styles.googleButtonText}>Sign in with Google</Text>
+        </View>
+      </TouchableOpacity>
       
       {/* Sign In Page Link */}
       <Link href="/SignUp" style={styles.SignInText}>
@@ -142,6 +162,7 @@ const styles = StyleSheet.create({
     color: '#A5402D',
     fontFamily:'Inter-SemiBold',
     fontSize: 16,
+    marginTop: 10,
   },
   inputBoxes:{
     color: 'black', // text color
@@ -160,5 +181,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Inter-SemiBold',
     marginTop: 10,
+  },
+  googleButton: {
+    backgroundColor: "#721121",
+    padding: 14,
+    borderRadius: 8,
+    width: 327,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  googleButtonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  googleIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+  },
+  googleButtonText: {
+    fontFamily: "Inter-SemiBold",
+    fontSize: 16,
+    color: "#FFFFFF",
   },
 });
