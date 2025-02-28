@@ -113,7 +113,7 @@ export default function Index() {
       
       {/* Sign In Page Link */}
       <Link href="/SignUp" style={styles.SignInText}>
-        Already have an account? Sign in here
+        Don't have an account? Sign up here
       </Link>
     </SafeAreaView>
   );
