@@ -1,116 +1,164 @@
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import React from 'react';
-import { View, StyleSheet, SafeAreaView, useColorScheme, Pressable, Alert } from 'react-native';
-import { TextInput } from 'react-native-gesture-handler';
+import { Link, useRouter } from "expo-router";
+import { Platform, StyleSheet, Text, TouchableOpacity, TextInput } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRef, useState } from "react";
+export default function Index() {
+  // Global Variable Declarations
+  const router = useRouter(); // Routing through the different screens
+  const [username, setUsername] = useState(""); // Handling username input
+  const [password, setPassword] = useState(""); // Handling password input
+  const [errors, setErrors] = useState<{ username?: string; password?: string }>({}); // Handling errors
+  const passwordRef = useRef<TextInput>(null); // Handling lazy password input
 
-const LoginPage: React.FC = () => {
-  const theme = useColorScheme();
-  const inputStyle = theme === 'dark' ? styles.DarkStyle : styles.LightStyle;
-  const viewStyle = theme === 'dark' ? styles.darkView : styles.lightView;
-  const buttonStyle = theme === 'dark' ? styles.darkButton : styles.lightButton;
-
-  const [text, onChangeText] = React.useState('Username');
-
+  // Error Handling - Empty Fields
+  const validateForm = () => {
+    let errors: { username?: string; password?: string } = {};
+    if (!username) { errors.username = "Username is required."; }
+    if (!password) { errors.password = "Password is required."; }
+    setErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+  // Backend Error Handling - CHANGE LATER
+  const handleSubmit = () => {
+    if (validateForm()) {
+      console.log("Submitted", username, password); // debug for now
+      setUsername("");
+      setPassword("");
+      setErrors({});
+      router.push('/TempHome'); // This function will go to the home page. For now, it is going to temp home page.
+    }
+  };
   return (
-    <ThemedView style={[styles.viewContainer, viewStyle]}>
-      <ThemedText style={[styles.pagetitle]}>RUCookin!</ThemedText>
+    <SafeAreaView style={styles.container}>
+      {/* RUCookin Logo/Name */}
+      <Text
+        style={Platform.select({
+          ios: styles.iosLogoText,
+          android: styles.iosLogoText, // this works, android sucks though
+          web: styles.webLogoText,
+        })}
+        numberOfLines={1}
+        adjustsFontSizeToFit={Platform.OS !== 'web'}
+      >
+        RUCookin'
+      </Text>
+      
+      {/* Login Text */}
+      <Text style={styles.headingText}>
+        Log In
+      </Text>
+      
+      {/* Error Message */}
+      { errors.username && <Text style={styles.errorStyle}>{errors.username}</Text> }
+      { errors.password && <Text style={styles.errorStyle}>{errors.password}</Text> }
+      
+      {/* Username Input */}
+      <TextInput 
+        style={styles.inputBoxes} 
+        value={username} // Username stored here
+        onChangeText={setUsername} 
+        placeholder="Username"
+        placeholderTextColor="#828282"
+        keyboardAppearance="default"
+        keyboardType="default"
+        autoCorrect={false}
+        autoCapitalize="none"
+        returnKeyType="next"
+        onSubmitEditing={() => passwordRef.current?.focus()} // i am lazy and like to click enter
+      />
+      
+      {/* Password Input */}
+      <TextInput 
+        style={styles.inputBoxes} 
+        value={password} // Password stored here
+        onChangeText={setPassword} 
+        placeholder="Password"
+        placeholderTextColor="#828282"
+        secureTextEntry 
+        keyboardAppearance="default"
+        keyboardType="default"
+        autoCorrect={false}
+        autoCapitalize="none"
+        returnKeyType="done"
+        ref={passwordRef}
+        onSubmitEditing={handleSubmit} // enter go happy
+      />
 
-      <ThemedText style={[styles.subtitle]}>Login Here!</ThemedText>
-      <SafeAreaView>
-        <TextInput
-          style={[styles.input, inputStyle]}
-          onChangeText={onChangeText}
-          value={"Username"}
-        />
-        <TextInput
-          style={[styles.input, inputStyle]}
-          onChangeText={onChangeText}
-          value={"Password"}
-        />
-        <Pressable style={[styles.button, buttonStyle]}
-            onPress={() => Alert.alert('Button pressed')}>
-          <ThemedText style={styles.subtitle}>Continue</ThemedText>
-        </Pressable>
-        </SafeAreaView>
-
-        <ThemedText style={[styles.subtitle]}>or create an account!</ThemedText>
-        <SafeAreaView>
-          <TextInput
-            style={[styles.input, inputStyle]}
-            onChangeText={onChangeText}
-            value={"Enter your email"}
-          />
-
-        <Pressable style={[styles.button, buttonStyle]}
-            onPress={() => Alert.alert('Button pressed')}>
-          <ThemedText style={styles.subtitle}>Create an account!</ThemedText>
-        </Pressable>
-        </SafeAreaView>
-
-    </ThemedView>
+      {/* Login Button */} 
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        <Text style={styles.buttonText}>Login</Text>
+      </TouchableOpacity>
+      
+      {/* Sign In Page Link */}
+      <Link href="/SignUp" style={styles.SignInText}>
+        Already have an account? Sign in here
+      </Link>
+    </SafeAreaView>
   );
-};
+}
+
 const styles = StyleSheet.create({
-
-  viewContainer: {
+  container: {
     flex: 1,
-    padding: 20, 
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFCF99',
   },
-  darkView: {
-    backgroundColor: 'black',
-    color: '#5C374C', //TODO: FOR SOME REASON THE TEXT IS NOT PURPLE ON DARK MODE!!
-  },
-  lightView: {
-    backgroundColor: '#FAA275',
-    color: 'black',
-  },
+  headingText:{
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 24,
+    color: '#000000',
+    textAlign: 'center',
 
-  pagetitle: {
-    textAlign: "center",
-    fontWeight: "bold",
-    paddingTop: 30,
-    paddingBottom: 60,
-    fontSize: 50,
   },
-  subtitle: {
-    padding: 20,
-    textAlign: "center",
-    fontSize: 20,
+  iosLogoText: {
+    width: 200,
+    fontSize: 48,
+    fontFamily: 'InknutAntiqua-SemiBold',
+    color: '#721121',
   },
-
-  input: {
+  webLogoText: {
+    fontSize: 48,
+    fontFamily: 'InknutAntiqua-SemiBold',
+    color: '#721121',
+  },
+  button: {
+    alignContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#721121',
+    margin:10,
+    padding: 14,
+    borderRadius: 8,
+    width: 327,
+  },
+  buttonText: {
+    alignContent: 'center',
+    color: '#FFFFFF',
+    fontFamily:'Inter-SemiBold',
+    fontSize: 16,
+  },
+  SignInText: {
+    alignContent: 'center',
+    color: '#A5402D',
+    fontFamily:'Inter-SemiBold',
+    fontSize: 16,
+  },
+  inputBoxes:{
+    color: 'black', // text color
     height: 50,
     margin: 12,
-    borderWidth: 1,
+    borderWidth: 1.5,
     padding: 10,
     borderRadius: 10,
     fontSize: 20,
+    fontFamily: 'Inter-Regular',
+    width: 327,
+    backgroundColor: '#FFFFFF',
   },
-  DarkStyle: {
-    backgroundColor: 'black',
-    color: '#5C374C',
-    borderColor: '#5C374C',
-  },
-  LightStyle: {
-    backgroundColor: 'white',
-    color: 'black',
-    borderColor: 'black'
-  },
-
-  button: {
-    borderRadius: 10,
-    paddingHorizontal: -5, // #TODO: BUTTON SIZE SMALLER
-  },
-
-  darkButton:{
-    backgroundColor: '#5C374C',
-  },
-  
-  lightButton:{
-    backgroundColor: 'white',
+  errorStyle: {
+    color: '#F15156',
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    marginTop: 10,
   },
 });
-
-export default LoginPage;
-

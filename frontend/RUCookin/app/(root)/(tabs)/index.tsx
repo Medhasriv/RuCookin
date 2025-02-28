@@ -15,7 +15,7 @@ export default function Index() {
         numberOfLines={1}
         adjustsFontSizeToFit={Platform.OS !== 'web'}
       >
-        RUCookin
+        RUCookin'
       </Text>
       {/* Login Button */}
       <TouchableOpacity style={styles.button} onPress={() => router.push('/Login')}>
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   },
   iosLogoText: {
     width: 200,
-    fontSize: 32,
+    fontSize: 48,
     fontFamily: 'InknutAntiqua-SemiBold',
     color: '#721121',
   },
