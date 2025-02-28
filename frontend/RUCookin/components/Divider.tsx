@@ -1,7 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-export function Divider({ isDarkMode }) {
+interface DividerProps {
+  isDarkMode: boolean;
+}
+
+export function Divider({ isDarkMode }: DividerProps) {
   const styles = createStyles(isDarkMode);
   return (
     <View style={styles.dividerContainer}>
@@ -12,7 +16,7 @@ export function Divider({ isDarkMode }) {
   );
 }
 
-const createStyles = (isDarkMode) =>
+const createStyles = (isDarkMode: boolean) =>
   StyleSheet.create({
     dividerContainer: {
       flexDirection: "row",
