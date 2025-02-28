@@ -1,5 +1,5 @@
 import { Link, useRouter } from "expo-router";
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, View } from "react-native";
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, useColorScheme,View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRef, useState } from "react";
 import { Divider } from "../components/Divider";
@@ -10,7 +10,9 @@ export default function Index() {
   const [password, setPassword] = useState(""); // Handling password input
   const [errors, setErrors] = useState<{ username?: string; password?: string }>({}); // Handling errors
   const passwordRef = useRef<TextInput>(null); // Handling lazy password input
-
+  const colorScheme = useColorScheme(); // Handling color scheme
+  const isDarkMode = colorScheme === 'dark'; // Checks if dark mode
+  const styles = createStyles(isDarkMode); // Changes based on system color scheme
   // Error Handling - Empty Fields
   const validateForm = () => {
     let errors: { username?: string; password?: string } = {};
@@ -96,8 +98,8 @@ export default function Index() {
       </TouchableOpacity>
 
       {/* Divider for Alternative Log In Options */}
-      <Divider />
-      
+      <Divider isDarkMode={isDarkMode}/>
+
       {/* Google Login Button */}
       <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSubmit}>
         <View style={styles.googleButtonContent}>
@@ -116,94 +118,95 @@ export default function Index() {
     </SafeAreaView>
   );
 }
+function createStyles(isDarkMode: boolean) {
+  return StyleSheet.create({
+      container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: isDarkMode ? '#721121' : '#FFCF99',
+    },
+    headingText:{
+      fontFamily: 'Inter-SemiBold',
+      fontSize: 24,
+      color: isDarkMode ? "#FFFFFF" : "#000000",
+      textAlign: 'center',
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFCF99',
-  },
-  headingText:{
-    fontFamily: 'Inter-SemiBold',
-    fontSize: 24,
-    color: '#000000',
-    textAlign: 'center',
-
-  },
-  iosLogoText: {
-    width: 200,
-    fontSize: 48,
-    fontFamily: 'InknutAntiqua-SemiBold',
-    color: '#721121',
-  },
-  webLogoText: {
-    fontSize: 48,
-    fontFamily: 'InknutAntiqua-SemiBold',
-    color: '#721121',
-  },
-  button: {
-    alignContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#721121',
-    margin:10,
-    padding: 14,
-    borderRadius: 8,
-    width: 327,
-  },
-  buttonText: {
-    alignContent: 'center',
-    color: '#FFFFFF',
-    fontFamily:'Inter-SemiBold',
-    fontSize: 16,
-  },
-  SignInText: {
-    alignContent: 'center',
-    color: '#A5402D',
-    fontFamily:'Inter-SemiBold',
-    fontSize: 16,
-    marginTop: 10,
-  },
-  inputBoxes:{
-    color: 'black', // text color
-    height: 50,
-    margin: 12,
-    borderWidth: 1.5,
-    padding: 10,
-    borderRadius: 10,
-    fontSize: 20,
-    fontFamily: 'Inter-Regular',
-    width: 327,
-    backgroundColor: '#FFFFFF',
-  },
-  errorStyle: {
-    color: '#F15156',
-    fontSize: 16,
-    fontFamily: 'Inter-SemiBold',
-    marginTop: 10,
-  },
-  googleButton: {
-    backgroundColor: "#721121",
-    padding: 14,
-    borderRadius: 8,
-    width: 327,
-    marginTop: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-  },
-  googleButtonContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  googleIcon: {
-    width: 20,
-    height: 20,
-    marginRight: 10,
-  },
-  googleButtonText: {
-    fontFamily: "Inter-SemiBold",
-    fontSize: 16,
-    color: "#FFFFFF",
-  },
-});
+    },
+    iosLogoText: {
+      width: 200,
+      fontSize: 48,
+      fontFamily: 'InknutAntiqua-SemiBold',
+      color: isDarkMode ? "#FFCF99" : "#721121",
+    },
+    webLogoText: {
+      fontSize: 48,
+      fontFamily: 'InknutAntiqua-SemiBold',
+      color: isDarkMode ? "#FFCF99" : "#721121",
+    },
+    button: {
+      alignContent: 'center',
+      alignItems: 'center',
+      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
+      margin:10,
+      padding: 14,
+      borderRadius: 8,
+      width: 327,
+    },
+    buttonText: {
+      alignContent: 'center',
+      color: isDarkMode ? "#721121" : "#FFFFFF",
+      fontFamily:'Inter-SemiBold',
+      fontSize: 16,
+    },
+    SignInText: {
+      alignContent: 'center',
+      color: isDarkMode ? "#FFC074" : "#A5402D",
+      fontFamily:'Inter-SemiBold',
+      fontSize: 16,
+      marginTop: 10,
+    },
+    inputBoxes:{
+      color: isDarkMode ? "#FFFFFF" : "#000000",
+      height: 50,
+      margin: 12,
+      borderWidth: 1.5,
+      padding: 10,
+      borderRadius: 10,
+      fontSize: 20,
+      fontFamily: 'Inter-Regular',
+      width: 327,
+      backgroundColor: isDarkMode ? "#000000" : "#FFFFFF",
+    },
+    errorStyle: {
+      color: '#F15156',
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+      marginTop: 10,
+    },
+    googleButton: {
+      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
+      padding: 14,
+      borderRadius: 8,
+      width: 327,
+      marginTop: 10,
+      borderWidth: 1,
+      borderColor: isDarkMode ? "#FFC074" : "#A5402D",
+    },
+    googleButtonContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    googleIcon: {
+      width: 20,
+      height: 20,
+      marginRight: 10,
+    },
+    googleButtonText: {
+      fontFamily: "Inter-SemiBold",
+      fontSize: 16,
+      color: isDarkMode ? "#721121" : "#FFFFFF",
+    }, 
+  });
+}
