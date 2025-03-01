@@ -28,7 +28,7 @@ export default function Index() {
       setUsername("");
       setPassword("");
       setErrors({});
-      router.push('/TempHome'); // This function will go to the home page. For now, it is going to temp home page.
+      router.push('/HomePage'); // This function will go to the home page. For now, it is going to temp home page.
     }
   };
   // Backend Login via Google Handling - CHANGE LATER

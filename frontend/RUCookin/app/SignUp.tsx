@@ -32,7 +32,7 @@ export default function Index() {
       setPassword("");
       setEmail("");
       setErrors({});
-      router.push('/TempHome'); // This function will go to the preferences page. For now, it is going to temp home page.
+      router.push('/HomePage'); // This function will go to the preferences page. For now, it is going to temp home page.
     }
   };
   // Backend Signup via Google Handling - CHANGE LATER
