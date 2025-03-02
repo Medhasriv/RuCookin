@@ -18,6 +18,16 @@ const preferenceSchema = new mongoose.Schema(
       ],
       default: []
     },
+    cruiseDislike: {
+      type: [String],
+      enum: [
+        "African", "Asian", "American", "British", "Cajun", "Caribbean", "Chinese", 
+        "Eastern European", "European", "French", "German", "Greek", "Indian", "Irish", 
+        "Italian", "Japanese", "Jewish", "Korean", "Latin American", "Mediterranean", 
+        "Mexican", "Middle Eastern", "Nordic", "Southern", "Spanish", "Thai", "Vietnamese"
+      ],
+      default: []
+    },
     diet: {
       type: [String],
       enum: [
