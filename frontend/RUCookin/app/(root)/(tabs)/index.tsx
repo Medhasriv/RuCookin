@@ -67,7 +67,7 @@ function createStyles(isDarkMode: boolean) {
     },
     buttonText: {
       alignContent: 'center',
-      color: isDarkMode ? "#000000" : "#FFFFFF",
+      color: isDarkMode ? "#721121" : "#FFC074",
       fontFamily:'Inter-SemiBold',
       fontSize: 16,
     },
