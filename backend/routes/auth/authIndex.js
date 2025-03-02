@@ -4,9 +4,9 @@ const router = express.Router();
 // Get all routes from auth
 const signupRoute = require('./signup');
 const loginRoute = require('./login');
-//const UserInformRoute = require('./getUserInform');
+//const UserInfoRoute = require('./getUserInfo');
 // Use all the routes
 router.use('/signup', signupRoute);
 router.use('/login', loginRoute);
-//router.use('/getUserInform', UserInformRoute);
+//router.use('/getUserInfo', UserInfoRoute);
 module.exports = router;

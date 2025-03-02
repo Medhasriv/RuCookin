@@ -48,6 +48,10 @@ const SettingsPage = () => {
                 <TouchableOpacity onPress={() => router.push('/Offline')}>
                     <Text style={styles.webSettingsText}>Offline Mode</Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => router.push('/Login')}>
+                    <Text style={styles.webSettingsText}>Log Out</Text>
+                </TouchableOpacity>
             </SafeAreaView>
         </View>
     );
