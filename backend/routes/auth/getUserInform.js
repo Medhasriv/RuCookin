@@ -8,7 +8,7 @@ require('../../schemas/Preference.js');
 const Preferences = mongoose.model("UserPreferences");
 
 router.post("/", async (req, res) => {
-    const { userId, cruiseLike, cruiseDislike, diet, intolerances } = req.body;
+    const { userId, cuisineLike, cuisineDislike, diet, intolerances } = req.body;
   
     const user = await User.findById(userId);
     if (!user) {
@@ -17,16 +17,16 @@ router.post("/", async (req, res) => {
 
     const preferencesData = {
         userId: userId,
-        cruiseLike: cruiseLike || [],
-        cruiseDislike: cruiseDislike || [],
+        cuisineLike: cuisineLike || [],
+        cuisineDislike: cuisineDislike || [],
         diet: diet || [],
         intolerances: intolerances || [],
       };
       const existingPreferences = await UserPreferences.findOne({ userId });
 
       if (existingPreferences) {
-        existingPreferences.cruiseLike = preferencesData.cruiseLike;
-        existingPreferences.cruiseDislike = preferencesData.cruiseDislike;
+        existingPreferences.cuisineLike = preferencesData.cuisineLike;
+        existingPreferences.cuisineDislike = preferencesData.cuisineDislike;
         existingPreferences.diet = preferencesData.diet;
         existingPreferences.intolerances = preferencesData.intolerances;
         await existingPreferences.save();

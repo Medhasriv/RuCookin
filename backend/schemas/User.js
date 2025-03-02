@@ -40,6 +40,9 @@ const userSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
+    firstTimeLogin: {
+      type: Boolean,
+      default: true },
     location: String,
     viewedProfile: Number,
     impressions: Number,
