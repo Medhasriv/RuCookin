@@ -8,11 +8,12 @@ export default function Index() {
   const router = useRouter(); // Routing through the different screens
   const [username, setUsername] = useState(""); // Handling username input
   const [password, setPassword] = useState(""); // Handling password input
-  const [errors, setErrors] = useState<{ username?: string; password?: string }>({}); // Handling errors
+  const [errors, setErrors] = useState<{ username?: string; password?: string; general?: string }>({}); // Handling errors
   const passwordRef = useRef<TextInput>(null); // Handling lazy password input
   const colorScheme = useColorScheme(); // Handling color scheme
   const isDarkMode = colorScheme === 'dark'; // Checks if dark mode
   const styles = createStyles(isDarkMode); // Changes based on system color scheme
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Password visibility toggle
   // Error Handling - Empty Fields
   const validateForm = () => {
     let errors: { username?: string; password?: string } = {};
@@ -22,15 +23,34 @@ export default function Index() {
     return Object.keys(errors).length === 0;
   };
   // Backend Login Submit Handling - CHANGE LATER
-  const handleSubmit = () => {
-    if (validateForm()) {
-      console.log("Submitted", username, password); // debug for now
-      setUsername("");
-      setPassword("");
-      setErrors({});
-      router.push('/HomePage'); // This function will go to the home page. For now, it is going to temp home page.
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+  
+    try {
+      const response = await fetch('http://localhost:3001/routes/auth/login', { // change this before deployment to https://backend-service-612145494931.us-east1.run.app/
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        console.log('Login successful:', data);
+        setErrors({});
+        router.push('/HomePage'); // Navigate to HomePage after login
+      } else {
+        console.error('Login failed:', data);
+        setErrors({general: data.message || 'Invalid username or password.'});
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      setErrors({ general: 'Something went wrong. Please try again.' });
     }
   };
+  
   // Backend Login via Google Handling - CHANGE LATER
   const handleGoogleSubmit = () => {
     console.log("Google Login"); // debug for now
@@ -57,6 +77,7 @@ export default function Index() {
       </Text>
       
       {/* Error Message */}
+      { errors.general && <Text style={styles.errorStyle}>{errors.general}</Text> }
       { errors.username && <Text style={styles.errorStyle}>{errors.username}</Text> }
       { errors.password && <Text style={styles.errorStyle}>{errors.password}</Text> }
       
@@ -66,7 +87,7 @@ export default function Index() {
         value={username} // Username stored here
         onChangeText={setUsername} 
         placeholder="Username"
-        placeholderTextColor="#828282"
+        placeholderTextColor= {isDarkMode ? "#7211219A" : "#FFCF999A"}
         keyboardAppearance="default"
         keyboardType="default"
         autoCorrect={false}
@@ -74,23 +95,31 @@ export default function Index() {
         returnKeyType="next"
         onSubmitEditing={() => passwordRef.current?.focus()} // i am lazy and like to click enter
       />
+      {/* Password Input with Show/Hide Button */}
+      <View style={styles.passwordContainer}>
+        <TextInput 
+          style={styles.passwordInput} 
+          value={password} 
+          onChangeText={setPassword} 
+          placeholder="Password"
+          placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
+          secureTextEntry={!isPasswordVisible} // Hide password when not visible
+          keyboardAppearance="default"
+          keyboardType="default"
+          autoCorrect={false}
+          autoCapitalize="none"
+          returnKeyType="done"
+          ref={passwordRef}
+          onSubmitEditing={handleSubmit}
+        />
+        {/* Show/Hide Button */}
+        <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={styles.eyeIcon}>
+          <Text>{isPasswordVisible ? "Hide" : "Show"}</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Toggle Show/Hide Button */}
       
-      {/* Password Input */}
-      <TextInput 
-        style={styles.inputBoxes} 
-        value={password} // Password stored here
-        onChangeText={setPassword} 
-        placeholder="Password"
-        placeholderTextColor="#828282"
-        secureTextEntry 
-        keyboardAppearance="default"
-        keyboardType="default"
-        autoCorrect={false}
-        autoCapitalize="none"
-        returnKeyType="done"
-        ref={passwordRef}
-        onSubmitEditing={handleSubmit} // enter go happy
-      />
 
       {/* Login Button */} 
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
@@ -167,7 +196,7 @@ function createStyles(isDarkMode: boolean) {
       marginTop: 10,
     },
     inputBoxes:{
-      color: isDarkMode ? "#FFFFFF" : "#000000",
+      color: isDarkMode ? "#721121" : "#FFCF99",
       height: 50,
       margin: 12,
       borderWidth: 1.5,
@@ -176,7 +205,7 @@ function createStyles(isDarkMode: boolean) {
       fontSize: 20,
       fontFamily: 'Inter-Regular',
       width: 327,
-      backgroundColor: isDarkMode ? "#000000" : "#FFFFFF",
+      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
     },
     errorStyle: {
       color: '#F15156',
@@ -208,5 +237,28 @@ function createStyles(isDarkMode: boolean) {
       fontSize: 16,
       color: isDarkMode ? "#721121" : "#FFFFFF",
     }, 
+    eyeIcon: {
+      padding: 10,
+      color: isDarkMode ? "#721121" : "#FFCF99",
+      fontSize: 16,
+      fontFamily: 'Inter-SemiBold',
+    },
+    passwordContainer: {
+      flexDirection: 'row',  // Arrange elements in a row
+      alignItems: 'center',  // Align text input and button vertically
+      width: 327,
+      borderWidth: 1.5,
+      borderRadius: 10,
+      paddingHorizontal: 10,
+      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
+      margin: 12,
+    },
+    passwordInput: {
+      flex: 1,  // Takes up all available space except for the button
+      color: isDarkMode ? "#721121" : "#FFCF99",
+      height: 50,
+      fontSize: 20,
+      fontFamily: 'Inter-Regular',
+    },  
   });
 }

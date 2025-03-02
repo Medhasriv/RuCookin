@@ -13,15 +13,20 @@ router.post('/', async (req, res) => {
   // Check if user exists
   const user = await User.findOne({ username: username });
   if (!user) {
+    console.log("❌ User not found in MongoDB!");
     return res.status(400).json({ message: 'Invalid username or password' });
   }
+  console.log(`✅ User found: ${user.username}`);
+  console.log(`🔑 Stored Hashed Password: ${user.password}`);
 
   // Compare passwords
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
+    console.log("❌ Password mismatch!");
     return res.status(400).json({ message: 'Invalid username or password' });
   }
 
+  console.log("✅ Login successful!");
   res.status(200).json({ message: 'Login successful' });
 });
 

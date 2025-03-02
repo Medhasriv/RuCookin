@@ -12,7 +12,7 @@ app.use(express.json());
 
 // Test route
 app.get('/', (req, res) => {
-  res.send('Hello from RuCookin backend. Get request is working!');
+  res.send('Hello from RuCookin backend. Get request is working!!');
 });
 
 const router = require('./routes/routesIndex');
