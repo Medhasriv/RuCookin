@@ -1,3 +1,4 @@
+import { Link, useRouter } from "expo-router";
 import { Platform, StyleSheet, Text, TouchableOpacity, useColorScheme, View, Image } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React from 'react';
@@ -5,6 +6,7 @@ import React from 'react';
 const colorScheme = useColorScheme();
 const isDarkMode = colorScheme === 'dark';
 const styles = createStyles(isDarkMode);
+const router = useRouter();
 
 const HomePage = () => {
   return (
@@ -23,7 +25,7 @@ const HomePage = () => {
           RUCookin'
         </Text>
         {/* Settings Gear Icon */}
-        <TouchableOpacity style={styles.settingsIcon}>
+        <TouchableOpacity style={styles.settingsIcon} onPress={() => router.push('/Settings')}>
           <Image 
             source={require('../assets/icons/settings.png')}
             style={styles.icon} // Apply styling to adjust the size
