@@ -7,6 +7,10 @@ const router = express.Router();
 require('../../schemas/User.js');
 const User = mongoose.model("UserInfo");
 
+// router.get('/', (req, res) => {
+//   res.json({ message: "✅ Login route is active!" });
+// });
+
 router.post('/', async (req, res) => {
   const { username, password } = req.body;
 
