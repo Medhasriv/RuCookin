@@ -52,7 +52,7 @@ export default function Index() {
       if (response.ok) {
         console.log('✅ Signup successful:', data);
         setErrors({}); // Clear errors
-        router.push('/GetUserInfo'); // Redirect to GetUserInfo.tsx
+        router.push('/CuisineLikes'); // Redirect CuisineLikes (get to know user)
       } else {
         console.error('❌ Signup failed:', data);
         setErrors({ general: data.message || 'Signup failed. Please try again.' });
