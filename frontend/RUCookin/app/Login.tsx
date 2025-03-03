@@ -27,7 +27,7 @@ export default function Index() {
     if (!validateForm()) return;
   
     try {
-      const response = await fetch('http://localhost:3001/routes/auth/login', { // change this before deployment to https://backend-service-612145494931.us-east1.run.app/
+      const response = await fetch('https://backend-service-612145494931.us-east1.run.app/routes/auth/login', { // change this before deployment to https://backend-service-612145494931.us-east1.run.app/
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
