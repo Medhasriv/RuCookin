@@ -29,7 +29,7 @@ const SettingsPage = () => {
             </SafeAreaView>
 
             <SafeAreaView style={styles.contentContainer}>
-                <Text>Username</Text>
+                <Text style={styles.webSettingsText}>Settings</Text>
             </SafeAreaView>
 
             <SafeAreaView style={styles.settingsContainer}>
@@ -59,7 +59,7 @@ const SettingsPage = () => {
 function createStyles(isDarkMode: boolean) {
     return StyleSheet.create({
         viewColor: {
-            backgroundColor: isDarkMode ? 'black' : '',
+            backgroundColor: isDarkMode ? '#701C1C' : '',
         },
         titleContainer: {
             flex: 1,
