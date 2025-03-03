@@ -7,10 +7,15 @@ import { useRouter } from "expo-router";
 const SettingsPage = () => {
     const colorScheme = useColorScheme();
     const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark');
+    const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true); // Default to enabled notifications
     const router = useRouter();
 
-    const toggleSwitch = () => {
+    const toggleDarkModeSwitch = () => {
         setIsDarkMode(previousState => !previousState);
+    };
+
+    const toggleNotificationsSwitch = () => {
+        setIsNotificationsEnabled(previousState => !previousState);
     };
 
     const styles = createStyles(isDarkMode);
@@ -36,27 +41,29 @@ const SettingsPage = () => {
             </SafeAreaView>
 
             <SafeAreaView style={styles.settingsContainer}>
-                <TouchableOpacity onPress={() => router.push('/Notifications')}>
-                    <Text style={styles.webSettingsText}>Notifications</Text>
-                </TouchableOpacity>
 
-                {/* Dark/Light Mode with Switch */}
+                <View style={styles.switchContainer}>
+                    <Text style={styles.webSettingsText}>Notifications</Text>
+                    <Switch
+                        value={isNotificationsEnabled}
+                        onValueChange={toggleNotificationsSwitch}
+                        trackColor={{ false: "#D3D3D3", true: "#FFCF99" }}
+                        thumbColor={isNotificationsEnabled ? "#721121" : "#701C1C"} // Colors of actual button
+                    />
+                </View>
+
                 <View style={styles.switchContainer}>
                     <Text style={styles.webSettingsText}>Dark Mode</Text>
                     <Switch
                         value={isDarkMode}
-                        onValueChange={toggleSwitch}
+                        onValueChange={toggleDarkModeSwitch}
                         trackColor={{ false: "#D3D3D3", true: "#FFCF99" }}
-                        thumbColor={isDarkMode ? "#721121" : "#701C1C"}
+                        thumbColor={isDarkMode ? "#721121" : "#701C1C"} // Colors of actual button
                     />
                 </View>
 
                 <TouchableOpacity onPress={() => router.push('/Privacy')}>
                     <Text style={styles.webSettingsText}>Privacy</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={() => router.push('/Offline')}>
-                    <Text style={styles.webSettingsText}>Offline Mode</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={() => router.push('/Login')}>
@@ -74,7 +81,7 @@ const SettingsPage = () => {
 function createStyles(isDarkMode: boolean) {
     return StyleSheet.create({
         viewColor: {
-            backgroundColor: isDarkMode ? '#701C1C' : '',
+            backgroundColor: isDarkMode ? '#701C1C' : '#FFCF99',
         },
         titleContainer: {
             flex: 1,
