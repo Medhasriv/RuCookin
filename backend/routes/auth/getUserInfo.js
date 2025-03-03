@@ -10,8 +10,8 @@ const Preferences = mongoose.model("UserPreferences");
 
 router.post("/", async (req, res) => {
   const { userId } = req.body;
-    if (!user) {
-      return res.status(400).json({ message: "User not found" });
+    if (!userId) {
+      return res.status(400).json({ message: "userId not found" });
     }
     try {
       const user = await User.findById(userId);
