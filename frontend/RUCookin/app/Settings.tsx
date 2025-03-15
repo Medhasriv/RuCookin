@@ -1,14 +1,19 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Platform, StyleSheet, Text, Switch, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from "react-native";
 import { useRouter } from "expo-router";
+import { checkAuth } from "./authChecker";
 
 const SettingsPage = () => {
     const colorScheme = useColorScheme();
     const [isDarkMode, setIsDarkMode] = useState(colorScheme === 'dark');
     const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true); // Default to enabled notifications
     const router = useRouter();
+
+    useEffect(() => {
+        checkAuth(router);
+    }, []);
 
     const toggleDarkModeSwitch = () => {
         setIsDarkMode(previousState => !previousState);
@@ -66,7 +71,9 @@ const SettingsPage = () => {
                     <Text style={styles.webSettingsText}>Privacy</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => router.push('/Login')}>
+                <TouchableOpacity onPress={() => {
+                    localStorage.removeItem("token");
+                    router.push('/Login'); }}>
                     <Text style={styles.webSettingsText}>Log Out</Text>
                 </TouchableOpacity>
 

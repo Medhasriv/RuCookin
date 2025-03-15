@@ -1,7 +1,8 @@
 import { Link, useRouter } from "expo-router";
 import { Platform, StyleSheet, Text, TouchableOpacity, useColorScheme, View, Image } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React from 'react';
+import React, { useEffect } from "react";
+import { checkAuth } from "./authChecker"; 
 
 const colorScheme = useColorScheme();
 const isDarkMode = colorScheme === 'dark';
@@ -9,6 +10,11 @@ const styles = createStyles(isDarkMode);
 const router = useRouter();
 
 const HomePage = () => {
+
+  useEffect(() => {
+    checkAuth(router);
+  }, []);
+  
   return (
     <View>
       <SafeAreaView style={styles.titleContainer}>

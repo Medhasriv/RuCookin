@@ -1,5 +1,5 @@
 const express = require("express");
-const db = require("../../dbSetup");
+const db = require("../../dbSetup.js");
 const mongoose = require("mongoose");
 const router = express.Router();
 
@@ -11,7 +11,7 @@ const Preferences = mongoose.model("UserPreferences");
 
 router.post("/", async (req, res) => {
   try {
-    const { userId, cruiseLike, cruiseDislike, diet, intolerances } = req.body;
+    const { userId, diet } = req.body;
 
     if (!userId) {
       return res.status(400).json({ message: "Missing userId" });
@@ -23,19 +23,13 @@ router.post("/", async (req, res) => {
     }
     const preferencesData = {
       userId,
-      cruiseLike: cruiseLike || [],
-      cruiseDislike: cruiseDislike || [],
-      diet: diet || [],
-      intolerances: intolerances || [],
+      diet: diet || []
     };
 
     let existingPreferences = await Preferences.findOne({ userId });
 
     if (existingPreferences) {
-      existingPreferences.cruiseLike = preferencesData.cruiseLike;
-      existingPreferences.cruiseDislike = preferencesData.cruiseDislike;
       existingPreferences.diet = preferencesData.diet;
-      existingPreferences.intolerances = preferencesData.intolerances;
 
       await existingPreferences.save();
     } else {
@@ -43,7 +37,7 @@ router.post("/", async (req, res) => {
       await newPreferences.save();
     }
 
-    return res.status(200).json({ message: "Preferences saved successfully" });
+    return res.status(200).json({ message: "Diet saved successfully" });
   } catch (error) {
     console.error("Error saving preferences:", error);
     return res.status(500).json({ message: "Internal server error" });
