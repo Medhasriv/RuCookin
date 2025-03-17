@@ -11,18 +11,20 @@ const Preferences = mongoose.model("UserPreferences");
 
 router.post("/", async (req, res) => {
   try {
-    const { userId, intolerance } = req.body;
-
-    if (!userId) {
-      console.log("UserID does not exist");
-      return res.status(400).json({ message: "Missing userId" });
+    console.log("Incoming Request:", req.body)
+    const { username, intolerance } = req.body;
+    console.log("✅ Extracted Username:", username);
+    console.log("✅ Extracted intolerance:", intolerance);
+    if (!username) {
+      return res.status(400).json({ message: "Missing username" });
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findOne({ username });
     if (!user) {
       console.log("User does not exist");
       return res.status(400).json({ message: "User not found" });
     }
+    const userId = user._id;
     const preferencesData = {
       userId,
       intolerance: intolerance || []
@@ -32,11 +34,12 @@ router.post("/", async (req, res) => {
 
     if (existingPreferences) {
       existingPreferences.intolerance = preferencesData.intolerance;
-
       await existingPreferences.save();
+      console.log("✅ Updated Preferences:", existingPreferences);
     } else {
       const newPreferences = new Preferences(preferencesData);
       await newPreferences.save();
+      console.log("✅ New Preferences Saved:", newPreferences);
     }
 
     console.log("Intolerance saved successfully");

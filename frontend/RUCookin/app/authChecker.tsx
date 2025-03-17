@@ -24,11 +24,30 @@ export async function getTokenData(key: string): Promise<any | null> {
         if (!token) {
             return null;
         }
-        const payload = JSON.parse(Buffer.from(token.split(".")[1], 'base64').toString());
-        return payload[key] ?? null;
+        const base64Url = token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const decodedPayload = JSON.parse(atob(base64));
+        return decodedPayload[key];
     }
         catch(error) {
             console.error("Error accessing token:", error);
+            return null;
+         }
+}
+
+
+//Pull token data for Userid  
+export async function getUserID(): Promise<any | null> {
+    try {
+        const userId = await AsyncStorage.getItem("userId");
+        if (!userId) {
+            console.error("User ID not found in token.");
+            return null;
+        }
+        return userId;
+    }
+        catch(error) {
+            console.error("Error retrieving user ID:", error);
             return null;
          }
 }

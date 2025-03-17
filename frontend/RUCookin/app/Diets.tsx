@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList, View } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
+import { checkAuth, getTokenData } from "./authChecker"; 
 
 const DIET_TYPES = [
   'Gluten Free',
@@ -24,6 +25,10 @@ const DietPreferences = () => {
   const styles = createStyles(isDarkMode);
   const router = useRouter();
 
+    useEffect(() => {
+      checkAuth(router);
+  }, []);
+
   const toggleDietSelection = (diet: string) => {
     setSelectedDiets((prevSelected) =>
       prevSelected.includes(diet)
@@ -32,9 +37,38 @@ const DietPreferences = () => {
     );
   };
 
-  const handleContinue = () => {
+  const handleContinue = async() => {
     console.log('Selected Diets:', selectedDiets);
-    router.push('/Intolerances');
+    try {
+          const username = await getTokenData("username");
+          if (!username) {
+            console.error("Username not found in token.");
+            return;
+          }
+          const payload = { username: username.trim(),
+            diet:Array.isArray(selectedDiets) ? [...selectedDiets] : [],
+          };
+          console.log("🚀 Sending payload:", JSON.stringify(payload));
+          const response = await fetch("http://localhost:3001/routes/api/diet", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: username.trim(),
+              diet:Array.isArray(selectedDiets) ? [...selectedDiets] : [] }), 
+          });
+          const data = await response.json();
+      if(response.ok) {
+        router.push('/Intolerances');
+      }
+      else {
+        console.error('Data error: ', data)
+      }
+    }
+    catch (error) {
+      console.error('❌ Error during Diet:', error);
+    }
+   
   };
 
   return (

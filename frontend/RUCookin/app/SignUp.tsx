@@ -41,7 +41,7 @@ export default function Index() {
     if (!validateForm()) return;
   
     try {
-      const response = await fetch('https://backend-service-612145494931.us-east1.run.app/routes/auth/signup', {
+      const response = await fetch('http://localhost:3001/routes/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ firstName, lastName, username, password, email }), 
@@ -49,8 +49,10 @@ export default function Index() {
   
       const data = await response.json();
   
-      if (response.ok) {
+      if (response.ok && data.token) {
         console.log('✅ Signup successful:', data);
+        console.log("Received token:", data.token);
+        localStorage.setItem("token", data.token);
         setErrors({}); // Clear errors
         router.push('/CuisineLikes'); // Redirect CuisineLikes (get to know user)
       } else {

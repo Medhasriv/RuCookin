@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
+import { checkAuth, getTokenData } from "./authChecker"; 
 
 const CUISINE_TYPES = [
   'African',
@@ -40,6 +41,11 @@ const CuisineDislikes = () => {
   const styles = createStyles(isDarkMode);
   const router = useRouter();
 
+    useEffect(() => {
+      checkAuth(router);
+  }, []);
+
+
   const toggleCuisineSelection = (cuisine: string) => {
     setDislikedCuisines((prevSelected) =>
       prevSelected.includes(cuisine)
@@ -48,9 +54,38 @@ const CuisineDislikes = () => {
     );
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     console.log('Disliked Cuisines:', dislikedCuisines);
-    router.push('/Diets');
+ try {
+      const username = await getTokenData("username");
+    if (!username) {
+      console.error("Username not found in token.");
+      return;
+    }
+    const payload = { 
+      username: username.trim(),
+      cuisineDislike: Array.isArray(dislikedCuisines) ? [...dislikedCuisines] : [], 
+    };
+    console.log("🚀 Sending payload:", JSON.stringify(payload));
+      const response = await fetch("http://localhost:3001/routes/api/cuisineDislike", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username: username.trim(),
+          cuisineDislike: Array.isArray(dislikedCuisines) ? [...dislikedCuisines] : [] }), 
+      });
+      const data = await response.json();
+      if(response.ok) {
+        router.push('/Diets');
+      }
+      else {
+        console.error('Data error: ', data)
+      }
+    }
+    catch (error) {
+      console.error('❌ Error during Cuisine Dislike:', error);
+    }
   };
 
   return (

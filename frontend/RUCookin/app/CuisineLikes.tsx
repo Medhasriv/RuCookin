@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
+import { checkAuth, getTokenData } from "./authChecker"; 
 
 const CUISINE_TYPES = [
   'African',
@@ -36,9 +37,16 @@ const CUISINE_TYPES = [
 const CuisineLikes = () => {
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const colorScheme = useColorScheme();
+  const [userId, setUserId] = useState<string | null>(null);
   const isDarkMode = colorScheme === 'dark';
   const styles = createStyles(isDarkMode);
   const router = useRouter();
+
+  useEffect(() => {
+    checkAuth(router);
+}, []);
+
+
 
   const toggleCuisineSelection = (cuisine: string) => {
     setSelectedCuisines((prevSelected) =>
@@ -48,9 +56,42 @@ const CuisineLikes = () => {
     );
   };
 
-  const handleContinue = () => {
+  const handleContinue =  async () => {
     console.log('Selected Cuisines:', selectedCuisines);
-    router.push('/CuisineDislikes');
+    
+    try {
+      const username = await getTokenData("username");
+    if (!username) {
+      console.error("Username not found in token.");
+      return;
+    }
+    const payload = { username: username.trim(),
+      cuisineLike:Array.isArray(selectedCuisines) ? [...selectedCuisines] : [],
+    };
+    console.log("🚀 Sending payload:", JSON.stringify(payload));
+      const response = await fetch("http://localhost:3001/routes/api/cuisineLike", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username: username.trim(),
+          cuisineLike:Array.isArray(selectedCuisines) ? [...selectedCuisines] : [] }), 
+      });
+      const data = await response.json();
+      if(response.ok) {
+        router.push('/CuisineDislikes');
+      }
+      else {
+        console.error('Data error: ', data)
+      }
+    }
+    catch (error) {
+      console.error('❌ Error during Cuisine Likes:', error);
+    }
+
+
+    //console.log('Selected Cuisines:', selectedCuisines);
+    
   };
 
   return (

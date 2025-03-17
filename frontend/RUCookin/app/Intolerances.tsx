@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList, View } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
+import { checkAuth, getTokenData } from "./authChecker"; 
 
 const INTOLERANCES = [
   'Dairy', 'Egg', 'Gluten', 'Grain', 'Peanut', 'Seafood', 
@@ -15,6 +16,10 @@ const IntolerancePreferences = () => {
   const styles = createStyles(isDarkMode);
   const router = useRouter();
 
+    useEffect(() => {
+      checkAuth(router);
+  }, []);
+
   const toggleIntoleranceSelection = (intolerance: string) => {
     setSelectedIntolerances((prevSelected) =>
       prevSelected.includes(intolerance)
@@ -23,10 +28,44 @@ const IntolerancePreferences = () => {
     );
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     console.log('Selected Intolerances:', selectedIntolerances);
-    router.push('/HomePage');
-  };
+     try {
+          const username = await getTokenData("username");
+        if (!username) {
+          console.error("Username not found in token.");
+          return;
+        }
+        const payload = { username: username.trim(),
+          intolerance:Array.isArray(selectedIntolerances) ? [...selectedIntolerances] : [],
+        };
+        console.log("🚀 Sending payload:", JSON.stringify(payload));
+          const response = await fetch("http://localhost:3001/routes/api/intolerance", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: username.trim(),
+              intolerance:Array.isArray(selectedIntolerances) ? [...selectedIntolerances] : [],
+            }), 
+          });
+          const data = await response.json();
+          if(response.ok) {
+            router.push('/HomePage');
+          }
+          else {
+            console.error('Data error: ', data)
+          }
+        }
+        catch (error) {
+          console.error('❌ Error during Intolerances:', error);
+        }
+    
+    
+        //console.log('Selected Cuisines:', selectedCuisines);
+        
+      };
+    
 
   return (
     <SafeAreaView style={styles.container}>

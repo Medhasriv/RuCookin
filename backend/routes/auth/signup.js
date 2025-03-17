@@ -3,7 +3,8 @@ const bcrypt = require('bcrypt');
 const db = require('../../dbSetup');
 const { default: mongoose } = require('mongoose');
 const router = express.Router();
-
+const jwt = require('jsonwebtoken');
+const SECRET_KEY = process.env.JWT_SECRET_KEY;
 require('../../schemas/User.js');
 const User = mongoose.model("UserInfo");
 
@@ -50,7 +51,13 @@ router.post('/', async (req,res) => {
     const hashedPassword = await bcrypt.hash(password, encrpyVal);
     const newUser = new User ({ username: username, password: hashedPassword, email:email, firstName: firstName, lastName:lastName});
     await newUser.save();
-    res.status(200).json({message: 'Successfully created user'})
+     const token = jwt.sign(
+    
+        { username: newUser.username, firstName: newUser.firstName,lastName: newUser.lastName, email: newUser.email, picturePath: newUser.picturePath},
+        SECRET_KEY, 
+        { expiresIn: '2h' }
+      );
+      res.status(200).json({ message: 'Sign up successful' , token});
   }
   
 });

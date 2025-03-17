@@ -8,7 +8,7 @@ const preferenceSchema = new mongoose.Schema(
       required: true,
       unique: true
     },
-    cruiseLike: {
+    cuisineLike: {
       type: [String],
       enum: [
         "African", "Asian", "American", "British", "Cajun", "Caribbean", "Chinese", 
@@ -18,7 +18,7 @@ const preferenceSchema = new mongoose.Schema(
       ],
       default: []
     },
-    cruiseDislike: {
+    cuisineDislike: {
       type: [String],
       enum: [
         "African", "Asian", "American", "British", "Cajun", "Caribbean", "Chinese", 
@@ -36,7 +36,7 @@ const preferenceSchema = new mongoose.Schema(
       ],
       default: []
     },
-    intolerances: {
+    intolerance: {
       type: [String],
       enum: [
         "Dairy", "Egg", "Gluten", "Grain", "Peanut", "Seafood", "Sesame", "Shellfish", 

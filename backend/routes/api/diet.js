@@ -11,16 +11,17 @@ const Preferences = mongoose.model("UserPreferences");
 
 router.post("/", async (req, res) => {
   try {
-    const { userId, diet } = req.body;
-
-    if (!userId) {
-      return res.status(400).json({ message: "Missing userId" });
+    console.log("Incoming Request:", req.body)
+    const { username, diet } = req.body;
+    console.log("✅ Extracted Username:", username);
+    if (!username) {
+      return res.status(400).json({ message: "Missing username" });
     }
-
-    const user = await User.findById(userId);
+    const user = await User.findOne({username});
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
+    const userId = user._id;
     const preferencesData = {
       userId,
       diet: diet || []
@@ -30,11 +31,12 @@ router.post("/", async (req, res) => {
 
     if (existingPreferences) {
       existingPreferences.diet = preferencesData.diet;
-
       await existingPreferences.save();
+      console.log("✅ Updated Preferences:", existingPreferences);
     } else {
       const newPreferences = new Preferences(preferencesData);
       await newPreferences.save();
+      console.log("✅ New Preferences Saved:", newPreferences);
     }
 
     return res.status(200).json({ message: "Diet saved successfully" });
