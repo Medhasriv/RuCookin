@@ -1,8 +1,9 @@
 import { Link, useRouter } from "expo-router";
 import { Platform, StyleSheet, Text, TouchableOpacity, useColorScheme, View, Image } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { checkAuth } from "./authChecker"; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const colorScheme = useColorScheme();
 const isDarkMode = colorScheme === 'dark';
@@ -10,10 +11,22 @@ const styles = createStyles(isDarkMode);
 const router = useRouter();
 
 const HomePage = () => {
-
+  const deviceScheme = useColorScheme();
+  const [userTheme, setUserTheme] = useState<string | null>(null);
+  
   useEffect(() => {
+    // Try to load user theme preference
+    AsyncStorage.getItem('userTheme').then((value) => {
+      if (value) setUserTheme(value);
+    });
     checkAuth(router);
   }, []);
+  
+  // If user is logged in and has set a theme, use it; otherwise, use device theme.
+  const effectiveTheme = userTheme ? userTheme : deviceScheme;
+  const isDarkMode = effectiveTheme === 'dark';
+  
+  const styles = createStyles(isDarkMode);
   
   return (
     <View>

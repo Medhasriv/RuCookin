@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from "react-native";
 import { useRouter } from "expo-router";
 import { checkAuth } from "./authChecker";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const SettingsPage = () => {
     const colorScheme = useColorScheme();
@@ -15,9 +17,11 @@ const SettingsPage = () => {
         checkAuth(router);
     }, []);
 
-    const toggleDarkModeSwitch = () => {
-        setIsDarkMode(previousState => !previousState);
-    };
+    const toggleDarkModeSwitch = async () => {
+        const newTheme = isDarkMode ? 'light' : 'dark';
+        setIsDarkMode(!isDarkMode);
+        await AsyncStorage.setItem('userTheme', newTheme);
+      };
 
     const toggleNotificationsSwitch = () => {
         setIsNotificationsEnabled(previousState => !previousState);
@@ -73,6 +77,7 @@ const SettingsPage = () => {
 
                 <TouchableOpacity onPress={() => {
                     localStorage.removeItem("token");
+                    AsyncStorage.removeItem('userTheme');
                     router.push('/Login'); }}>
                     <Text style={styles.webSettingsText}>Log Out</Text>
                 </TouchableOpacity>
