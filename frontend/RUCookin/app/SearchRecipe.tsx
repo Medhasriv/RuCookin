@@ -3,13 +3,25 @@ import { Platform, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, {useState, useEffect} from 'react';
 import RecipeDisplay from "@/components/RecipeDisplay";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const colorScheme = useColorScheme();
-const isDarkMode = colorScheme === 'dark';
-const styles = createStyles(isDarkMode);
 const router = useRouter();
 
 const SearchRecipe = () => {
+
+  const deviceScheme = useColorScheme();
+  const [userTheme, setUserTheme] = useState<string | null>(null);
+  
+  useEffect(() => {
+    AsyncStorage.getItem('userTheme').then((value) => {
+      if (value) setUserTheme(value);
+    });
+  }, []);
+  
+  const effectiveTheme = userTheme ? userTheme : deviceScheme;
+  const isDarkMode = effectiveTheme === 'dark';
+  const styles = createStyles(isDarkMode);
+
   const [searchRecipe, setSearchRecipe] = useState("");
   const [result, setResult] = useState([]);
   const handleChange = async () => {
