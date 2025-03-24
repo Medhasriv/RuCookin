@@ -1,3 +1,4 @@
+//DELETE THIS FILE IT IS NOT USED ANYMORE
 const express = require("express");
 const db = require("../../dbSetup");
 const mongoose = require("mongoose");
