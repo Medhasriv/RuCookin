@@ -16,7 +16,7 @@ const HomePage = () => {
   }, []);
   
   return (
-    <View>
+    <View style={styles.container}>
       <SafeAreaView style={styles.titleContainer}>
         {/* RUCookin Logo/Name */}
         <Text
@@ -43,12 +43,31 @@ const HomePage = () => {
       <SafeAreaView style={styles.contentContainer}>
         <Text>Content!!!</Text>
       </SafeAreaView>
+
+      {/* Bottom Navigation Bar */}
+      <View style={styles.bottomNavContainer}>
+        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/SearchRecipe')}>
+          <Text style={styles.navButtonText}>Search</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/HomePage')}>
+          <Text style={styles.navButtonText}>Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/Pantry')}>
+          <Text style={styles.navButtonText}>My Pantry</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/Profile')}>
+          <Text style={styles.navButtonText}>Profile</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 function createStyles(isDarkMode: boolean) {
   return StyleSheet.create({
+    container: {
+      flex: 1,
+    },
     titleContainer: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -59,6 +78,7 @@ function createStyles(isDarkMode: boolean) {
     contentContainer: {
       justifyContent: 'center',
       alignItems: 'center',
+      flex: 1,
     },
     iosLogoText: {
       width: 200,
@@ -77,7 +97,22 @@ function createStyles(isDarkMode: boolean) {
     icon: {
       width: 30, // Adjust width and height as per your design
       height: 30,
-    }
+    },
+    bottomNavContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      alignItems: 'center',
+      backgroundColor: isDarkMode ? '#721121' : '#FFCF99',
+      paddingVertical: 10,
+    },
+    navButton: {
+      padding: 10,
+    },
+    navButtonText: {
+      color: isDarkMode ? '#FFCF99' : '#721121',
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
   });
 }
 
