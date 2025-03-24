@@ -11,15 +11,21 @@ const cartSchema = new mongoose.Schema(
        
     cartItems: [
       {
+        _id: { type: String, required: true },
         itemName: { type: String, required: true },
-        quantity: { type: Number, required: true, min: 1 },
-        price: { type: Number, required: true, min: 0 },
+        quantity: { type: Number, required: true, min: 1 }, 
+        origin: { type: String }
+        
       }
     ]
   },
   {
-    collection: 'CartInfo'
+    collection: 'CartInfo',
+    timestamps: true
   }
 );
 
 module.exports = mongoose.model("CartInfo", cartSchema);
+
+
+//recipeUrl: { type: String } might use this later as a linked to recipeName 

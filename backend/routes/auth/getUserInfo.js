@@ -1,3 +1,4 @@
+//DELETE THIS FILE IT IS NOT USED ANYMORE
 const express = require("express");
 const db = require("../../dbSetup");
 const mongoose = require("mongoose");
@@ -11,7 +12,7 @@ const Preferences = mongoose.model("UserPreferences");
 
 router.post("/", async (req, res) => {
   try {
-    const { userId, cruiseLike, cruiseDislike, diet, intolerances } = req.body;
+    const { userId, cuisineLike, cuisineDislike, diet, intolerances } = req.body;
 
     if (!userId) {
       return res.status(400).json({ message: "Missing userId" });
@@ -23,8 +24,8 @@ router.post("/", async (req, res) => {
     }
     const preferencesData = {
       userId,
-      cruiseLike: cruiseLike || [],
-      cruiseDislike: cruiseDislike || [],
+      cuisineLike: cuisineLike || [],
+      cuisineDislike: cuisineDislike || [],
       diet: diet || [],
       intolerances: intolerances || [],
     };
@@ -32,8 +33,8 @@ router.post("/", async (req, res) => {
     let existingPreferences = await Preferences.findOne({ userId });
 
     if (existingPreferences) {
-      existingPreferences.cruiseLike = preferencesData.cruiseLike;
-      existingPreferences.cruiseDislike = preferencesData.cruiseDislike;
+      existingPreferences.cuisineLike = preferencesData.cuisineLike;
+      existingPreferences.cuisineDislike = preferencesData.cuisineDislike;
       existingPreferences.diet = preferencesData.diet;
       existingPreferences.intolerances = preferencesData.intolerances;
 
