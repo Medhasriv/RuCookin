@@ -53,7 +53,7 @@ router.post('/', async (req,res) => {
     await newUser.save();
      const token = jwt.sign(
     
-        { username: newUser.username, firstName: newUser.firstName,lastName: newUser.lastName, email: newUser.email, picturePath: newUser.picturePath},
+        { id: newUser._id, username: newUser.username, firstName: newUser.firstName,lastName: newUser.lastName, email: newUser.email, picturePath: newUser.picturePath},
         SECRET_KEY, 
         { expiresIn: '2h' }
       );

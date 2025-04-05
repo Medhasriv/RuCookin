@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import { View, Text, TextInput, FlatList, StyleSheet, useColorScheme, Platform, TouchableOpacity, Image } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect } from "react";
-import { checkAuth } from "./authChecker"; 
+import { checkAuth, getToken } from "../utils/authChecker"; 
 import axios from 'axios';
 
 type CartItem = {
@@ -21,43 +21,100 @@ const ShoppingCart = () => {
 
   const router = useRouter();
 
-  useEffect(() => {
-    checkAuth(router);
-
-    // TEMP MOCK DATA FOR TESTING
-    setCartItems([
-      {
-        _id: 'apple-123',
-        itemName: 'Apple',
-        quantity: 2,
-        origin: 'Apple Pie',
-      },
-      {
-        _id: 'banana-456',
-        itemName: 'Banana',
-        quantity: 3,
-        origin: 'Banana Bread',
+   useEffect(() => {
+    const fetchCart = async() => {
+      try {
+        const token = await getToken();
+        if (!token) {
+          console.error("No token found in storage.");
+          return;
+        }
+        console.log("Token:");
+        console.log(await getToken());
+        console.log("END");
+        const response = await fetch ("http://localhost:3001/routes/api/shoppingCart",
+           {
+            method: "GET", 
+            headers: {
+              "Authorization": `Bearer ${token}`,
+        },
+      });
+        const data = await response.json();
+        if (response.ok) {
+          setCartItems(data);
+        }
+        else {
+          console.error("❌ Failed to load cart items:", data.message);
+        }
       }
-    ]);
+      catch(error) {
+        console.error("❌ Error fetching cart:", error);
+      }
+    };
+      checkAuth(router);
+      fetchCart();
   }, []);
 
-  const handleAddItem = () => {
+  const handleAddItem = async() => {
+    try{
+    const token = await getToken();
     if (!searchText.trim()) return;
-
     const newItem = {
       _id: `${searchText.trim()}-${Date.now()}`,
       itemName: searchText.trim(),
       quantity: 1,
       origin: "Search"
     };
+    const payload = { token,
+      cartItems: newItem,
+    };
+    console.log("🚀 Sending payload:", JSON.stringify(payload));
+    const response = await fetch("http://localhost:3001/routes/api/shoppingCart", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify({ cartItems: newItem}),
+    });
+    const data = await response.json();
+    if(response.ok) {
+      setCartItems([...cartItems, newItem]);
+      setSearchText('');
+    }
+    else {
+      console.error('Data error: ', data)
+    }
 
-    setCartItems([...cartItems, newItem]);
-    setSearchText('');
+  } catch(error) {
+    console.error('❌ Error during Shopping Cart:', error);
+  }
+
   };
 
-  const handleRemoveItem = (_id: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item._id !== _id));
+  const handleRemoveItem = async (_id: string) => {
+    try{
+      const token = await getToken();
+      const response = await fetch("http://localhost:3001/routes/api/shoppingCart",{
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({cartItemId: _id}),
+      });
+      const data = await response.json();
+      console.log(data)
+      if (response.ok) { 
+        setCartItems(prevItems => prevItems.filter(item => item._id !== _id));
+      } else {
+        console.error("Server error:", data.message);
+      }
+    } catch (error) {
+      console.error("❌ Error deleting cart item:", error);
+    }
   };
+
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

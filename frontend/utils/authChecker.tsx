@@ -1,8 +1,7 @@
-import { Router } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Check if token session exist
-export async function checkAuth(router: Router){
+export async function checkAuth(router: any){
     try {
     const token = await AsyncStorage.getItem("token");
 
@@ -16,6 +15,16 @@ export async function checkAuth(router: Router){
 
 }
 
+
+// Get raw token 
+export async function getToken(): Promise<string | null> {
+    try {
+      return await AsyncStorage.getItem("token");
+    } catch (error) {
+      console.error("Error retrieving token:", error);
+      return null;
+    }
+  }
 
 //Pull token data for string  
 export async function getTokenData(key: string): Promise<any | null> {
@@ -35,19 +44,3 @@ export async function getTokenData(key: string): Promise<any | null> {
          }
 }
 
-
-//Pull token data for Userid  
-export async function getUserID(): Promise<any | null> {
-    try {
-        const userId = await AsyncStorage.getItem("userId");
-        if (!userId) {
-            console.error("User ID not found in token.");
-            return null;
-        }
-        return userId;
-    }
-        catch(error) {
-            console.error("Error retrieving user ID:", error);
-            return null;
-         }
-}

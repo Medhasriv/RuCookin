@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
-import { checkAuth, getTokenData } from "./authChecker"; 
+import { checkAuth,getTokenData } from "../utils/authChecker"; 
 
 const CUISINE_TYPES = [
   'African',

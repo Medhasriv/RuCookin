@@ -2,7 +2,7 @@ import { Link, useRouter } from "expo-router";
 import { Platform, StyleSheet, Text, TouchableOpacity, useColorScheme, View, Image } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from "react";
-import { checkAuth } from "./authChecker"; 
+import { checkAuth } from "../utils/authChecker"; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const colorScheme = useColorScheme();

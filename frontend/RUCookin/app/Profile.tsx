@@ -3,7 +3,7 @@ import { Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollVi
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useColorScheme } from "react-native";
 import { useRouter } from "expo-router";
-import { checkAuth } from "./authChecker";
+import { checkAuth,getTokenData } from "../utils/authChecker"; 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Profile = () => {
