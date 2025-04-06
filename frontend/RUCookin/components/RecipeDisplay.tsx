@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { Platform, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View, Image, Linking } from "react-native";
+import {StyleSheet, Text, TouchableOpacity, useColorScheme, View, Linking } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 //these are here so the props have a type
@@ -18,7 +18,7 @@ interface RecipeDisplayProps {
     recipes: Recipe[];
   }
 
-function RecipeDisplay(props: RecipeDisplayProps){
+function RecipeDisplay(props: RecipeDisplayProps){ 
     const colorScheme = useColorScheme(); // Handling color scheme
     const isDarkMode = colorScheme === 'dark'; // Checks if dark mode
     const styles = createStyles(isDarkMode); // Changes based on system color scheme
@@ -41,7 +41,7 @@ function RecipeDisplay(props: RecipeDisplayProps){
       }
     };
 
-    //using useEffect to pass in the IDs for the second API
+    //using useEffect to pass in the IDs to call on the second API
     useEffect(() => {
         const fetchAllRecipes = async () => {
           try {
