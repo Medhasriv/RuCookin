@@ -31,6 +31,7 @@ const SearchRecipe = () => {
   const [result, setResult] = useState([]);
   const [isModalVisible, setModalVisible] = useState(false);
 
+  // list of cusines, intolerances, and diets to display for filtering
   const CuisineList = () => {
     return [
       { label: 'African', value: 'African' },
@@ -98,19 +99,17 @@ const SearchRecipe = () => {
   const intolerances = IntoleranceList();
   const diets = DietList();
 
-  const handleSearch = async () => { //pass in the filtering params if needed
-    // if (searchRecipe.length <= 0) return;
-    console.log(searchRecipe);
-    
+  const handleSearch = async () => {
     //joining together the selected options to pass to API
     const selectedCuisinesString = selectedCuisine.join(', ') || '';
     const selectedIntolerancesString = selectedIntolerance.join(', ') || '';
 
+    // calling on the API to use spoonacular to search
     try {
-      const response = await fetch('https://api.spoonacular.com/recipes/complexSearch?query=' + searchRecipe + '&cuisine=' + selectedCuisinesString + '&intolerances=' + selectedIntolerancesString + '&diet=' + selectedDiet +  '&apiKey=7f61e8b31aeb48c8b49e9d4004d77fba', {
+      const response = await fetch('https://api.spoonacular.com/recipes/complexSearch?query=' + searchRecipe + '&cuisine=' + selectedCuisinesString + '&intolerances=' + selectedIntolerancesString + '&diet=' + selectedDiet +  '&apiKey=9c396355ebfb4dd08de141e25dd55182', {
         method: 'GET'
       });
-      console.log(selectedCuisinesString);
+
       const data = await response.json();
       if (response.ok) {
         console.log('Search successful:', data);
@@ -207,6 +206,7 @@ const SearchRecipe = () => {
 
         <Modal visible={isModalVisible}>
             <Text style={styles.buttonText}>Cuisine</Text>
+            {/* Allowing users to scroll through various cusines, diets, and intolerances */}
             <ScrollView>
             {cuisines.map((item) => (
               <View key={item.value} style={styles.radioButtonContainer}>
