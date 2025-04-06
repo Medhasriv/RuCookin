@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-require("../../schemas/User.js");
+require("../../schemas/Preference.js");
 const User = require("mongoose").model("UserInfo");
 
 router.put("/", async (req, res) => {
