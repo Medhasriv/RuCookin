@@ -95,20 +95,28 @@ const Profile = () => {
         {/* Basic Information Section */}
         <Text style={styles.sectionHeader}>Basic Information</Text>
 
-        {/* First Name */}
-        <View style={styles.fieldContainer}>
+                {/* First Name */}
+                <View style={styles.fieldContainer}>
           <Text style={styles.label}>First Name:</Text>
           <View style={styles.inputRow}>
             {editing.firstName ? (
-              <TextInput
-                style={styles.input}
-                value={userData.firstName}
-                onChangeText={(text) => setUserData((prev) => ({ ...prev, firstName: text }))}
-                onSubmitEditing={() => {
-                  toggleEditing("firstName");
-                  handleSave();
-                }}
-              />
+              <>
+                <TextInput
+                  style={styles.input}
+                  value={userData.firstName}
+                  onChangeText={(text) => setUserData((prev) => ({ ...prev, firstName: text }))}
+                />
+                <TouchableOpacity onPress={() => { toggleEditing("firstName"); handleSave(); }}>
+                  <Image
+                    source={
+                      isDarkMode
+                        ? require("../assets/icons/save-dark.png")
+                        : require("../assets/icons/save-light.png")
+                    }
+                    style={styles.editIcon}
+                  />
+                </TouchableOpacity>
+              </>
             ) : (
               <Text style={styles.value}>{userData.firstName || "N/A"}</Text>
             )}
@@ -125,24 +133,33 @@ const Profile = () => {
           </View>
         </View>
 
-        {/* Last Name */}
+
+                {/* Last Name */}
         <View style={styles.fieldContainer}>
           <Text style={styles.label}>Last Name:</Text>
           <View style={styles.inputRow}>
             {editing.lastName ? (
-              <TextInput
-                style={styles.input}
-                value={userData.lastName}
-                onChangeText={(text) => setUserData((prev) => ({ ...prev, lastName: text }))}
-                onSubmitEditing={() => {
-                  toggleEditing("lastName");
-                  handleSave();
-                }}
-              />
+              <>
+                <TextInput
+                  style={styles.input}
+                  value={userData.lastName}
+                  onChangeText={(text) => setUserData((prev) => ({ ...prev, lastName: text }))}
+                />
+                <TouchableOpacity onPress={() => { toggleEditing("lastName"); handleSave(); }}>
+                  <Image
+                    source={
+                      isDarkMode
+                        ? require("../assets/icons/save-dark.png")
+                        : require("../assets/icons/save-light.png")
+                    }
+                    style={styles.editIcon}
+                  />
+                </TouchableOpacity>
+              </>
             ) : (
               <Text style={styles.value}>{userData.lastName || "N/A"}</Text>
             )}
-            <TouchableOpacity onPress={() => toggleEditing("lastName")}>
+            <TouchableOpacity onPress={() => toggleEditing("lastName")}> 
               <Image
                 source={
                   isDarkMode
@@ -160,20 +177,27 @@ const Profile = () => {
           <Text style={styles.label}>Location:</Text>
           <View style={styles.inputRow}>
             {editing.location ? (
-              <TextInput
-                style={styles.input}
-                value={userData.location}
-                onChangeText={(text) => setUserData((prev) => ({ ...prev, location: text }))}
-                placeholder="Optional"
-                onSubmitEditing={() => {
-                  toggleEditing("location");
-                  handleSave();
-                }}
-              />
+              <>
+                <TextInput
+                  style={styles.input}
+                  value={userData.location}
+                  onChangeText={(text) => setUserData((prev) => ({ ...prev, location: text }))}
+                />
+                <TouchableOpacity onPress={() => { toggleEditing("location"); handleSave(); }}>
+                  <Image
+                    source={
+                      isDarkMode
+                        ? require("../assets/icons/save-dark.png")
+                        : require("../assets/icons/save-light.png")
+                    }
+                    style={styles.editIcon}
+                  />
+                </TouchableOpacity>
+              </>
             ) : (
               <Text style={styles.value}>{userData.location || "N/A"}</Text>
             )}
-            <TouchableOpacity onPress={() => toggleEditing("location")}>
+            <TouchableOpacity onPress={() => toggleEditing("location")}> 
               <Image
                 source={
                   isDarkMode
@@ -191,20 +215,28 @@ const Profile = () => {
           <Text style={styles.label}>Email:</Text>
           <View style={styles.inputRow}>
             {editing.email ? (
-              <TextInput
-                style={styles.input}
-                value={userData.email}
-                onChangeText={(text) => setUserData((prev) => ({ ...prev, email: text }))}
-                keyboardType="email-address"
-                onSubmitEditing={() => {
-                  toggleEditing("email");
-                  handleSave();
-                }}
-              />
+              <>
+                <TextInput
+                  style={styles.input}
+                  value={userData.email}
+                  onChangeText={(text) => setUserData((prev) => ({ ...prev, email: text }))}
+                  keyboardType="email-address"
+                />
+                <TouchableOpacity onPress={() => { toggleEditing("email"); handleSave(); }}>
+                  <Image
+                    source={
+                      isDarkMode
+                        ? require("../assets/icons/save-dark.png")
+                        : require("../assets/icons/save-light.png")
+                    }
+                    style={styles.editIcon}
+                  />
+                </TouchableOpacity>
+              </>
             ) : (
               <Text style={styles.value}>{userData.email || "N/A"}</Text>
             )}
-            <TouchableOpacity onPress={() => toggleEditing("email")}>
+            <TouchableOpacity onPress={() => toggleEditing("email")}> 
               <Image
                 source={
                   isDarkMode
@@ -216,6 +248,7 @@ const Profile = () => {
             </TouchableOpacity>
           </View>
         </View>
+
 
         {/* Preferences Button */}
         <TouchableOpacity
