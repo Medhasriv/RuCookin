@@ -1,130 +1,157 @@
-import { Link, useRouter } from "expo-router";
-import { Platform, StyleSheet, Text, TouchableOpacity, useColorScheme, View, Image } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from "expo-router";
+import { Platform, StyleSheet, Text, useColorScheme, View, ImageBackground, TouchableOpacity } from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import React, { useEffect, useState } from "react";
-import { checkAuth } from "../utils/authChecker"; 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const colorScheme = useColorScheme();
-const isDarkMode = colorScheme === 'dark';
-const styles = createStyles(isDarkMode);
-const router = useRouter();
+import { checkAuth } from "../utils/authChecker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import BottomNavBar from "../components/BottomNavBar";
 
 const HomePage = () => {
+  const insets = useSafeAreaInsets();
   const deviceScheme = useColorScheme();
   const [userTheme, setUserTheme] = useState<string | null>(null);
-  
+  const router = useRouter();
+
   useEffect(() => {
-    // Try to load user theme preference
-    AsyncStorage.getItem('userTheme').then((value) => {
+    AsyncStorage.getItem("userTheme").then((value) => {
       if (value) setUserTheme(value);
     });
     checkAuth(router);
   }, []);
-  
-  // If user is logged in and has set a theme, use it; otherwise, use device theme.
+
   const effectiveTheme = userTheme ? userTheme : deviceScheme;
-  const isDarkMode = effectiveTheme === 'dark';
-  
-  const styles = createStyles(isDarkMode);
-  
+  const isDarkMode = effectiveTheme === "dark";
+  const styles = createStyles(isDarkMode, insets.top);
+
+  const getGreeting = () => {
+    const currentHour = new Date().getHours();
+    if (currentHour < 12) return "Good Morning!";
+    if (currentHour < 18) return "Good Afternoon!";
+    return "Good Evening!";
+  };
+
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.titleContainer}>
-        {/* RUCookin Logo/Name */}
-        <Text
-          style={Platform.select({
-            ios: styles.iosLogoText,
-            android: styles.iosLogoText,
-            web: styles.webLogoText,
-          })}
-          numberOfLines={1}
-          adjustsFontSizeToFit={Platform.OS !== 'web'}
-        >
-          RUCookin'
-        </Text>
-        {/* Settings Gear Icon */}
-        <TouchableOpacity style={styles.settingsIcon} onPress={() => router.push('/Settings')}>
-          <Image 
-            source={require('../assets/icons/settings.png')}
-            style={styles.icon} // Apply styling to adjust the size
-          />
-        </TouchableOpacity>
-      </SafeAreaView>
-
-      {/* Content! */}
       <SafeAreaView style={styles.contentContainer}>
-        <Text>Content!!!</Text>
+        <Text style={styles.greeting}>{getGreeting()}</Text>
+        
+        <View style={styles.tileGrid}>
+          {/* Find a Recipe Tile */}
+          <TouchableOpacity style={styles.tile} onPress={() => router.push("/SearchRecipe")}>
+            <ImageBackground
+              source={require("../assets/images/find_recipe.jpg")}
+              style={styles.tileBackground}
+              imageStyle={styles.imageStyle}
+            >
+              <View style={styles.overlay} />
+              <Text style={styles.tileText}>Find a Recipe</Text>
+            </ImageBackground>
+          </TouchableOpacity>
+          
+          {/* Plan a Meal Tile */}
+          <TouchableOpacity style={styles.tile}>
+            <ImageBackground
+              source={require("../assets/images/plan_meal.jpg")}
+              style={styles.tileBackground}
+              imageStyle={styles.imageStyle}
+            >
+              <View style={styles.overlay} />
+              <Text style={styles.tileText}>Plan a Meal</Text>
+            </ImageBackground>
+          </TouchableOpacity>
+          
+          {/* Saved Recipes Tile */}
+          <TouchableOpacity style={styles.tile}>
+            <ImageBackground
+              source={require("../assets/images/saved_recipes.jpg")}
+              style={styles.tileBackground}
+              imageStyle={styles.imageStyle}
+            >
+              <View style={styles.overlay} />
+              <Text style={styles.tileText}>Saved Recipes</Text>
+            </ImageBackground>
+          </TouchableOpacity>
+          
+          {/* Order Ingredients Tile */}
+          <TouchableOpacity style={styles.tile} onPress={() => router.push("/ShoppingCart")}>
+            <ImageBackground
+              source={require("../assets/images/order_ingredients.jpg")}
+              style={styles.tileBackground}
+              imageStyle={styles.imageStyle}
+            >
+              <View style={styles.overlay} />
+              <Text style={styles.tileText}>Order Ingredients</Text>
+            </ImageBackground>
+          </TouchableOpacity>
+        </View>
       </SafeAreaView>
 
-      {/* Bottom Navigation Bar */}
-      <View style={styles.bottomNavContainer}>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/SearchRecipe')}>
-          <Text style={styles.navButtonText}>Search</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/HomePage')}>
-          <Text style={styles.navButtonText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/Pantry')}>
-          <Text style={styles.navButtonText}>My Pantry</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton} onPress={() => router.push('/Profile')}>
-          <Text style={styles.navButtonText}>Profile</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomNavBar activeTab="home" isDarkMode={isDarkMode} />
     </View>
   );
 };
 
-function createStyles(isDarkMode: boolean) {
+function createStyles(isDarkMode: boolean, topInset: number) {
   return StyleSheet.create({
     container: {
       flex: 1,
-    },
-    titleContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: 15,
-      backgroundColor: isDarkMode ? '#721121' : '#FFCF99',
+      backgroundColor: isDarkMode ? "#000000" : "#ffffff",
     },
     contentContainer: {
-      justifyContent: 'center',
-      alignItems: 'center',
       flex: 1,
+      paddingTop: topInset,
+      paddingHorizontal: 20,
+      justifyContent: "flex-start",
     },
-    iosLogoText: {
-      width: 200,
-      fontSize: 30,
-      fontFamily: 'InknutAntiqua-SemiBold',
+    greeting: {
+      fontSize: Platform.select({ ios: 36, web: 48, default: 36 }),
+      fontWeight: "bold",
+      marginVertical: 20,
       color: isDarkMode ? "#FFCF99" : "#721121",
+      textAlign: "center",
     },
-    webLogoText: {
-      fontSize: 30,
-      fontFamily: 'InknutAntiqua-SemiBold',
-      color: isDarkMode ? "#FFCF99" : "#721121",
+    tileGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
     },
-    settingsIcon: {
-      padding: 10,
+    // Use aspectRatio to maintain a square tile.
+    tile: {
+      width: Platform.OS === "web" ? "22%" : "48%",
+      aspectRatio: 1, // maintain square shape on all platforms
+      marginVertical: Platform.OS === "web" ? 15 : 10,
     },
-    icon: {
-      width: 30, // Adjust width and height as per your design
-      height: 30,
+    tileBackground: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 10,
+      overflow: "hidden",
     },
-    bottomNavContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      alignItems: 'center',
-      backgroundColor: isDarkMode ? '#721121' : '#FFCF99',
-      paddingVertical: 10,
+    // Ensure the image fills its container.
+    imageStyle: {
+      width: "100%",
+      height: "100%",
+      resizeMode: "cover",
     },
-    navButton: {
-      padding: 10,
+    overlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.4)",
     },
-    navButtonText: {
-      color: isDarkMode ? '#FFCF99' : '#721121',
-      fontSize: 16,
-      fontWeight: 'bold',
+    tileText: {
+      fontSize: Platform.select({ ios: 20, web: 22, default: 20 }),
+      fontWeight: "bold",
+      color: "#fff",
+      zIndex: 1,
+      textAlign: "center",
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      backgroundColor: "rgba(0,0,0,0.3)",
+      borderRadius: 5,
     },
   });
 }

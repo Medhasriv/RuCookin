@@ -1,239 +1,342 @@
 import React, { useEffect, useState } from "react";
-import { Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, Image } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme } from "react-native";
 import { useRouter } from "expo-router";
-import { checkAuth,getTokenData } from "../utils/authChecker"; 
+import { checkAuth } from "../utils/authChecker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import BottomNavBar from "../components/BottomNavBar";
 
 const Profile = () => {
-    const colorScheme = useColorScheme();
-    const [isDarkMode] = useState(colorScheme === 'dark');
-    const [userData, setUserData] = useState({
-        username: "",
-        firstName: "",
-        lastName: "",
-        email: "",
-        location: "",
-        cuisineLike: [],
-        cuisineDislike: [],
-        diet: [],
-        intolerance: [],
-    });
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+  const [userData, setUserData] = useState({
+    id: "", // include id so you can update the record
+    username: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    location: "",
+    cuisineLike: [],
+    cuisineDislike: [],
+    diet: [],
+    intolerance: [],
+  });
+  const [editing, setEditing] = useState({
+    firstName: false,
+    lastName: false,
+    location: false,
+    email: false,
+  });
+  const router = useRouter();
 
-    const router = useRouter();
+  useEffect(() => {
+    checkAuth(router);
+    fetchUserData();
+  }, []);
 
-    useEffect(() => {
-        checkAuth(router);
-        fetchUserData();
-    }, []);
+  const fetchUserData = async () => {
+    try {
+      const storedUserInfo = await AsyncStorage.getItem("UserInfo");
+      console.log("Stored UserInfo:", storedUserInfo); // Debug log
+      if (storedUserInfo) {
+        setUserData(JSON.parse(storedUserInfo));
+      }
+    } catch (error) {
+      console.error("Failed to load user data", error);
+    }
+  };
 
-    const fetchUserData = async () => {
-        try {
-            const UserInfo = await AsyncStorage.getItem("UserInfo");
-            if (UserInfo) {
-                setUserData(JSON.parse(UserInfo));
-            }
+  // When a field is submitted, update the database automatically.
+  const handleSave = async () => {
+    // Ensure required fields exist
+    if (!userData.username || !userData.email) return;
+    try {
+      const response = await fetch("http://localhost:3001/routes/auth/updateProfile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: userData.id, // from the decoded token stored during login
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          email: userData.email,
+          location: userData.location,
+        }),
+      });
+      const updatedData = await response.json();
+      if (response.ok) {
+        // Update local state and AsyncStorage with the updated user info
+        setUserData(updatedData.user);
+        await AsyncStorage.setItem("UserInfo", JSON.stringify(updatedData.user));
+      } else {
+        console.error("Profile update failed:", updatedData.message);
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
 
-            const UserPreferences = await AsyncStorage.getItem("UserPreferences");
-            if (UserPreferences) {
-                setUserData(prevState => ({
-                    ...prevState,
-                    ...JSON.parse(UserPreferences),
-                }));
-            }
-        } catch (error) {
-            console.error("Failed to load user data", error);
-        }
-    };
+  // Toggle editing mode for a given field.
+  const toggleEditing = (field: keyof typeof editing) => {
+    setEditing((prev) => ({ ...prev, [field]: !prev[field] }));
+  };
 
-    const handleChange = (field: string, value: string) => {
-        setUserData(prevState => ({ ...prevState, [field]: value }));
-    };
+  const styles = createStyles(isDarkMode);
 
-    const handleSave = async () => {
-        if (!userData.username || !userData.email) {
-            alert("Username and Email are required.");
-            return;
-        }
+  return (
+    <View style={styles.container}>
+      <SafeAreaView style={styles.contentContainer}>
+        {/* Header */}
+        <Text style={styles.header}>
+          {userData.username ? `${userData.username}'s Profile` : "Profile"}
+        </Text>
 
-        try {
-            await AsyncStorage.setItem("UserInfo", JSON.stringify(userData));
-            alert("Profile updated successfully!");
-        } catch (error) {
-            console.error("Error saving user data", error);
-        }
-    };
 
-    const styles = createStyles(isDarkMode);
+        {/* Basic Information Section */}
+        <Text style={styles.sectionHeader}>Basic Information</Text>
 
-    return (
-        <View style={styles.viewColor}>
-            <SafeAreaView style={styles.titleContainer}>
-                <Text style={styles.logoText}>RUCookin'</Text>
-            </SafeAreaView>
-
-            <ScrollView contentContainerStyle={styles.contentContainer}>
-                <Text style={styles.profileHeader}>Profile</Text>
-
-                {/* Non-editable fields */}
-
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Username:</Text>
-                    <Text style={styles.value}>{userData.username}</Text>
-                </View>
-
-                {/* Editable fields */}
-
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Email:</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={userData.email}
-                        onChangeText={(text) => handleChange("email", text)}
-                        keyboardType="email-address"
-                    />
-                </View>
-
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>First Name:</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={userData.firstName}
-                        onChangeText={text => handleChange("firstName", text)}
-                    />
-                </View>
-
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Last Name:</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={userData.lastName}
-                        onChangeText={text => handleChange("lastName", text)}
-                    />
-                </View>
-
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Location:</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={userData.location}
-                        onChangeText={text => handleChange("location", text)}
-                        placeholder="Optional"
-                    />
-                </View>
-
-                {/* Cuisine Preferences */}
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Cuisine Likes:</Text>
-                    <Text style={styles.value}>{userData.cuisineLike?.length ? userData.cuisineLike.join(", ") : "None"}</Text>
-                </View>
-
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Cuisine Dislikes:</Text>
-                    <Text style={styles.value}>{userData.cuisineDislike?.length ? userData.cuisineDislike.join(", ") : "None"}</Text>
-                </View>
-
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Dietary Preferences:</Text>
-                    <Text style={styles.value}>{userData.diet?.length ? userData.diet.join(", ") : "None"}</Text>
-                </View>
-
-                <View style={styles.fieldContainer}>
-                    <Text style={styles.label}>Intolerances:</Text>
-                    <Text style={styles.value}>{userData.intolerance?.length ? userData.intolerance.join(", ") : "None"}</Text>
-                </View>
-
-                {/* Buttons */}
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity style={styles.button} onPress={handleSave}>
-                        <Text style={styles.buttonText}>Save</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.button} onPress={() => {
-                        AsyncStorage.removeItem("token");
-                        router.push('/Login');
-                    }}>
-                        <Text style={styles.buttonText}>Log Out</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.button} onPress={() => router.push('/HomePage')}>
-                        <Text style={styles.buttonText}>Back</Text>
-                    </TouchableOpacity>
-                </View>
-            </ScrollView>
+        {/* First Name */}
+        <View style={styles.fieldContainer}>
+          <Text style={styles.label}>First Name:</Text>
+          <View style={styles.inputRow}>
+            {editing.firstName ? (
+              <TextInput
+                style={styles.input}
+                value={userData.firstName}
+                onChangeText={(text) => setUserData((prev) => ({ ...prev, firstName: text }))}
+                onSubmitEditing={() => {
+                  toggleEditing("firstName");
+                  handleSave();
+                }}
+              />
+            ) : (
+              <Text style={styles.value}>{userData.firstName || "N/A"}</Text>
+            )}
+            <TouchableOpacity onPress={() => toggleEditing("firstName")}>
+              <Image
+                source={
+                  isDarkMode
+                    ? require("../assets/icons/edit-dark.png")
+                    : require("../assets/icons/edit-light.png")
+                }
+                style={styles.editIcon}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
-    );
+
+        {/* Last Name */}
+        <View style={styles.fieldContainer}>
+          <Text style={styles.label}>Last Name:</Text>
+          <View style={styles.inputRow}>
+            {editing.lastName ? (
+              <TextInput
+                style={styles.input}
+                value={userData.lastName}
+                onChangeText={(text) => setUserData((prev) => ({ ...prev, lastName: text }))}
+                onSubmitEditing={() => {
+                  toggleEditing("lastName");
+                  handleSave();
+                }}
+              />
+            ) : (
+              <Text style={styles.value}>{userData.lastName || "N/A"}</Text>
+            )}
+            <TouchableOpacity onPress={() => toggleEditing("lastName")}>
+              <Image
+                source={
+                  isDarkMode
+                    ? require("../assets/icons/edit-dark.png")
+                    : require("../assets/icons/edit-light.png")
+                }
+                style={styles.editIcon}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Location */}
+        <View style={styles.fieldContainer}>
+          <Text style={styles.label}>Location:</Text>
+          <View style={styles.inputRow}>
+            {editing.location ? (
+              <TextInput
+                style={styles.input}
+                value={userData.location}
+                onChangeText={(text) => setUserData((prev) => ({ ...prev, location: text }))}
+                placeholder="Optional"
+                onSubmitEditing={() => {
+                  toggleEditing("location");
+                  handleSave();
+                }}
+              />
+            ) : (
+              <Text style={styles.value}>{userData.location || "N/A"}</Text>
+            )}
+            <TouchableOpacity onPress={() => toggleEditing("location")}>
+              <Image
+                source={
+                  isDarkMode
+                    ? require("../assets/icons/edit-dark.png")
+                    : require("../assets/icons/edit-light.png")
+                }
+                style={styles.editIcon}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Email */}
+        <View style={styles.fieldContainer}>
+          <Text style={styles.label}>Email:</Text>
+          <View style={styles.inputRow}>
+            {editing.email ? (
+              <TextInput
+                style={styles.input}
+                value={userData.email}
+                onChangeText={(text) => setUserData((prev) => ({ ...prev, email: text }))}
+                keyboardType="email-address"
+                onSubmitEditing={() => {
+                  toggleEditing("email");
+                  handleSave();
+                }}
+              />
+            ) : (
+              <Text style={styles.value}>{userData.email || "N/A"}</Text>
+            )}
+            <TouchableOpacity onPress={() => toggleEditing("email")}>
+              <Image
+                source={
+                  isDarkMode
+                    ? require("../assets/icons/edit-dark.png")
+                    : require("../assets/icons/edit-light.png")
+                }
+                style={styles.editIcon}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Preferences Button */}
+        <TouchableOpacity
+          style={styles.preferenceButton}
+          onPress={() => router.push("/CuisineLikes")}
+        >
+          <Text style={styles.preferenceButtonText}>
+            Diet and Cuisine Preferences
+          </Text>
+        </TouchableOpacity>
+        
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              AsyncStorage.removeItem("token");
+              router.push("/Login");
+            }}
+          >
+            <Text style={styles.buttonText}>Log Out</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+
+      {/* Bottom Navigation Bar */}
+      <BottomNavBar activeTab="profile" isDarkMode={isDarkMode} />
+    </View>
+  );
 };
 
 function createStyles(isDarkMode: boolean) {
-    return StyleSheet.create({
-        viewColor: {
-            flex: 1,
-            backgroundColor: isDarkMode ? '#701C1C' : '#FFCF99',
-        },
-        titleContainer: {
-            padding: 20,
-            alignItems: 'center',
-            backgroundColor: isDarkMode ? '#721121' : '#FFCF99',
-        },
-        logoText: {
-            fontSize: 30,
-            fontFamily: 'InknutAntiqua-SemiBold',
-            color: isDarkMode ? "#FFCF99" : "#721121",
-        },
-        contentContainer: {
-            padding: 20,
-        },
-        profileHeader: {
-            fontSize: 26,
-            fontWeight: "bold",
-            textAlign: "center",
-            marginBottom: 20,
-            color: isDarkMode ? "#FFCF99" : "#721121",
-        },
-        fieldContainer: {
-            marginBottom: 15,
-        },
-        label: {
-            fontSize: 18,
-            fontWeight: "bold",
-            color: isDarkMode ? "#FFCF99" : "#721121",
-        },
-        value: {
-            fontSize: 16,
-            padding: 10,
-            borderRadius: 5,
-            backgroundColor: isDarkMode ? "#721121" : "#FFF",
-            color: isDarkMode ? "#FFCF99" : "#721121",
-        },
-        input: {
-            fontSize: 16,
-            padding: 10,
-            borderWidth: 1,
-            borderColor: isDarkMode ? "#FFCF99" : "#721121",
-            borderRadius: 5,
-            color: isDarkMode ? "#FFCF99" : "#721121",
-            backgroundColor: isDarkMode ? "#721121" : "#FFF",
-        },
-        buttonContainer: {
-            marginTop: 20,
-            alignItems: "center",
-        },
-        button: {
-            padding: 15,
-            borderRadius: 8,
-            backgroundColor: isDarkMode ? '#FFCF99' : '#721121',
-            margin: 10, // Adds margin to separate the buttons
-            width: '80%', // Optional, makes buttons fit better in some screens
-        },
-        buttonText: {
-            color: isDarkMode ? '#721121' : '#FFCF99',
-            fontSize: 18,
-            fontWeight: 'bold',
-            textAlign: 'center',
-        },
-    });
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: isDarkMode ? "#000000" : "#ffffff",
+    },
+    contentContainer: {
+      flex: 1,
+      padding: 20,
+    },
+    header: {
+      fontSize: 30,
+      fontWeight: "bold",
+      textAlign: "center",
+      marginBottom: 20,
+      color: isDarkMode ? "#FFCF99" : "#721121",
+    },
+    preferenceButton: {
+      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
+      padding: 15,
+      borderRadius: 8,
+      alignItems: "center",
+      marginBottom: 20,
+    },
+    preferenceButtonText: {
+      color: isDarkMode ? "#721121" : "#FFCF99",
+      fontSize: 18,
+      fontWeight: "bold",
+    },
+    sectionHeader: {
+      fontSize: 22,
+      fontWeight: "bold",
+      color: isDarkMode ? "#FFCF99" : "#721121",
+      marginBottom: 10,
+    },
+    fieldContainer: {
+      marginBottom: 15,
+    },
+    label: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: isDarkMode ? "#FFCF99" : "#721121",
+    },
+    inputRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginTop: 5,
+    },
+    value: {
+      fontSize: 16,
+      padding: 10,
+      borderRadius: 5,
+      backgroundColor: isDarkMode ? "#721121" : "#FFF",
+      color: isDarkMode ? "#FFCF99" : "#721121",
+      flex: 1,
+    },
+    input: {
+      fontSize: 16,
+      padding: 10,
+      borderWidth: 1,
+      borderColor: isDarkMode ? "#FFCF99" : "#721121",
+      borderRadius: 5,
+      color: isDarkMode ? "#FFCF99" : "#721121",
+      backgroundColor: isDarkMode ? "#721121" : "#FFF",
+      flex: 1,
+    },
+    editIcon: {
+      width: 24,
+      height: 24,
+      marginLeft: 10,
+      tintColor: isDarkMode ? "#FFCF99" : "#721121",
+    },
+    buttonContainer: {
+      marginTop: 20,
+      alignItems: "center",
+    },
+    button: {
+      padding: 15,
+      borderRadius: 8,
+      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
+      margin: 10,
+      width: "80%",
+    },
+    buttonText: {
+      color: isDarkMode ? "#721121" : "#FFCF99",
+      fontSize: 18,
+      fontWeight: "bold",
+      textAlign: "center",
+    },
+  });
 }
 
 export default Profile;

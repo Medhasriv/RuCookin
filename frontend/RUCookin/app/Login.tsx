@@ -1,19 +1,24 @@
 import { Link, useRouter } from "expo-router";
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, useColorScheme,View } from "react-native";
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, useColorScheme, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRef, useState } from "react";
 import { Divider } from "../components/Divider";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+
 export default function Index() {
   // Global Variable Declarations
   const router = useRouter(); // Routing through the different screens
   const [username, setUsername] = useState(""); // Handling username input
   const [password, setPassword] = useState(""); // Handling password input
-  const [errors, setErrors] = useState<{ username?: string; password?: string; general?: string }>({}); // Handling errors
-  const passwordRef = useRef<TextInput>(null); // Handling lazy password input
+  const [errors, setErrors] = useState<{ username?: string; password?: string; general?: string }>({});
+  const passwordRef = useRef<TextInput>(null); // For focusing password input
   const colorScheme = useColorScheme(); // Handling color scheme
   const isDarkMode = colorScheme === 'dark'; // Checks if dark mode
-  const styles = createStyles(isDarkMode); // Changes based on system color scheme
+  const styles = createStyles(isDarkMode); // Styles based on system color scheme
   const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Password visibility toggle
+
   // Error Handling - Empty Fields
   const validateForm = () => {
     let errors: { username?: string; password?: string } = {};
@@ -22,12 +27,13 @@ export default function Index() {
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
-  // Backend Login Submit Handling - CHANGE LATER
+
+  // Backend Login Submit Handling
   const handleSubmit = async () => {
     if (!validateForm()) return;
   
     try {
-      const response = await fetch('http://localhost:3001/routes/auth/login', { // change this before deployment to https://backend-service-612145494931.us-east1.run.app/
+      const response = await fetch('http://localhost:3001/routes/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,22 +45,28 @@ export default function Index() {
   
       if (response.ok && data.token) {
         console.log('Login successful:', data);
-        localStorage.setItem("token", data.token);
+        await AsyncStorage.setItem("token", data.token);
+        // Decode the token to extract user details
+        const jwtDecodeFn = require("jwt-decode").jwtDecode;
+        const decoded = jwtDecodeFn(data.token);
+        console.log("Decoded token:", decoded);
+        // Store the decoded user details in AsyncStorage under "UserInfo"
+        await AsyncStorage.setItem("UserInfo", JSON.stringify(decoded));
         setErrors({});
         router.push('/HomePage'); // Navigate to HomePage after login
       } else {
         console.error('Login failed:', data);
-        setErrors({general: data.message || 'Invalid username or password.'});
+        setErrors({ general: data.message || 'Invalid username or password.' });
       }
     } catch (error) {
       console.error('Error during login:', error);
       setErrors({ general: 'Something went wrong. Please try again.' });
     }
   };
-  
-  // Backend Login via Google Handling - CHANGE LATER
+
+  // Backend Login via Google Handling (debug)
   const handleGoogleSubmit = () => {
-    console.log("Google Login"); // debug for now
+    console.log("Google Login");
   };
   
   return (
@@ -63,7 +75,7 @@ export default function Index() {
       <Text
         style={Platform.select({
           ios: styles.iosLogoText,
-          android: styles.iosLogoText, // this works, android sucks though
+          android: styles.iosLogoText,
           web: styles.webLogoText,
         })}
         numberOfLines={1}
@@ -73,11 +85,9 @@ export default function Index() {
       </Text>
       
       {/* Login Text */}
-      <Text style={styles.headingText}>
-        Log In
-      </Text>
+      <Text style={styles.headingText}>Log In</Text>
       
-      {/* Error Message */}
+      {/* Error Messages */}
       { errors.general && <Text style={styles.errorStyle}>{errors.general}</Text> }
       { errors.username && <Text style={styles.errorStyle}>{errors.username}</Text> }
       { errors.password && <Text style={styles.errorStyle}>{errors.password}</Text> }
@@ -85,26 +95,27 @@ export default function Index() {
       {/* Username Input */}
       <TextInput 
         style={styles.inputBoxes} 
-        value={username} // Username stored here
+        value={username}
         onChangeText={setUsername} 
         placeholder="Username"
-        placeholderTextColor= {isDarkMode ? "#7211219A" : "#FFCF999A"}
+        placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
         keyboardAppearance="default"
         keyboardType="default"
         autoCorrect={false}
         autoCapitalize="none"
         returnKeyType="next"
-        onSubmitEditing={() => passwordRef.current?.focus()} // i am lazy and like to click enter
+        onSubmitEditing={() => passwordRef.current?.focus()}
       />
+      
       {/* Password Input with Show/Hide Button */}
       <View style={styles.passwordContainer}>
         <TextInput 
           style={styles.passwordInput} 
-          value={password} 
+          value={password}
           onChangeText={setPassword} 
           placeholder="Password"
           placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
-          secureTextEntry={!isPasswordVisible} // Hide password when not visible
+          secureTextEntry={!isPasswordVisible}
           keyboardAppearance="default"
           keyboardType="default"
           autoCorrect={false}
@@ -113,23 +124,20 @@ export default function Index() {
           ref={passwordRef}
           onSubmitEditing={handleSubmit}
         />
-        {/* Show/Hide Button */}
+        {/* Toggle Password Visibility */}
         <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={styles.eyeIcon}>
           <Text>{isPasswordVisible ? "Hide" : "Show"}</Text>
         </TouchableOpacity>
       </View>
-
-      {/* Toggle Show/Hide Button */}
-      
-
-      {/* Login Button */} 
+  
+      {/* Login Button */}
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
-
+  
       {/* Divider for Alternative Log In Options */}
-      <Divider isDarkMode={isDarkMode}/>
-
+      <Divider isDarkMode={isDarkMode} />
+  
       {/* Google Login Button */}
       <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSubmit}>
         <View style={styles.googleButtonContent}>
@@ -141,27 +149,27 @@ export default function Index() {
         </View>
       </TouchableOpacity>
       
-      {/* Sign In Page Link */}
+      {/* Sign Up Page Link */}
       <Link href="/SignUp" style={styles.SignInText}>
         Don't have an account? Sign up here
       </Link>
     </SafeAreaView>
   );
 }
+
 function createStyles(isDarkMode: boolean) {
   return StyleSheet.create({
-      container: {
+    container: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: isDarkMode ? '#721121' : '#FFCF99',
     },
-    headingText:{
+    headingText: {
       fontFamily: 'Inter-SemiBold',
       fontSize: 24,
       color: isDarkMode ? "#FFFFFF" : "#000000",
       textAlign: 'center',
-
     },
     iosLogoText: {
       width: 200,
@@ -178,7 +186,7 @@ function createStyles(isDarkMode: boolean) {
       alignContent: 'center',
       alignItems: 'center',
       backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
-      margin:10,
+      margin: 10,
       padding: 14,
       borderRadius: 8,
       width: 327,
@@ -186,17 +194,17 @@ function createStyles(isDarkMode: boolean) {
     buttonText: {
       alignContent: 'center',
       color: isDarkMode ? "#721121" : "#FFFFFF",
-      fontFamily:'Inter-SemiBold',
+      fontFamily: 'Inter-SemiBold',
       fontSize: 16,
     },
     SignInText: {
       alignContent: 'center',
       color: isDarkMode ? "#FFC074" : "#A5402D",
-      fontFamily:'Inter-SemiBold',
+      fontFamily: 'Inter-SemiBold',
       fontSize: 16,
       marginTop: 10,
     },
-    inputBoxes:{
+    inputBoxes: {
       color: isDarkMode ? "#721121" : "#FFCF99",
       height: 50,
       margin: 12,
@@ -237,7 +245,7 @@ function createStyles(isDarkMode: boolean) {
       fontFamily: "Inter-SemiBold",
       fontSize: 16,
       color: isDarkMode ? "#721121" : "#FFFFFF",
-    }, 
+    },
     eyeIcon: {
       padding: 10,
       color: isDarkMode ? "#721121" : "#FFCF99",
@@ -245,8 +253,8 @@ function createStyles(isDarkMode: boolean) {
       fontFamily: 'Inter-SemiBold',
     },
     passwordContainer: {
-      flexDirection: 'row',  // Arrange elements in a row
-      alignItems: 'center',  // Align text input and button vertically
+      flexDirection: 'row',
+      alignItems: 'center',
       width: 327,
       borderWidth: 1.5,
       borderRadius: 10,
@@ -255,11 +263,11 @@ function createStyles(isDarkMode: boolean) {
       margin: 12,
     },
     passwordInput: {
-      flex: 1,  // Takes up all available space except for the button
+      flex: 1,
       color: isDarkMode ? "#721121" : "#FFCF99",
       height: 50,
       fontSize: 20,
       fontFamily: 'Inter-Regular',
-    },  
+    },
   });
 }

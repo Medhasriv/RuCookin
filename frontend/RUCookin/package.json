@@ -37,6 +37,7 @@
     "expo-system-ui": "~4.0.8",
     "expo-web-browser": "~14.0.2",
     "express": "^4.21.2",
+    "jwt-decode": "^4.0.0",
     "mongoose": "^8.11.0",
     "nativewind": "^4.1.23",
     "nodemon": "^3.1.9",

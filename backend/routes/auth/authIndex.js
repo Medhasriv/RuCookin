@@ -5,8 +5,11 @@ const router = express.Router();
 const signupRoute = require('./signup');
 const loginRoute = require('./login');
 const UserInfoRoute = require('./getUserInfo');
+const updateProfileRoute = require('./updateProfile');
 // Use all the routes
 router.use('/signup', signupRoute);
 router.use('/login', loginRoute);
 router.use('/getUserInfo', UserInfoRoute);
+router.use('/updateProfile', updateProfileRoute);
+
 module.exports = router;
