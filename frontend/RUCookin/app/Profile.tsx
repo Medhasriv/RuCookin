@@ -261,21 +261,11 @@ const Profile = () => {
           </Text>
         </TouchableOpacity>
         
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => {
-              AsyncStorage.removeItem("token");
-              router.push("/Login");
-            }}
-          >
-            <Text style={styles.buttonText}>Log Out</Text>
-          </TouchableOpacity>
-        </View>
+        
       </SafeAreaView>
 
       {/* Bottom Navigation Bar */}
-      <BottomNavBar activeTab="profile" isDarkMode={isDarkMode} />
+      <BottomNavBar activeTab="settings" isDarkMode={isDarkMode} />
     </View>
   );
 };

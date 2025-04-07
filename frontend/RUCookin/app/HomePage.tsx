@@ -14,10 +14,13 @@ const HomePage = () => {
 
   useEffect(() => {
     AsyncStorage.getItem("userTheme").then((value) => {
+      console.log("Stored userTheme:", value);
       if (value) setUserTheme(value);
     });
+    console.log("Device color scheme:", deviceScheme);
     checkAuth(router);
   }, []);
+  
 
   const effectiveTheme = userTheme ? userTheme : deviceScheme;
   const isDarkMode = effectiveTheme === "dark";

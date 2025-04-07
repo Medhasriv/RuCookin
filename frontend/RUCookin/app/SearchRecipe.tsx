@@ -149,37 +149,16 @@ const SearchRecipe = () => {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.titleContainer}>
-        {/* RUCookin Logo/Name */}
-        <Text
-          style={Platform.select({
-            ios: styles.iosLogoText,
-            android: styles.iosLogoText,
-            web: styles.webLogoText,
-          })}
-          numberOfLines={1}
-          adjustsFontSizeToFit={Platform.OS !== "web"}
-        >
-          RUCookin'
-        </Text>
-        {/* Settings Gear Icon */}
-        <TouchableOpacity
-          style={styles.settingsIcon}
-          onPress={() => router.push("/Settings")}
-        >
-          <Image
-            source={require("../assets/icons/settings.png")}
-            style={styles.icon}
-          />
-        </TouchableOpacity>
-      </SafeAreaView>
-
       <SafeAreaView style={styles.contentContainer}>
+        {/* Header */}
+        <Text style={styles.header}>
+          Recipe Search
+        </Text>
         {/* Search Bar */}
         <TextInput
           value={searchRecipe}
           onChangeText={setSearchRecipe}
-          placeholder="Search..."
+          placeholder="Search for a recipe..."
           placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
           keyboardAppearance="default"
           keyboardType="default"
@@ -259,7 +238,7 @@ function createStyles(isDarkMode: boolean, topInset: number) {
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: isDarkMode ? "#222222" : "#ffffff",
+      backgroundColor: isDarkMode ? "#000000" : "#ffffff",
     },
     titleContainer: {
       flexDirection: "row",
@@ -315,7 +294,7 @@ function createStyles(isDarkMode: boolean, topInset: number) {
     modalContainer: {
       flex: 1,
       padding: 20,
-      backgroundColor: isDarkMode ? "#222222" : "#ffffff",
+      backgroundColor: isDarkMode ? "#000000" : "#ffffff",
     },
     modalHeader: {
       fontSize: 22,
@@ -390,6 +369,13 @@ function createStyles(isDarkMode: boolean, topInset: number) {
       paddingVertical: 5,
       backgroundColor: "rgba(0,0,0,0.3)",
       borderRadius: 5,
+    },
+    header: {
+      fontSize: 30,
+      fontWeight: "bold",
+      textAlign: "center",
+      marginBottom: 20,
+      color: isDarkMode ? "#FFCF99" : "#721121",
     },
   });
 }

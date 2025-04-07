@@ -2,7 +2,7 @@ import React from "react";
 import { View, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 
-export type TabName = "profile" | "search" | "home" | "cart" | "settings";
+export type TabName = "pantry" | "search" | "home" | "cart" | "settings";
 
 type BottomNavBarProps = {
   activeTab: TabName;
@@ -15,14 +15,14 @@ const BottomNavBar = ({ activeTab, isDarkMode }: BottomNavBarProps) => {
   const getIconSource = (tab: TabName) => {
     const isActive = activeTab === tab;
     switch (tab) {
-      case "profile":
+      case "pantry":
         return isDarkMode
           ? isActive
-            ? require("../assets/icons/profile_dark_active.png")
-            : require("../assets/icons/profile_dark_inactive.png")
+            ? require("../assets/icons/pantry_dark_active.png")
+            : require("../assets/icons/pantry_dark_inactive.png")
           : isActive
-          ? require("../assets/icons/profile_light_active.png")
-          : require("../assets/icons/profile_light_inactive.png");
+          ? require("../assets/icons/pantry_light_active.png")
+          : require("../assets/icons/pantry_light_inactive.png");
       case "search":
         return isDarkMode
           ? isActive
@@ -61,8 +61,8 @@ const BottomNavBar = ({ activeTab, isDarkMode }: BottomNavBarProps) => {
   };
 
   // Define routes with literal types for TypeScript
-  const tabRoutes: Record<TabName, "/Profile" | "/SearchRecipe" | "/HomePage" | "/ShoppingCart" | "/Settings"> = {
-    profile: "/Profile",
+  const tabRoutes: Record<TabName, "/Pantry" | "/SearchRecipe" | "/HomePage" | "/ShoppingCart" | "/Settings"> = {
+    pantry: "/Pantry",
     search: "/SearchRecipe",
     home: "/HomePage",
     cart: "/ShoppingCart",
@@ -74,7 +74,7 @@ const BottomNavBar = ({ activeTab, isDarkMode }: BottomNavBarProps) => {
 
   return (
     <View style={styles.container}>
-      {(["profile", "search", "home", "cart", "settings"] as TabName[]).map(
+      {(["pantry", "search", "home", "cart", "settings"] as TabName[]).map(
         (tab) => (
           <TouchableOpacity
             key={tab}
