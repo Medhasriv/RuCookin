@@ -96,8 +96,8 @@ const Profile = () => {
         {/* Basic Information Section */}
         <Text style={styles.sectionHeader}>Basic Information</Text>
 
-        {/* First Name */}
-        <View style={styles.fieldContainer}>
+                {/* First Name */}
+                <View style={styles.fieldContainer}>
           <Text style={styles.label}>First Name:</Text>
           <View style={styles.inputRow}>
             {editing.firstName ? (
