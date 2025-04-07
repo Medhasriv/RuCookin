@@ -167,10 +167,6 @@ const Pantry = () => {
         </View>
       )}
     />
-
-    <TouchableOpacity style={styles.button}>
-      <Text style={styles.buttonText}>API BUTTON</Text>
-    </TouchableOpacity>
   </View>
 </SafeAreaView>
 
