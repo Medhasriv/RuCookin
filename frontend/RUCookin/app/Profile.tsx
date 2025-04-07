@@ -49,7 +49,8 @@ const Profile = () => {
 
   // When a field is submitted, update the database automatically.
   const handleSave = async () => {
-    // Ensure required fields exist
+    console.log("Saving data:", userData); // Debugging log
+      // Ensure required fields exist
     if (!userData.username || !userData.email) return;
     try {
       const response = await fetch("http://localhost:3001/routes/auth/updateProfile", {
@@ -95,8 +96,8 @@ const Profile = () => {
         {/* Basic Information Section */}
         <Text style={styles.sectionHeader}>Basic Information</Text>
 
-                {/* First Name */}
-                <View style={styles.fieldContainer}>
+        {/* First Name */}
+        <View style={styles.fieldContainer}>
           <Text style={styles.label}>First Name:</Text>
           <View style={styles.inputRow}>
             {editing.firstName ? (
@@ -134,7 +135,7 @@ const Profile = () => {
         </View>
 
 
-                {/* Last Name */}
+        {/* Last Name */}
         <View style={styles.fieldContainer}>
           <Text style={styles.label}>Last Name:</Text>
           <View style={styles.inputRow}>
