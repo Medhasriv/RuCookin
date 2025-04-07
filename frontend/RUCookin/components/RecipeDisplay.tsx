@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, useColorScheme, View, Linking } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Define prop types for clarity
 interface RecipeDetails {
@@ -19,16 +20,27 @@ interface RecipeDisplayProps {
 }
 
 function RecipeDisplay(props: RecipeDisplayProps) {
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const systemColorScheme = useColorScheme();
+  const [userTheme, setUserTheme] = useState<string | null>(null);
+  const effectiveTheme = userTheme ? userTheme : systemColorScheme;
+  const isDarkMode = effectiveTheme === 'dark';
   const styles = createStyles(isDarkMode);
   const [recipeDetails, setRecipeDetails] = useState<any[]>([]);
+
+  // Retrieve user theme from AsyncStorage
+  useEffect(() => {
+    AsyncStorage.getItem("userTheme").then((value) => {
+      if (value) setUserTheme(value);
+    });
+  }, []);
 
   // Function to fetch details for a recipe by ID
   const fetchRecipeDetails = async (id: number) => {
     try {
       const response = await fetch(
-        'https://api.spoonacular.com/recipes/' + id + '/information?includeNutrition=false&apiKey=9c396355ebfb4dd08de141e25dd55182'
+        'https://api.spoonacular.com/recipes/' +
+          id +
+          '/information?includeNutrition=false&apiKey=af9fec14e45f4423ac4ca3e7db28d3c5'
       );
       const data = await response.json();
       if (response.ok) {
@@ -56,14 +68,13 @@ function RecipeDisplay(props: RecipeDisplayProps) {
       }
     };
     fetchAllRecipes();
-    console.log('Fetched recipes:', recipeDetails);
   }, [props.recipes]);
 
   const listItems = recipeDetails.map((recipe) => (
-    <SafeAreaView key={recipe.id} style={styles.recipeContainer}>
+    <View key={recipe.id} style={styles.recipeContainer}>
       {recipe.details ? (
         <TouchableOpacity onPress={() => Linking.openURL(recipe.details.sourceUrl)}>
-          <View style={styles.recipeContainer}>
+          <View style={styles.innerContainer}>
             <Text style={styles.recipeTitle}>{recipe.title}</Text>
             <Text style={styles.recipeDesc}>{recipe.details.summary}</Text>
             <Text style={styles.recipeDesc}>Servings: {recipe.details.servings}</Text>
@@ -71,9 +82,9 @@ function RecipeDisplay(props: RecipeDisplayProps) {
           </View>
         </TouchableOpacity>
       ) : (
-        <Text>No details available</Text>
+        <Text style={styles.recipeDesc}>No details available</Text>
       )}
-    </SafeAreaView>
+    </View>
   ));
 
   return <View>{listItems}</View>;
@@ -86,23 +97,29 @@ function createStyles(isDarkMode: boolean) {
       borderRadius: 10,
       paddingHorizontal: 5,
       borderColor: '#FFCF99',
-      width: 1200,
-      height: 150,
-      backgroundColor: isDarkMode ? 'white' : '#FFCF99',
+      width: "100%",
+      minHeight: 150,
       marginBottom: 10,
+      backgroundColor: isDarkMode ? '#FFCF99' : '#721121',
+      overflow: 'hidden',
+    },
+    innerContainer: {
+      flex: 1,
+      padding: 5,
     },
     recipeTitle: {
-      padding: 10,
       fontFamily: 'Inter-SemiBold',
       fontSize: 25,
+      padding: 10,
       color: isDarkMode ? '#721121' : '#FFCF99',
     },
     recipeDesc: {
-      padding: 5,
-      paddingLeft: 10,
       fontFamily: 'Inter-Regular',
       fontSize: 15,
+      padding: 5,
+      paddingLeft: 10,
       color: isDarkMode ? '#721121' : '#FFCF99',
+      flexWrap: 'wrap',
     },
   });
 }

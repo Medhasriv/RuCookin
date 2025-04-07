@@ -107,7 +107,7 @@ const SearchRecipe = () => {
     const selectedIntolerancesString = selectedIntolerance.join(", ") || "";
     try {
       const response = await fetch(
-        `https://api.spoonacular.com/recipes/complexSearch?query=${searchRecipe}&cuisine=${selectedCuisinesString}&intolerances=${selectedIntolerancesString}&diet=${selectedDiet}&apiKey=9c396355ebfb4dd08de141e25dd55182`
+        `https://api.spoonacular.com/recipes/complexSearch?query=${searchRecipe}&cuisine=${selectedCuisinesString}&intolerances=${selectedIntolerancesString}&diet=${selectedDiet}&apiKey=af9fec14e45f4423ac4ca3e7db28d3c5`
       );
       const data = await response.json();
       if (response.ok) {
@@ -328,6 +328,7 @@ function createStyles(isDarkMode: boolean, topInset: number) {
     recipeDisplayContainer: {
       flex: 1,
       marginTop: 10,
+      color: "#ffffff"
     },
     tileGrid: {
       flexDirection: "row",
