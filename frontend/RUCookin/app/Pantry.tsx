@@ -99,7 +99,7 @@ const Pantry = () => {
         body: JSON.stringify({ pantryItemId: _id }),
       });
       const data = await response.json();
-      if (response.ok) {
+      if (response.ok) { 
         setPantryItems(prevItems => prevItems.filter(item => item._id !== _id));
       } else {
         console.error("Server error:", data.message);
@@ -108,7 +108,7 @@ const Pantry = () => {
       console.error("❌ Error deleting pantry item:", error);
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.contentContainer}>

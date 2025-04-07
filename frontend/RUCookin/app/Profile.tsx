@@ -8,8 +8,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "../components/BottomNavBar";
 
 const Profile = () => {
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === "dark";
+  const deviceScheme = useColorScheme();
+  const [userTheme, setUserTheme] = useState<string | null>(null);
+  const effectiveTheme = userTheme ? userTheme : deviceScheme;
+  const isDarkMode = effectiveTheme === "dark";
   const [userData, setUserData] = useState({
     id: "", // include id so you can update the record
     username: "",
@@ -31,6 +33,9 @@ const Profile = () => {
   const router = useRouter();
 
   useEffect(() => {
+    AsyncStorage.getItem("userTheme").then((value) => {
+      if (value) setUserTheme(value);
+    });
     checkAuth(router);
     fetchUserData();
   }, []);
@@ -261,6 +266,14 @@ const Profile = () => {
           </Text>
         </TouchableOpacity>
         
+        <TouchableOpacity
+          style={styles.preferenceButton}
+          onPress={() => router.push("/Settings")}
+        >
+          <Text style={styles.preferenceButtonText}>
+            Back to All Settings
+          </Text>
+        </TouchableOpacity>
         
       </SafeAreaView>
 
