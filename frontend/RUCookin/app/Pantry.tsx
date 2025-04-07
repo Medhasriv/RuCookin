@@ -161,7 +161,7 @@ const Pantry = () => {
         />
       </SafeAreaView>
       {/* Bottom Navigation Bar */}
-      <BottomNavBar activeTab="cart" isDarkMode={isDarkMode} />
+      <BottomNavBar activeTab="pantry" isDarkMode={isDarkMode} />
     </View>
   );
 };
