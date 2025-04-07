@@ -1,4 +1,3 @@
-import { RouterType } from "expo-router/build/types";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Check if token session exist

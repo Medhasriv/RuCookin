@@ -5,6 +5,8 @@ import React, { useState, useEffect } from "react";
 import { checkAuth, getToken } from "../utils/authChecker"; 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "../components/BottomNavBar";
+import * as WebBrowser from 'expo-web-browser';
+import Constants from 'expo-constants';
 
 type CartItem = {
   _id: string;
@@ -54,6 +56,20 @@ const ShoppingCart = () => {
       console.error("❌ Error fetching cart:", error);
     }
   };
+
+  const handleKrogerLogin = async () => {
+    const redirectUri = encodeURIComponent("http://localhost:3001/api/auth/kroger/callback"); // must match what's registered
+    const clientId = Constants.manifest.extra.krogerClientId;
+  
+    const authUrl = `https://api.kroger.com/v1/connect/oauth2/authorize` +
+      `?client_id=${clientId}` +
+      `&response_type=code` +
+      `&redirect_uri=${redirectUri}` +
+      `&scope=product.compact%20cart.basic`;
+  
+    await WebBrowser.openBrowserAsync(authUrl);
+  };
+  
 
   const handleAddItem = async () => {
     try {
@@ -154,6 +170,7 @@ const ShoppingCart = () => {
                   style={styles.cancelIcon}
                 />
               </TouchableOpacity>
+              
             </View>
           )}
         />

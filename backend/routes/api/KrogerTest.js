@@ -57,7 +57,7 @@ router.get("/", async (req, res) => {
         return res.status(404).json({ error: "Cart is empty" });
       }
   
-      const cartItems = userCart.cartItems.slice(0, 20); // Max 20 items
+      const cartItems = userCart.cartItems
   
       // Get Kroger access token
       const tokenResp = await axios.post(
@@ -86,17 +86,15 @@ router.get("/", async (req, res) => {
       }
   
       const validPrices = itemPrices.filter(item => item.price > 0);
-      const avgCost =
-        validPrices.reduce((sum, item) => sum + item.price, 0) /
-        (validPrices.length || 1);
-  
+      const totalCost =
+        validPrices.reduce((sum, item) => sum + item.price, 0) 
       res.json({
-        average_cost: avgCost.toFixed(2),
+        total_cost: totalCost.toFixed(2),
         items_priced: validPrices.length,
         breakdown: validPrices
       });
     } catch (err) {
-      console.error("avgCartCost error:", err.message);
+      console.error("totalCost error:", err.message);
       res.status(500).json({ error: "Server error" });
     }
   });
