@@ -17,8 +17,8 @@ router.post('/', async (req,res) => {
     return res.status(400).json({ message: 'Username must be between 3 and 20 characters' });
   }
 
-  if (password.length < 5) {
-    return res.status(400).json({ message: 'Password must be at least 5 characters long' });
+  if (password.length < 12) {
+    return res.status(400).json({ message: 'Password must be at least 12 characters long' });
   }
   if (firstName.length < 2 || firstName.length > 50) {
     return res.status(400).json({ message: 'First Name must be between 2 and 50 characters' });
@@ -36,6 +36,15 @@ router.post('/', async (req,res) => {
   if(!nameRegex.test(lastName)){
     return res.status(400).json({ message: 'Last name must contain only alphabets' });
   }
+  const emailRegex= /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if(!emailRegex.test(email)){
+    return res.status(400).json({ message: 'Email is not valid' });
+  }
+  const passwordRegex= /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{12,}$/;
+  if(!passwordRegex.test(password)){
+    return res.status(400).json({ message: 'Password must contain at least 1 Uppercase letter, Lowercase letter, and Special Character' });
+  }
+
 
 
   const userExist = await User.findOne({username : username});

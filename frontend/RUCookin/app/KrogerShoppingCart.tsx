@@ -111,7 +111,6 @@ const ShoppingCart = () => {
   const handleKrogerLogin = async () => {
     console.log("Hello World")
     await WebBrowser.openBrowserAsync("http://localhost:3001/routes/auth/krogerLogin");
-
   };
   return (
     <View style={styles.container}>
@@ -121,12 +120,12 @@ const ShoppingCart = () => {
           Shopping Cart
         </Text>
         <Text style={styles.caption}>
-          Search and add items to your grocery cart, powered by Kroger™
+          Add your items to the Kroger™ Cart
         </Text>
         {/* Search Bar */}
         <TextInput
           style={styles.searchInput}
-          placeholder="Search for item here..."
+          placeholder="Zipcode"
           placeholderTextColor={isDarkMode ? '#721121' : '#FFCF99'}
           value={searchText}
           onChangeText={setSearchText}
@@ -135,7 +134,7 @@ const ShoppingCart = () => {
 
         {/* Add to Cart Button */}
         <TouchableOpacity style={styles.addToCartButton} onPress={handleAddItem}>
-          <Text style={styles.addToCartButtonText}>Add To Cart</Text>
+          <Text style={styles.addToCartButtonText}>Search for your zipcode</Text>
         </TouchableOpacity>
         
         {/* FlatList Container with horizontal padding */}
@@ -166,7 +165,7 @@ const ShoppingCart = () => {
         />
         {/* Kroger Login Button */}
         <TouchableOpacity style={styles.button} onPress={handleKrogerLogin}>
-          <Text style={styles.buttonText}>Login with Kroger</Text>
+          <Text style={styles.buttonText}>Add to Kroger Cart</Text>
         </TouchableOpacity>
       </SafeAreaView>
       {/* Bottom Navigation Bar */}
