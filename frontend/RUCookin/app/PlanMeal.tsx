@@ -64,7 +64,7 @@ const PlanMeal = () => {
   };
 
   const fetchBudgetRecipes = async () => {
-    const dummyRecipes: Recipe[] = [
+    const exampleRecipes: Recipe[] = [
       {
         id: '1',
         title: 'Spaghetti & Meatballs',
@@ -99,7 +99,7 @@ const PlanMeal = () => {
 
     const pantryNames = pantryItems.map(item => item.itemName.toLowerCase());
 
-    const filtered = dummyRecipes
+    const filtered = exampleRecipes
       .map(recipe => {
         const missingIngredients = recipe.ingredients.filter(
           ing => !pantryNames.includes(ing.name.toLowerCase())
