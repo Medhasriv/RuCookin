@@ -52,7 +52,7 @@ const HomePage = () => {
           </TouchableOpacity>
           
           {/* Plan a Meal Tile */}
-          <TouchableOpacity style={styles.tile}>
+          <TouchableOpacity style={styles.tile} onPress={() => router.push("/PlanMeal")}>
             <ImageBackground
               source={require("../assets/images/plan_meal.jpg")}
               style={styles.tileBackground}
