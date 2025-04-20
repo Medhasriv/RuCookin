@@ -81,6 +81,11 @@ const SettingsPage = () => {
         <TouchableOpacity style={styles.button} onPress={() => router.push("/Profile")}>
           <Text style={styles.buttonText}>Profile</Text>
         </TouchableOpacity>
+        
+        {/* Privacy Button */}
+        <TouchableOpacity style={styles.button} onPress={() => router.push("/Privacy")}>
+          <Text style={styles.buttonText}>Privacy & Credits</Text>
+        </TouchableOpacity>
 
         {/* Log Out Button */}
         <TouchableOpacity
