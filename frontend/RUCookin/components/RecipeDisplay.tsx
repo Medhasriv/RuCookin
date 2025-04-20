@@ -76,7 +76,7 @@ function RecipeDisplay(props: RecipeDisplayProps) {
         <TouchableOpacity onPress={() => Linking.openURL(recipe.details.sourceUrl)}>
           <View style={styles.innerContainer}>
             <Text style={styles.recipeTitle}>{recipe.title}</Text>
-            <Text style={styles.recipeDesc}>{recipe.details.summary}</Text>
+            <Text style={styles.recipeDesc}>{((recipe.details.summary).replace(/<\/?[^>]+(>|$)/g, ""))}</Text>
             <Text style={styles.recipeDesc}>Servings: {recipe.details.servings}</Text>
             <Text style={styles.recipeDesc}>Time: {recipe.details.readyInMinutes}</Text>
           </View>
