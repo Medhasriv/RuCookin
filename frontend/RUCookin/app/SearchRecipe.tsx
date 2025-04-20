@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import React, { useState, useEffect } from "react";
-import RecipeDisplay from "@/components/RecipeDisplay";
+import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RadioButton, Checkbox } from "react-native-paper";
 import BottomNavBar from "../components/BottomNavBar";
@@ -29,6 +29,7 @@ const SearchRecipe = () => {
   const [selectedIntolerance, setSelectedIntolerance] = useState<string[]>([]);
   const [searchRecipe, setSearchRecipe] = useState("");
   const [result, setResult] = useState<any[]>([]);
+  const [favourites, setFavourites] = useState<number[]>([]);
   const [isModalVisible, setModalVisible] = useState(false);
   const [includePreferences, setincludePreferences] = useState(false);
   const router = useRouter();
@@ -38,6 +39,64 @@ const SearchRecipe = () => {
       if (value) setUserTheme(value);
     });
   }, []);
+  /** Load favourite IDs once so we can draw filled / empty stars */
+  useEffect(() => {
+    (async () => {
+      const username = await getTokenData("username");
+      const token    = await getToken();
+      if (!username || !token) return;
+      try {
+        const res  = await fetch("http://localhost:3001/routes/api/favoriteRecipe",
+          { method: "GET", headers: { Authorization:`Bearer ${token}`, Username:username }});
+        const data = await res.json();
+        if (res.ok) setFavourites(data);           // [12345, 9876, …]
+      } catch (err) { console.error(err); }
+    })();
+  }, []);
+  /** Toggle star */
+  /** Toggle star with debug logs */
+const toggleFavourite = async (recipeId: number) => {
+  const username = await getTokenData("username");
+  const token    = await getToken();
+  if (!username || !token) {
+    console.log("❌ toggleFavourite: missing auth", { username, token });
+    return;
+  }
+
+  const already = favourites.includes(recipeId);
+  console.log(
+    `⭐️ ${already ? "Removing" : "Adding"} favourite:`,
+    recipeId,
+    "for user",
+    username
+  );
+
+  // optimistically update UI
+  setFavourites((prev) =>
+    already ? prev.filter((id) => id !== recipeId) : [...prev, recipeId]
+  );
+
+  try {
+    const res = await fetch(
+      "http://localhost:3001/routes/api/favoriteRecipe",
+      {
+        method: already ? "DELETE" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, recipeId }),
+      }
+    );
+    const text = await res.text();  // capture whatever the server sent
+    console.log(
+      `✅ toggleFavourite response (${res.status}):`,
+      text
+    );
+    if (!res.ok) {
+      console.warn("⚠️ toggleFavourite reported error", res.status);
+    }
+  } catch (err) {
+    console.error("❌ toggleFavourite network error:", err);
+  }
+};
 
   const effectiveTheme = userTheme ? userTheme : deviceScheme;
   const isDarkMode = effectiveTheme === "dark";
@@ -203,7 +262,7 @@ const SearchRecipe = () => {
     } 
     try {    
       const response = await fetch(
-        `https://api.spoonacular.com/recipes/complexSearch?query=${searchRecipe}&excludeCuisine=${excludedCusineString}&cuisine=${selectedCuisinesString}&intolerances=${selectedIntolerancesString}&diet=${selectedDiet}&apiKey=`
+        `https://api.spoonacular.com/recipes/complexSearch?query=${searchRecipe}&excludeCuisine=${excludedCusineString}&cuisine=${selectedCuisinesString}&intolerances=${selectedIntolerancesString}&diet=${selectedDiet}&apiKey=7687f59ac03546c396f6e21ef843c784`
       );
       const data = await response.json();
       if (response.ok) {
@@ -325,7 +384,36 @@ const SearchRecipe = () => {
 
         {/* Recipe Display */}
         <ScrollView style={styles.recipeDisplayContainer}>
-          <RecipeDisplay recipes={result} />
+          <View style={styles.tileGrid}>
+            {result.map((item) => (
+              <View key={item.id} style={styles.tile}>
+                <TouchableOpacity
+                  style={styles.tileBackground}
+                  onPress={() => router.push({
+                    pathname: "/recipes/[id]",
+                    params: { id: item.id.toString() },
+                  })
+                  }
+                >
+                  <Image source={{ uri: item.image }} style={styles.imageStyle} />
+                  <View style={styles.overlay} />
+                  <Text style={styles.tileText}>{item.title}</Text>
+                </TouchableOpacity>
+
+                {/* star overlay */}
+                <TouchableOpacity
+                  style={styles.star}
+                  onPress={() => toggleFavourite(item.id)}
+                >
+                  <Ionicons
+                    name={favourites.includes(item.id) ? "star" : "star-outline"}
+                    size={28}
+                    color={isDarkMode ? "#FFC074" : "#FFD700"}
+                  />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
         </ScrollView>
       </SafeAreaView>
 
@@ -482,6 +570,11 @@ function createStyles(isDarkMode: boolean, topInset: number) {
       textAlign: "center",
       marginBottom: 20,
       color: isDarkMode ? "#FFCF99" : "#721121",
+    },
+    star: {
+      position: "absolute",
+      top: 6,
+      right: 6,
     },
   });
 }

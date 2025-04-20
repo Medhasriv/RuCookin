@@ -1,157 +1,146 @@
-import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList, View } from 'react-native';
-import { useColorScheme } from 'react-native';
-import { useRouter } from 'expo-router';
-import { checkAuth,getTokenData } from "../utils/authChecker"; 
+import React, { useEffect, useState } from "react";
+import {
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useColorScheme } from "react-native";
+import { useRouter } from "expo-router";
+import { checkAuth, getTokenData } from "../utils/authChecker";
 
 const DIET_TYPES = [
-  'Gluten Free',
-  'Ketogenic',
-  'Vegetarian',
-  'Lacto-Vegetarian',
-  'Ovo-Vegetarian',
-  'Vegan',
-  'Pescetarian',
-  'Paleo',
-  'Primal',
-  'Low FODMAP',
-  'Whole30'
+  "Gluten Free",
+  "Ketogenic",
+  "Vegetarian",
+  "Lacto-Vegetarian",
+  "Ovo-Vegetarian",
+  "Vegan",
+  "Pescetarian",
+  "Paleo",
+  "Primal",
+  "Low FODMAP",
+  "Whole30",
 ];
 
-const DietPreferences = () => {
-  const [selectedDiets, setSelectedDiets] = useState<string[]>([]);
-  const colorScheme = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
-  const styles = createStyles(isDarkMode);
+export default function DietPreferences() {
+  const [selected, setSelected] = useState<string[]>([]);
+  const dark = useColorScheme() === "dark";
+  const styles = createStyles(dark);
   const router = useRouter();
 
-    useEffect(() => {
-      checkAuth(router);
+  useEffect(() => {
+    checkAuth(router);
   }, []);
 
-  const toggleDietSelection = (diet: string) => {
-    setSelectedDiets((prevSelected) =>
-      prevSelected.includes(diet)
-        ? prevSelected.filter((item) => item !== diet)
-        : [...prevSelected, diet]
+  const toggle = (d: string) =>
+    setSelected((prev) =>
+      prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]
     );
-  };
 
-  const handleContinue = async() => {
-    console.log('Selected Diets:', selectedDiets);
+  const handleContinue = async () => {
     try {
-          const username = await getTokenData("username");
-          if (!username) {
-            console.error("Username not found in token.");
-            return;
-          }
-          const payload = { username: username.trim(),
-            diet:Array.isArray(selectedDiets) ? [...selectedDiets] : [],
-          };
-          console.log("🚀 Sending payload:", JSON.stringify(payload));
-          const response = await fetch("http://localhost:3001/routes/api/diet", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ username: username.trim(),
-              diet:Array.isArray(selectedDiets) ? [...selectedDiets] : [] }), 
-          });
-          const data = await response.json();
-      if(response.ok) {
-        router.push('/Intolerances');
-      }
-      else {
-        console.error('Data error: ', data)
-      }
+      const username = await getTokenData("username");
+      if (!username) return;
+
+      const payload = { username: username.trim(), diet: selected };
+      const res = await fetch("http://localhost:3001/routes/api/diet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) router.push("/Intolerances");
+    } catch (e) {
+      console.error("❌ Error during Diet:", e);
     }
-    catch (error) {
-      console.error('❌ Error during Diet:', error);
-    }
-   
   };
 
+  /* ---------- UI ---------- */
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.headingText}>Select your diet preferences</Text>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.content}>
+        <Text style={styles.heading}>Select your diet preferences</Text>
 
-      <FlatList
-        data={DIET_TYPES}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[
-              styles.dietItem,
-              selectedDiets.includes(item) && styles.selectedDietItem,
-            ]}
-            onPress={() => toggleDietSelection(item)}
-          >
-            <Text
-              style={[
-                styles.dietText,
-                selectedDiets.includes(item) && styles.selectedDietText,
-              ]}
-            >
-              {item}
-            </Text>
-          </TouchableOpacity>
-        )}
-        ListFooterComponent={() => (
-          <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
-            <Text style={styles.continueButtonText}>Continue</Text>
-          </TouchableOpacity>
-        )}
-      />
-    </SafeAreaView>
+        <FlatList
+          data={DIET_TYPES}
+          numColumns={2}
+          keyExtractor={(item) => item}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={styles.listContent}
+          renderItem={({ item }) => {
+            const active = selected.includes(item);
+            return (
+              <TouchableOpacity
+                style={[styles.pill, active && styles.pillSelected]}
+                onPress={() => toggle(item)}
+              >
+                <Text style={[styles.pillText, active && styles.pillTextSel]}>
+                  {item}
+                </Text>
+              </TouchableOpacity>
+            );
+          }}
+        />
+
+        <TouchableOpacity style={styles.continue} onPress={handleContinue}>
+          <Text style={styles.continueTxt}>Continue</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    </View>
   );
-};
+}
 
-const createStyles = (isDarkMode: boolean) =>
+/* ---------- styles ---------- */
+const createStyles = (dark: boolean) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: 'flex-start',
-      alignItems: 'center',
-      backgroundColor: isDarkMode ? '#721121' : '#FFCF99',
+      backgroundColor: dark ? "#721121" : "#FFCF99",
     },
-    headingText: {
-      fontFamily: 'Inter-SemiBold',
+    content: { flex: 1, padding: 20 },
+    heading: {
+      fontFamily: "Inter-SemiBold",
       fontSize: 24,
-      color: isDarkMode ? '#FFFFFF' : '#000000',
-      textAlign: 'center',
-      marginVertical: 20,
+      textAlign: "center",
+      color: dark ? "#FFFFFF" : "#000000",
+      marginBottom: 12,
     },
-    dietItem: {
-      padding: 15,
-      marginVertical: 5,
+    /* grid */
+    listContent: { flexGrow: 1, justifyContent: "flex-start" },
+    row: { justifyContent: "space-evenly" },
+
+    pill: {
+      flexBasis: "30%", // ~3 per row
+      margin: 8,
+      paddingVertical: 10,
+      borderRadius: 20,
+      backgroundColor: dark ? "#FFCF99" : "#721121",
+      alignItems: "center",
+    },
+    pillSelected: {
+      backgroundColor: dark ? "#FFC074" : "#A5402D",
+    },
+    pillText: {
+      fontFamily: "Inter-Regular",
+      fontSize: 12,
+      color: dark ? "#721121" : "#FFCF99",
+      textAlign: "center",
+    },
+    pillTextSel: { fontWeight: "600" },
+
+    continue: {
+      marginTop: 20,
       marginHorizontal: 20,
-      borderRadius: 8,
-      backgroundColor: isDarkMode ? '#FFCF99' : '#721121',
-    },
-    selectedDietItem: {
-      backgroundColor: isDarkMode ? '#FFC074' : '#A5402D',
-    },
-    dietText: {
-      fontFamily: 'Inter-Regular',
-      fontSize: 18,
-      color: isDarkMode ? '#721121' : '#FFCF99',
-    },
-    selectedDietText: {
-      color: isDarkMode ? '#721121' : '#FFCF99',
-    },
-    continueButton: {
       padding: 15,
       borderRadius: 8,
-      backgroundColor: isDarkMode ? '#FFCF99' : '#721121',
-      margin: 20, // Adds margin to keep it separate from the list items
-      marginHorizontal: 20, // Ensures button is aligned with the list items
+      backgroundColor: dark ? "#FFCF99" : "#721121",
     },
-    continueButtonText: {
-      fontFamily: 'Inter-SemiBold',
+    continueTxt: {
+      fontFamily: "Inter-SemiBold",
       fontSize: 16,
-      color: isDarkMode ? '#721121' : '#FFFFFF',
-      textAlign: 'center',
+      textAlign: "center",
+      color: dark ? "#721121" : "#FFFFFF",
     },
   });
-
-export default DietPreferences;

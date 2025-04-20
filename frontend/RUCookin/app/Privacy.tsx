@@ -34,49 +34,17 @@ export default function Privacy() {
         <Text style={styles.header}>Privacy & Credits</Text>
 
         <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.text}>Icons made by Freepik from www.flaticon.com</Text>
-          <Text style={styles.text}>search</Text>
+          <Text style={styles.text}>Icons made by Freepik, Darwisy Alfarizi, alkhalifi, from www.flaticon.com</Text>
 
-          <Text style={styles.text}>
-            Icons made by Darwisy Alfarizi from www.flaticon.com
-          </Text>
-          <Text style={styles.text}>home</Text>
-
-          <Text style={styles.text}>Icons made by Freepik from www.flaticon.com</Text>
-          <Text style={styles.text}>Cart</Text>
-
-          <Text style={styles.text}>Icons made by Freepik from www.flaticon.com</Text>
-          <Text style={styles.text}>Settings</Text>
-
-          <Text style={styles.text}>Icons made by Freepik from www.flaticon.com</Text>
-          <Text style={styles.text}>Find Recipe image</Text>
-
-          <Text style={styles.text}>Photo by Mike Gattorna on Unsplash</Text>
-          <Text style={styles.text}>Plan Meal image</Text>
-
-          <Text style={styles.text}>Photo by S'well on Unsplash</Text>
-          <Text style={styles.text}>Saved Recipes</Text>
-
-          <Text style={styles.text}>Photo by Metin Ozer on Unsplash</Text>
-          <Text style={styles.text}>Order Ingredients image</Text>
-
-          <Text style={styles.text}>Photo by nrd on Unsplash</Text>
-          <Text style={styles.text}>Edit Pencil</Text>
-
-          <Text style={styles.text}>
-            Icons made by alkhalifi design from www.flaticon.com
-          </Text>
-          <Text style={styles.text}>Default‑Profile</Text>
+          <Text style={styles.text}>Photos by Mike Gattorn, S'well, Metin Ozer, nrd on Unsplash</Text>
 
           <Text style={styles.text}>
             Default icons created by kliwir art ‑ Flaticon
           </Text>
-          <Text style={styles.text}>Pantry</Text>
 
           <Text style={styles.text}>
             Carrot icons created by Freepik ‑ Flaticon
           </Text>
-          <Text style={styles.text}>Cancel/X recipe</Text>
 
           <Text style={styles.text}>
             Cancel icons created by Bharat Icons ‑ Flaticon
