@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, useColorScheme, View, Linking } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as dotenv from 'dotenv';
 
 // Define prop types for clarity
 interface RecipeDetails {
@@ -38,9 +39,9 @@ function RecipeDisplay(props: RecipeDisplayProps) {
   const fetchRecipeDetails = async (id: number) => {
     try {
       const response = await fetch(
-        'https://api.spoonacular.com/recipes/' +
-          id +
-          '/information?includeNutrition=false&apiKey=9c396355ebfb4dd08de141e25dd55182'
+        'https://api.spoonacular.com/recipes/' 
+        + id +
+        '/information?includeNutrition=false&apiKey='
       );
       const data = await response.json();
       if (response.ok) {
@@ -100,7 +101,7 @@ function createStyles(isDarkMode: boolean) {
       width: "100%",
       minHeight: 150,
       marginBottom: 10,
-      backgroundColor: isDarkMode ? '#FFCF99' : '#721121',
+      backgroundColor: isDarkMode ? '#1c1c1c' : '#721121',
       overflow: 'hidden',
     },
     innerContainer: {
@@ -111,14 +112,14 @@ function createStyles(isDarkMode: boolean) {
       fontFamily: 'Inter-SemiBold',
       fontSize: 25,
       padding: 10,
-      color: isDarkMode ? '#721121' : '#FFCF99',
+      color: isDarkMode ? '#FFCF99' : '#FFCF99',
     },
     recipeDesc: {
       fontFamily: 'Inter-Regular',
       fontSize: 15,
       padding: 5,
       paddingLeft: 10,
-      color: isDarkMode ? '#721121' : '#FFCF99',
+      color: isDarkMode ? '#FFCF99' : '#FFCF99',
       flexWrap: 'wrap',
     },
   });

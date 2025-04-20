@@ -18,6 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RadioButton, Checkbox } from "react-native-paper";
 import BottomNavBar from "../components/BottomNavBar";
 import { checkAuth, getToken, getTokenData } from "../utils/authChecker"; 
+import * as dotenv from 'dotenv';
 
 const SearchRecipe = () => {
   const insets = useSafeAreaInsets();
@@ -105,6 +106,7 @@ const SearchRecipe = () => {
   const diets = DietList();
 
   const handleSearch = async () => {
+    
     let selectedCuisinesString = selectedCuisine.join(", ") || "";
     let selectedIntolerancesString = selectedIntolerance.join(", ") || "";
     let excludedCusineString = "";
@@ -199,9 +201,9 @@ const SearchRecipe = () => {
         console.error("❌ Error fetching diets", error);
       }
     } 
-    try {
+    try {    
       const response = await fetch(
-        `https://api.spoonacular.com/recipes/complexSearch?query=${searchRecipe}&excludeCuisine=${excludedCusineString}&cuisine=${selectedCuisinesString}&intolerances=${selectedIntolerancesString}&diet=${selectedDiet}&apiKey=9c396355ebfb4dd08de141e25dd55182`
+        `https://api.spoonacular.com/recipes/complexSearch?query=${searchRecipe}&excludeCuisine=${excludedCusineString}&cuisine=${selectedCuisinesString}&intolerances=${selectedIntolerancesString}&diet=${selectedDiet}&apiKey=`
       );
       const data = await response.json();
       if (response.ok) {
