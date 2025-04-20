@@ -57,7 +57,7 @@ const CuisineDislikes = () => {
   const handleContinue = async () => {
     console.log('Disliked Cuisines:', dislikedCuisines);
  try {
-      const username = await getTokenData("username");
+    const username = await getTokenData("username");
     if (!username) {
       console.error("Username not found in token.");
       return;

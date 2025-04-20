@@ -17,6 +17,7 @@ import RecipeDisplay from "@/components/RecipeDisplay";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RadioButton, Checkbox } from "react-native-paper";
 import BottomNavBar from "../components/BottomNavBar";
+import { checkAuth, getToken, getTokenData } from "../utils/authChecker"; 
 
 const SearchRecipe = () => {
   const insets = useSafeAreaInsets();
@@ -28,6 +29,7 @@ const SearchRecipe = () => {
   const [searchRecipe, setSearchRecipe] = useState("");
   const [result, setResult] = useState<any[]>([]);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [includePreferences, setincludePreferences] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -103,11 +105,103 @@ const SearchRecipe = () => {
   const diets = DietList();
 
   const handleSearch = async () => {
-    const selectedCuisinesString = selectedCuisine.join(", ") || "";
-    const selectedIntolerancesString = selectedIntolerance.join(", ") || "";
+    let selectedCuisinesString = selectedCuisine.join(", ") || "";
+    let selectedIntolerancesString = selectedIntolerance.join(", ") || "";
+    let excludedCusineString = "";
+    let selectedDiet = "";
+
+    if(includePreferences == true){
+      const username = await getTokenData("username");
+      if (!username) {
+        console.error("Username not found in token.");
+        return;
+      }
+      const token = await getToken();
+      if (!token) {
+        console.error("No token found in storage.");
+        return;
+      }
+
+      //getting the user preferences (function..?)
+      console.log("dislikes");
+      try {
+          const response = await fetch("http://localhost:3001/routes/api/cuisineDislike", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Username: `${username}`,
+            },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            //add the results to the API strings 
+            excludedCusineString+=data.join(", ");
+          } else {
+            console.error("❌ Failed to load cart items", data.message);
+          }
+        } catch (error) {
+          console.error("❌ Error fetching dislikes", error);
+        }
+
+      try {
+          const response = await fetch("http://localhost:3001/routes/api/cuisineLike", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Username: `${username}`,
+            },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            //add the results to the API strings 
+            selectedCuisinesString+=data.join(", ");
+
+          } else {
+            console.error("❌ Failed to load cart items", data.message);
+          }
+        } catch (error) {
+          console.error("❌ Error fetching likes", error);
+        }
+      try {
+        const response = await fetch("http://localhost:3001/routes/api/intolerance", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Username: `${username}`,
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          //add the results to the API strings 
+          selectedIntolerancesString+=data.join(", ");
+        } else {
+          console.error("❌ Failed to load cart items", data.message);
+        }
+      } catch (error) {
+        console.error("❌ Error fetching intolerances", error);
+      }
+      try {
+        const response = await fetch("http://localhost:3001/routes/api/diet", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Username: `${username}`,
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          //add the results to the API strings 
+          selectedDiet+=data.join(", ");
+        } else {
+          console.error("❌ Failed to load cart items", data.message);
+        }
+      } catch (error) {
+        console.error("❌ Error fetching diets", error);
+      }
+    } 
     try {
       const response = await fetch(
-        `https://api.spoonacular.com/recipes/complexSearch?query=${searchRecipe}&cuisine=${selectedCuisinesString}&intolerances=${selectedIntolerancesString}&diet=${selectedDiet}&apiKey=af9fec14e45f4423ac4ca3e7db28d3c5`
+        `https://api.spoonacular.com/recipes/complexSearch?query=${searchRecipe}&excludeCuisine=${excludedCusineString}&cuisine=${selectedCuisinesString}&intolerances=${selectedIntolerancesString}&diet=${selectedDiet}&apiKey=9c396355ebfb4dd08de141e25dd55182`
       );
       const data = await response.json();
       if (response.ok) {
@@ -120,7 +214,6 @@ const SearchRecipe = () => {
       console.error("Error during search!:", error);
     }
   };
-
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
@@ -154,6 +247,7 @@ const SearchRecipe = () => {
         <Text style={styles.header}>
           Recipe Search
         </Text>
+        
         {/* Search Bar */}
         <TextInput
           value={searchRecipe}
@@ -178,14 +272,13 @@ const SearchRecipe = () => {
         <Modal visible={isModalVisible} animationType="slide">
           <SafeAreaView style={[styles.modalContainer, { paddingTop: insets.top + 20 }]}>
             <ScrollView>
+              {/*Cusine, diet, and intolerance preferences*/}
               <Text style={styles.modalHeader}>Cuisine</Text>
               {cuisines.map((item) => (
                 <View key={item.value} style={styles.radioButtonContainer}>
                   <Checkbox
                     status={selectedCuisine.includes(item.value) ? "checked" : "unchecked"}
-                    onPress={() =>
-                      toggleFilter(selectedCuisine, setSelectedCuisine, item.value)
-                    }
+                    onPress={() => toggleFilter(selectedCuisine, setSelectedCuisine, item.value)}
                   />
                   <Text style={styles.radioLabel}>{item.label}</Text>
                 </View>
@@ -208,14 +301,20 @@ const SearchRecipe = () => {
                 <View key={item.value} style={styles.radioButtonContainer}>
                   <Checkbox
                     status={selectedIntolerance.includes(item.value) ? "checked" : "unchecked"}
-                    onPress={() =>
-                      toggleFilter(selectedIntolerance, setSelectedIntolerance, item.value)
-                    }
+                    onPress={() =>toggleFilter(selectedIntolerance, setSelectedIntolerance, item.value)}
                   />
                   <Text style={styles.radioLabel}>{item.label}</Text>
                 </View>
               ))}
             </ScrollView>
+
+            {/*User preferences checkbox*/}
+            <View style={styles.preferenceBox}>
+              <Checkbox status={includePreferences ? 'checked' : 'unchecked'}
+              onPress={() => setincludePreferences(!includePreferences)}/>
+              <Text style={styles.filterButtonText}>Use Preferences</Text>
+            </View>
+
             <TouchableOpacity style={styles.modalCloseButton} onPress={handleFilter}>
               <Text style={styles.modalCloseButtonText}>close</Text>
             </TouchableOpacity>
@@ -278,6 +377,10 @@ function createStyles(isDarkMode: boolean, topInset: number) {
       marginBottom: 20,
       color: isDarkMode ? "#721121" : "#FFCF999A",
       backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
+    },
+    preferenceBox: {
+      alignItems: 'center',
+      flexDirection: "row",
     },
     filterButton: {
       backgroundColor: isDarkMode ? "#FFCF99" : "#721121",

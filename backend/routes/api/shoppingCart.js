@@ -12,7 +12,6 @@ const Cart = mongoose.model("CartInfo");
 
 const { getUserIdFromToken } = require('../../utils/TokenDecoder');
 
-
 router.get('/', async (req, res) => {
   const userId = getUserIdFromToken(req);
   console.log(userId)
@@ -80,7 +79,6 @@ router.delete ('/', async(req,res)=> {
     }
     userCart.cartItems.splice(itemIndex, 1);
     await userCart.save();
-
 
     return res.status(200).json({ message: "Cart item deleted successfully" });
 

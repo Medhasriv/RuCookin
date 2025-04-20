@@ -47,4 +47,31 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get('/', async (req, res) => {
+
+  const username = req.headers['username'];
+  const user = await User.findOne({ username });
+  if (!user) {
+    return res.status(400).json({ message: "User not found" });
+  }
+  const userId = user._id;
+
+  if (!userId) return res.status(401).json({ message: "Invalid or missing token" });
+
+    try {
+    let existingPreferences = await Preferences.findOne({ userId });
+
+    if (!existingPreferences) {
+      return res.status(200).json([]);
+    }
+
+    console.log(existingPreferences.cuisineLike);
+    return res.status(200).json(existingPreferences.cuisineLike);
+  
+    } catch (error) {
+      console.error("❌ Error fetching cart", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
 module.exports = router;

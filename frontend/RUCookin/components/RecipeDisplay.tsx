@@ -40,7 +40,7 @@ function RecipeDisplay(props: RecipeDisplayProps) {
       const response = await fetch(
         'https://api.spoonacular.com/recipes/' +
           id +
-          '/information?includeNutrition=false&apiKey=af9fec14e45f4423ac4ca3e7db28d3c5'
+          '/information?includeNutrition=false&apiKey=9c396355ebfb4dd08de141e25dd55182'
       );
       const data = await response.json();
       if (response.ok) {
