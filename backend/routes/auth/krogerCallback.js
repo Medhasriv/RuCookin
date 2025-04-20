@@ -32,7 +32,7 @@ router.get('/', async (req, res) => {
 
     tokenStore.set(req.ip, accessToken);
 
-    res.json({ message: 'Authenticated!', access_token: accessToken, token_store: tokenStore.get(req.ip) });
+    res.json({ message: 'Authenticated! Please exit the page'});
   } catch (err) {
     console.error(err.response?.data || err.message);
     res.status(500).send('Token exchange failed');

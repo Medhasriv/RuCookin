@@ -6,7 +6,6 @@ import { checkAuth, getToken } from "../utils/authChecker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "../components/BottomNavBar";
 import * as WebBrowser from 'expo-web-browser';
-import Constants from 'expo-constants';
 
 type CartItem = {
   _id: string;

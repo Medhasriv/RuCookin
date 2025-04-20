@@ -83,7 +83,7 @@ router.get("/", async (req, res) => {
         }
       } catch (err) {
         unmatchedItems.push(itemName);
-        console.error(`❌ Failed to fetch "${itemName}":`, err.response?.data || err.message);
+        console.error(`❌ Failed to fetch "${itemName}":`, err.message);
       }
     }
 

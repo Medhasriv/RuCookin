@@ -40,6 +40,12 @@ const userSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
+    AccountType: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+      required: true
+  },
     location: String,
     viewedProfile: Number,
     impressions: Number,
