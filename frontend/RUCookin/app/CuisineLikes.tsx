@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList, View } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
 import { checkAuth,getTokenData } from "../utils/authChecker"; 
@@ -44,11 +44,9 @@ const CuisineLikes = () => {
 
   useEffect(() => {
     checkAuth(router);
-}, []);
+  }, []);
 
-
-
-  const toggleCuisineSelection = (cuisine: string) => {
+  const toggle = (cuisine: string) => {
     setSelectedCuisines((prevSelected) =>
       prevSelected.includes(cuisine)
         ? prevSelected.filter((item) => item !== cuisine)
@@ -95,85 +93,101 @@ const CuisineLikes = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.headingText}>Let's get to know you. Select cuisines you like</Text>
-
-      <FlatList
-        data={CUISINE_TYPES}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[
-              styles.cuisineItem,
-              selectedCuisines.includes(item) && styles.selectedCuisineItem,
-            ]}
-            onPress={() => toggleCuisineSelection(item)}
-          >
-            <Text
-              style={[
-                styles.cuisineText,
-                selectedCuisines.includes(item) && styles.selectedCuisineText,
-              ]}
-            >
-              {item}
-            </Text>
-          </TouchableOpacity>
-        )}
-        ListFooterComponent={() => (
-          <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
-            <Text style={styles.continueButtonText}>Continue</Text>
-          </TouchableOpacity>
-        )}
-      />
-    </SafeAreaView>
+      <SafeAreaView style={styles.container}>
+        <Text style={styles.heading}>Let’s get to know you. Select all the cuisines you like</Text>
+  
+        {/* body flexes to fill, centres grid vertically */}
+        <View style={styles.body}>
+          <FlatList
+            data={CUISINE_TYPES}
+            numColumns={3}
+            keyExtractor={(item) => item}
+            columnWrapperStyle={styles.row}
+            contentContainerStyle={styles.listContent}
+            renderItem={({ item }) => {
+              const selected = selectedCuisines.includes(item);
+              return (
+                <TouchableOpacity
+                  style={[styles.pill, selected && styles.pillSelected]}
+                  onPress={() => toggle(item)}
+                >
+                  <Text style={[styles.pillText, selected && styles.pillTextSel]}>
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              );
+            }}
+          />
+        </View>
+  
+        {/* fixed near bottom */}
+        <TouchableOpacity style={styles.continue} onPress={handleContinue}>
+          <Text style={styles.continueTxt}>Continue</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
   );
 };
 
-const createStyles = (isDarkMode: boolean) =>
+const createStyles = (dark: boolean) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: 'flex-start',
-      alignItems: 'center',
-      backgroundColor: isDarkMode ? '#721121' : '#FFCF99',
+      backgroundColor: dark ? "#721121" : "#FFCF99",
+      paddingTop: 10,
     },
-    headingText: {
-      fontFamily: 'Inter-SemiBold',
+    heading: {
+      fontFamily: "Inter-SemiBold",
       fontSize: 24,
-      color: isDarkMode ? '#FFFFFF' : '#000000',
-      textAlign: 'center',
-      marginVertical: 20,
+      textAlign: "center",
+      color: dark ? "#FFF" : "#000",
+      marginTop: 25,
+      marginBottom: 4,
     },
-    cuisineItem: {
-      padding: 15,
-      marginVertical: 5,
+
+    /* centre grid vertically */
+    body: { 
+      flex: 1, 
+      justifyContent: "flex-start", 
+      marginTop: 50,
+    },
+    listContent: { 
+      flexGrow: 1, 
+      justifyContent: "flex-start",
+    },
+    row: { justifyContent: "space-evenly" },
+
+    pill: {
+      flex: 1,
+      flexBasis: "30%",
+      margin: 8,
+      paddingVertical: 10,
+      borderRadius: 20,
+      backgroundColor: dark ? "#FFCF99" : "#721121",
+      alignItems: "center",
+    },
+    pillSelected: {
+      backgroundColor: dark ? "#FFC074" : "#A5402D",
+    },
+    pillText: {
+      fontFamily: "Inter-Regular",
+      fontSize: 12,
+      color: dark ? "#721121" : "#FFCF99",
+      textAlign: "center",
+    },
+    pillTextSel: { fontWeight: "600" },
+
+    continue: {
       marginHorizontal: 20,
-      borderRadius: 8,
-      backgroundColor: isDarkMode ? '#FFCF99' : '#721121',
-    },
-    selectedCuisineItem: {
-      backgroundColor: isDarkMode ? '#FFC074' : '#A5402D',
-    },
-    cuisineText: {
-      fontFamily: 'Inter-Regular',
-      fontSize: 18,
-      color: isDarkMode ? '#721121' : '#FFCF99',
-    },
-    selectedCuisineText: {
-      color: isDarkMode ? '#721121' : '#FFCF99',
-    },
-    continueButton: {
+      marginBottom: 24, /* leaves space for home‑indicator */
       padding: 15,
       borderRadius: 8,
-      backgroundColor: isDarkMode ? '#FFCF99' : '#721121',
-      margin: 20, // Adds margin to keep it separate from the list items
-      marginHorizontal: 20, // Ensures button is aligned with the list items
+      backgroundColor: dark ? "#FFCF99" : "#721121",
     },
-    continueButtonText: {
-      fontFamily: 'Inter-SemiBold',
+    continueTxt: {
+      fontFamily: "Inter-SemiBold",
       fontSize: 16,
-      color: isDarkMode ? '#721121' : '#FFFFFF',
-      textAlign: 'center',
+      color: dark ? "#721121" : "#FFFFFF",
+      textAlign: "center",
     },
   });
 
