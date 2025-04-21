@@ -159,7 +159,6 @@ const ShoppingCart = () => {
                   style={styles.cancelIcon}
                 />
               </TouchableOpacity>
-              
             </View>
           )}
         />

@@ -1,10 +1,19 @@
 import { useRouter } from "expo-router";
-import { View, Text, TextInput, FlatList, StyleSheet, useColorScheme, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  useColorScheme,
+  Image,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState, useEffect } from "react";
-import { checkAuth, getToken } from "../utils/authChecker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "../components/BottomNavBar";
+import { checkAuth, getToken } from "../utils/authChecker";
 
 type PantryItem = {
   _id: string;
@@ -13,19 +22,24 @@ type PantryItem = {
   origin: string;
 };
 
+type SpoonacularResult = {
+  id: number;
+  name: string;
+  image: string;
+};
+
 const Pantry = () => {
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
+  const [suggestions, setSuggestions] = useState<SpoonacularResult[]>([]);
   const [userTheme, setUserTheme] = useState<string | null>(null);
   const deviceScheme = useColorScheme();
-  // Use stored theme if available; otherwise, fall back to device scheme.
   const effectiveTheme = userTheme ? userTheme : deviceScheme;
-  const isDarkMode = effectiveTheme === 'dark';
+  const isDarkMode = effectiveTheme === "dark";
   const styles = createStyles(isDarkMode);
   const router = useRouter();
 
   useEffect(() => {
-    // Retrieve stored theme from AsyncStorage
     AsyncStorage.getItem("userTheme").then((value) => {
       if (value) setUserTheme(value);
     });
@@ -36,54 +50,63 @@ const Pantry = () => {
   const fetchPantry = async () => {
     try {
       const token = await getToken();
-      if (!token) {
-        console.error("No token found in storage.");
-        return;
-      }
       const response = await fetch("http://localhost:3001/routes/api/pantry", {
         method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
       if (response.ok) {
         setPantryItems(data);
       } else {
-        console.error("❌ Failed to load pantry items:", data.message);
+        console.error("❌ Failed to load pantry:", data.message);
       }
     } catch (error) {
       console.error("❌ Error fetching pantry:", error);
     }
   };
 
-  const handleAddItem = async () => {
+  const fetchSuggestions = async (query: string) => {
+    if (!query.trim()) return setSuggestions([]);
+    try {
+      const response = await fetch(
+        `https://api.spoonacular.com/food/ingredients/search?query=${query}&number=3&apiKey=9c396355ebfb4dd08de141e25dd55182`
+      );
+      const data = await response.json();
+      if (response.ok) {
+        setSuggestions(data.results);
+      }
+    } catch (error) {
+      console.error("❌ Error fetching suggestions:", error);
+    }
+  };
+
+  const handleAddItem = async (item: SpoonacularResult) => {
     try {
       const token = await getToken();
-      if (!searchText.trim()) return;
       const newItem = {
-        _id: `${searchText.trim()}-${Date.now()}`,
-        itemName: searchText.trim(),
+        _id: `${item.name}-${Date.now()}`,
+        itemName: item.name,
         quantity: 1,
-        origin: "Search",
+        origin: "Spoonacular",
       };
       const response = await fetch("http://localhost:3001/routes/api/pantry", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ pantryItems: newItem }),
+        body: JSON.stringify({ pantryItem: newItem }),
       });
       const data = await response.json();
       if (response.ok) {
         setPantryItems([...pantryItems, newItem]);
-        setSearchText('');
+        setSearchText("");
+        setSuggestions([]);
       } else {
         console.error("Data error: ", data);
       }
     } catch (error) {
-      console.error("❌ Error during Pantry:", error);
+      console.error("❌ Error adding to Pantry:", error);
     }
   };
 
@@ -94,48 +117,52 @@ const Pantry = () => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ pantryItemId: _id }),
       });
-      const data = await response.json();
-      if (response.ok) { 
-        setPantryItems(prevItems => prevItems.filter(item => item._id !== _id));
+      if (response.ok) {
+        setPantryItems((prev) => prev.filter((item) => item._id !== _id));
       } else {
-        console.error("Server error:", data.message);
+        const data = await response.json();
+        console.error("❌ Server error:", data.message);
       }
     } catch (error) {
       console.error("❌ Error deleting pantry item:", error);
     }
   };
-  
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.contentContainer}>
-        {/* Header */}
-        <Text style={styles.header}>
-          My Pantry
-        </Text>
+        <Text style={styles.header}>My Pantry</Text>
         <Text style={styles.caption}>
-          Add items to that you have in your pantry
+          Add ingredients to your pantry by searching Spoonacular
         </Text>
-        {/* Search Bar */}
         <TextInput
           style={styles.searchInput}
-          placeholder="Search for item here..."
+          placeholder="Search for ingredients..."
           placeholderTextColor={isDarkMode ? '#721121' : '#FFCF99'}
           value={searchText}
-          onChangeText={setSearchText}
-          onSubmitEditing={handleAddItem}
+          onChangeText={(text) => {
+            setSearchText(text);
+            fetchSuggestions(text);
+          }}
         />
-
-        {/* Add to Cart Button */}
-        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddItem}>
-          <Text style={styles.addToCartButtonText}>Add To Pantry</Text>
-        </TouchableOpacity>
-        
-        {/* FlatList Container with horizontal padding */}
-        <FlatList style={styles.flatListContainer}
+        <FlatList
+          data={suggestions}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.addToPantryButton}
+              onPress={() => handleAddItem(item)}
+            >
+              <Text style={styles.addToPantryButtonText}>{item.name}</Text>
+            </TouchableOpacity>
+          )}
+        />
+        <FlatList
+          style={styles.flatListContainer}
           data={pantryItems}
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
@@ -143,7 +170,7 @@ const Pantry = () => {
               <View style={styles.itemInfo}>
                 <Text style={styles.itemName}>{item.itemName}</Text>
                 <Text style={styles.subText}>
-                  x{item.quantity} from {item.origin || "Unknown Recipe"}
+                  x{item.quantity} from {item.origin}
                 </Text>
               </View>
               <TouchableOpacity onPress={() => handleRemoveItem(item._id)} style={styles.removeButton}>
@@ -160,7 +187,6 @@ const Pantry = () => {
           )}
         />
       </SafeAreaView>
-      {/* Bottom Navigation Bar */}
       <BottomNavBar activeTab="pantry" isDarkMode={isDarkMode} />
     </View>
   );
@@ -204,14 +230,14 @@ const createStyles = (isDarkMode: boolean) =>
       color: isDarkMode ? "#721121" : "#FFCF999A",
       backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
     },
-    addToCartButton: {
+    addToPantryButton: {
       backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
       padding: 15,
       borderRadius: 8,
       alignItems: "center",
       marginBottom: 20,
     },
-    addToCartButtonText: {
+    addToPantryButtonText: {
       color: isDarkMode ? "#721121" : "#FFCF99",
       fontSize: 18,
       fontWeight: "bold",
@@ -245,9 +271,8 @@ const createStyles = (isDarkMode: boolean) =>
       width: 24,
       height: 24,
     },
-    // BottomNavBar styling is handled within BottomNavBar component
     button: {
-      marginTop: "auto",
+      marginTop: 10,
       alignSelf: "center",
       backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
       padding: 20,

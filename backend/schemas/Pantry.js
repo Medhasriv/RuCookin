@@ -15,7 +15,7 @@ const pantrySchema = new mongoose.Schema(
                 itemName: { type: String, required: true },
                 quantity: { type: Number, required: true, min: 1 },
                 origin: { type: String },
-                inPantry: { type: boolean }
+                inPantry: { type: Boolean }
             }
         ]
     },
