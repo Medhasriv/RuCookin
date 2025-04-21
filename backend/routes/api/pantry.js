@@ -27,9 +27,9 @@ router.post("/", async (req, res) => {
     const userId = getUserIdFromToken(req);
     const { item } = req.body;
 
-    console.log("📥 Received POST /pantry");
-    console.log("🧑 userId:", userId);
-    console.log("🧅 item:", item);
+    // console.log("📥 Received POST /pantry");
+    // console.log("🧑 userId:", userId);
+    // console.log("🧅 item:", item);
 
     if (!userId || !item) {
         console.log("⚠️ Missing user or item");

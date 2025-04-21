@@ -1,232 +1,219 @@
-import { useRouter } from "expo-router";
-import { View, Text, TextInput, FlatList, StyleSheet, useColorScheme, TouchableOpacity, Image } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { getToken } from "../utils/authChecker";
+import { useColorScheme } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import BottomNavBar from "../components/BottomNavBar";
-import { checkAuth, getToken } from "../utils/authChecker";
 
-type Ingredient = {
+type PantryItem = {
+  id: number;
   name: string;
-  price: number;
 };
 
 type Recipe = {
-  id: string;
+  id: number;
   title: string;
   image: string;
-  ingredients: Ingredient[];
-  totalCost?: number;
-};
-
-type PantryItem = {
-  _id: string;
-  itemName: string;
+  usedIngredientCount: number;
+  missedIngredientCount: number;
+  missingCost?: number;
 };
 
 const PlanMeal = () => {
-  const [budget, setBudget] = useState('');
+  const [budget, setBudget] = useState("");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
-  const [userTheme, setUserTheme] = useState<string | null>(null);
+
   const deviceScheme = useColorScheme();
-  const effectiveTheme = userTheme ? userTheme : deviceScheme;
-  const isDarkMode = effectiveTheme === 'dark';
+  const isDarkMode = deviceScheme === "dark";
   const styles = createStyles(isDarkMode);
-  const router = useRouter();
 
   useEffect(() => {
-    AsyncStorage.getItem("userTheme").then((value) => {
-      if (value) setUserTheme(value);
-    });
-    checkAuth(router);
-    fetchPantry();
+    fetchPantryItems();
   }, []);
 
-  const fetchPantry = async () => {
+  const fetchPantryItems = async () => {
     try {
       const token = await getToken();
       const response = await fetch("http://localhost:3001/routes/api/pantry", {
-        method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       const data = await response.json();
       if (response.ok) {
         setPantryItems(data);
       } else {
-        console.error("❌ Failed to load pantry items:", data.message);
+        console.error("Failed to fetch pantry:", data);
       }
     } catch (error) {
-      console.error("❌ Error fetching pantry:", error);
+      console.error("❌ Pantry fetch error:", error);
     }
   };
 
-  const fetchBudgetRecipes = async () => {
-    const exampleRecipes: Recipe[] = [
-      {
-        id: '1',
-        title: 'Spaghetti & Meatballs',
-        image: 'https://spoonacular.com/recipeImages/715538-312x231.jpg',
-        ingredients: [
-          { name: 'spaghetti', price: 2 },
-          { name: 'meatballs', price: 4 },
-          { name: 'tomato sauce', price: 2.75 },
-        ],
-      },
-      {
-        id: '2',
-        title: 'Tacos',
-        image: 'https://spoonacular.com/recipeImages/716627-312x231.jpg',
-        ingredients: [
-          { name: 'tortillas', price: 2 },
-          { name: 'ground beef', price: 3 },
-          { name: 'cheese', price: 1.5 },
-        ],
-      },
-      {
-        id: '3',
-        title: 'Fried Rice',
-        image: 'https://spoonacular.com/recipeImages/715495-312x231.jpg',
-        ingredients: [
-          { name: 'rice', price: 1 },
-          { name: 'eggs', price: 1 },
-          { name: 'soy sauce', price: 1 },
-        ],
-      },
-    ];
-
-    const pantryNames = pantryItems.map(item => item.itemName.toLowerCase());
-
-    const filtered = exampleRecipes
-      .map(recipe => {
-        const missingIngredients = recipe.ingredients.filter(
-          ing => !pantryNames.includes(ing.name.toLowerCase())
+  const fetchRecipes = async () => {
+    if (!budget.trim()) return;
+  
+    try {
+      const budgetCents = parseFloat(budget) * 100; // Spoonacular uses cents
+      const ingredientNames = pantryItems.map((item) => item.name).join(",");
+  
+      const baseResponse = await fetch(
+        `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${encodeURIComponent(
+          ingredientNames
+        )}&number=10&apiKey=c11a17bfe0a94b5a95c3f70ddbf663af`
+      );
+  
+      const baseData: Recipe[] = await baseResponse.json();
+      const filteredRecipes: Recipe[] = [];
+  
+      for (const recipe of baseData) {
+        const priceResponse = await fetch(
+          `https://api.spoonacular.com/recipes/${recipe.id}/priceBreakdownWidget.json?apiKey=c11a17bfe0a94b5a95c3f70ddbf663af`
         );
-        const totalCost = missingIngredients.reduce((sum, ing) => sum + ing.price, 0);
-        return { ...recipe, totalCost };
-      })
-      .filter(recipe => recipe.totalCost <= parseFloat(budget));
-
-    setRecipes(filtered);
+        const priceData = await priceResponse.json();
+  
+        const pantryNames = pantryItems.map((item) =>
+          item.name.toLowerCase().replace(/[^a-z]/g, "")
+        );
+  
+        const missingCost = priceData.ingredients
+          .filter((ing: any) => {
+            const cleanName = ing.name.toLowerCase().replace(/[^a-z]/g, "");
+            return !pantryNames.includes(cleanName);
+          })
+          .reduce((sum: number, ing: any) => sum + ing.price, 0);
+  
+          if (missingCost <= budgetCents) {
+            filteredRecipes.push({
+              ...recipe,
+              missingCost: parseFloat((missingCost / 100).toFixed(2)),
+            });
+          }
+          
+      }
+  
+      setRecipes(filteredRecipes);
+    } catch (error) {
+      console.error("❌ Error fetching recipes with price filter:", error);
+    }
   };
+  
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
       <SafeAreaView style={styles.contentContainer}>
         <Text style={styles.header}>Plan a Meal</Text>
-        <Text style={styles.caption}>Enter your budget and we’ll check your pantry too</Text>
+        <Text style={styles.caption}>Enter your budget and we'll find recipes!</Text>
 
         <TextInput
-          style={styles.searchInput}
-          placeholder="Enter your budget (e.g., 15)"
+          style={styles.budgetInput}
+          placeholder="Enter max budget in $"
+          placeholderTextColor={isDarkMode ? "#888" : "#555"}
           keyboardType="numeric"
-          placeholderTextColor={isDarkMode ? '#721121' : '#FFCF99'}
           value={budget}
           onChangeText={setBudget}
-          onSubmitEditing={fetchBudgetRecipes}
+          onSubmitEditing={fetchRecipes}
         />
 
-        <TouchableOpacity style={styles.addToCartButton} onPress={fetchBudgetRecipes}>
-          <Text style={styles.addToCartButtonText}>Find Recipes</Text>
-        </TouchableOpacity>
-
         <FlatList
-          style={styles.flatListContainer}
           data={recipes}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <View style={styles.recipeCard}>
-              <Image source={{ uri: item.image }} style={styles.recipeImage} />
+            <View style={styles.recipeItem}>
+              <Image
+                source={{ uri: item.image }}
+                style={styles.recipeImage}
+              />
               <View style={styles.recipeText}>
-                <Text style={styles.itemName}>{item.title}</Text>
-                <Text style={styles.subText}>Est. cost: ${item.totalCost?.toFixed(2)}</Text>
+                <Text style={styles.recipeTitle}>{item.title}</Text>
+                <Text style={styles.recipeInfo}>
+                  ✅ Ingredients in Pantry: {item.usedIngredientCount} | 
+                  ❌ Missing: {item.missedIngredientCount} | 
+                  💸 Est. Cost: ${item.missingCost !== undefined ? item.missingCost : "N/A"}
+                </Text>
               </View>
             </View>
           )}
         />
+
       </SafeAreaView>
       <BottomNavBar activeTab="home" isDarkMode={isDarkMode} />
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const createStyles = (isDarkMode: boolean) =>
   StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: isDarkMode ? "#000" : "#fff",
+    },
     contentContainer: {
       flex: 1,
       padding: 20,
     },
     header: {
-      fontSize: 30,
+      fontSize: 28,
       fontWeight: "bold",
-      textAlign: "center",
-      marginBottom: 20,
       color: isDarkMode ? "#FFCF99" : "#721121",
+      textAlign: "center",
+      marginBottom: 10,
     },
     caption: {
-      fontSize: 18,
+      fontSize: 16,
+      color: isDarkMode ? "#FFCF99" : "#721121",
       textAlign: "center",
       marginBottom: 20,
-      color: isDarkMode ? "#FFCF99" : "#721121",
     },
-    container: {
-      flex: 1,
-      paddingTop: 20,
-      backgroundColor: isDarkMode ? "#000000" : "#ffffff",
-    },
-    flatListContainer: {
-      flex: 1,
-      paddingHorizontal: 15,
-    },
-    searchInput: {
-      height: 50,
-      borderColor: isDarkMode ? "#721121" : "#FFCF999A",
+    budgetInput: {
       borderWidth: 1,
+      borderColor: isDarkMode ? "#FFCF99" : "#721121",
       borderRadius: 10,
       paddingHorizontal: 10,
+      height: 50,
+      color: isDarkMode ? "#FFCF99" : "#721121",
       marginBottom: 20,
-      color: isDarkMode ? "#721121" : "#FFCF999A",
-      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
+      backgroundColor: isDarkMode ? "#333" : "#f9f9f9",
     },
-    addToCartButton: {
-      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
-      padding: 15,
-      borderRadius: 8,
-      alignItems: "center",
-      marginBottom: 20,
-    },
-    addToCartButtonText: {
-      color: isDarkMode ? "#721121" : "#FFCF99",
-      fontSize: 18,
-      fontWeight: "bold",
-    },
-    recipeCard: {
+    recipeItem: {
       flexDirection: "row",
       alignItems: "center",
-      backgroundColor: isDarkMode ? "#1c1c1c" : "#f9f9f9",
-      borderRadius: 10,
-      padding: 10,
-      marginBottom: 15,
+      marginBottom: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: isDarkMode ? "#444" : "#ccc",
+      paddingBottom: 10,
     },
     recipeImage: {
       width: 80,
       height: 80,
       borderRadius: 10,
-      marginRight: 15,
     },
     recipeText: {
+      marginLeft: 15,
       flex: 1,
     },
-    itemName: {
-      color: isDarkMode ? "#FFCF99" : "#721121",
+    recipeTitle: {
       fontSize: 16,
-      fontWeight: "600",
-    },
-    subText: {
-      fontSize: 14,
+      fontWeight: "bold",
       color: isDarkMode ? "#FFCF99" : "#721121",
+    },
+    recipeInfo: {
+      fontSize: 14,
+      color: isDarkMode ? "#ccc" : "#555",
       marginTop: 4,
     },
   });
