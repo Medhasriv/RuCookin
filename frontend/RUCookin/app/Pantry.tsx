@@ -1,4 +1,5 @@
-import { useRouter } from "expo-router";
+
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,33 +7,31 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  useColorScheme,
   Image,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import React, { useState, useEffect } from "react";
+import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import BottomNavBar from "../components/BottomNavBar";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useColorScheme } from "react-native";
 import { checkAuth, getToken } from "../utils/authChecker";
+import BottomNavBar from "../components/BottomNavBar";
 
-type PantryItem = {
-  _id: string;
-  itemName: string;
-  quantity: number;
-  origin: string;
+type IngredientResult = {
+  id: number;
+  name: string;
+  image: string;
 };
-
-type SpoonacularResult = {
+type PantryItem = {
   id: number;
   name: string;
   image: string;
 };
 
 const Pantry = () => {
-  const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
   const [searchText, setSearchText] = useState("");
-  const [suggestions, setSuggestions] = useState<SpoonacularResult[]>([]);
+  const [searchResults, setSearchResults] = useState<IngredientResult[]>([]);
   const [userTheme, setUserTheme] = useState<string | null>(null);
+  const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
   const deviceScheme = useColorScheme();
   const effectiveTheme = userTheme ? userTheme : deviceScheme;
   const isDarkMode = effectiveTheme === "dark";
@@ -44,145 +43,124 @@ const Pantry = () => {
       if (value) setUserTheme(value);
     });
     checkAuth(router);
-    fetchPantry();
+    fetchPantryItems();
   }, []);
 
-  const fetchPantry = async () => {
+  const fetchPantryItems = async () => {
     try {
       const token = await getToken();
       const response = await fetch("http://localhost:3001/routes/api/pantry", {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+  
       const data = await response.json();
       if (response.ok) {
         setPantryItems(data);
       } else {
-        console.error("❌ Failed to load pantry:", data.message);
+        console.error("Error fetching pantry items:", data);
       }
     } catch (error) {
-      console.error("❌ Error fetching pantry:", error);
+      console.error("❌ Error:", error);
     }
-  };
+  };  
 
-  const fetchSuggestions = async (query: string) => {
-    if (!query.trim()) return setSuggestions([]);
+  const fetchIngredients = async () => {
     try {
+      if (!searchText.trim()) return;
+
       const response = await fetch(
-        `https://api.spoonacular.com/food/ingredients/search?query=${query}&number=3&apiKey=9c396355ebfb4dd08de141e25dd55182`
+        `https://api.spoonacular.com/food/ingredients/search?query=${encodeURIComponent(
+          searchText
+        )}&number=5&apiKey=6ffdf60e9f814440bdbfb6b3f9b9b5cd`
       );
+
       const data = await response.json();
-      if (response.ok) {
-        setSuggestions(data.results);
-      }
+      setSearchResults(data.results || []);
     } catch (error) {
-      console.error("❌ Error fetching suggestions:", error);
+      console.error("❌ Error fetching ingredients:", error);
     }
   };
 
-  const handleAddItem = async (item: SpoonacularResult) => {
+  const handleAddToPantry = async (ingredient: IngredientResult) => {
     try {
       const token = await getToken();
-      const newItem = {
-        _id: `${item.name}-${Date.now()}`,
-        itemName: item.name,
-        quantity: 1,
-        origin: "Spoonacular",
+      // console.log("🔐 token:", token);
+            const newItem = {
+        id: ingredient.id,
+        name: ingredient.name,
+        image: ingredient.image,
       };
+  
       const response = await fetch("http://localhost:3001/routes/api/pantry", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ pantryItem: newItem }),
+        body: JSON.stringify({ item: newItem }),
       });
+      
       const data = await response.json();
-      if (response.ok) {
-        setPantryItems([...pantryItems, newItem]);
+      // console.log("📬 Response from server:", data);
+      
+        if (response.ok) {
+        // alert(`${ingredient.name} added to pantry!`);
         setSearchText("");
-        setSuggestions([]);
+        setSearchResults([]);
+        fetchPantryItems(); // Re-fetch pantry items after adding to pantry
       } else {
         console.error("Data error: ", data);
       }
     } catch (error) {
-      console.error("❌ Error adding to Pantry:", error);
+      console.error("❌ Error adding to pantry:", error);
     }
-  };
-
-  const handleRemoveItem = async (_id: string) => {
-    try {
-      const token = await getToken();
-      const response = await fetch("http://localhost:3001/routes/api/pantry", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ pantryItemId: _id }),
-      });
-      if (response.ok) {
-        setPantryItems((prev) => prev.filter((item) => item._id !== _id));
-      } else {
-        const data = await response.json();
-        console.error("❌ Server error:", data.message);
-      }
-    } catch (error) {
-      console.error("❌ Error deleting pantry item:", error);
-    }
-  };
+  };  
 
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.contentContainer}>
-        <Text style={styles.header}>My Pantry</Text>
-        <Text style={styles.caption}>
-          Add ingredients to your pantry by searching Spoonacular
-        </Text>
+        <Text style={styles.header}>Pantry</Text>
+        <Text style={styles.caption}>Search and add ingredients to your pantry</Text>
+
         <TextInput
           style={styles.searchInput}
           placeholder="Search for ingredients..."
-          placeholderTextColor={isDarkMode ? '#721121' : '#FFCF99'}
+          placeholderTextColor={isDarkMode ? "#721121" : "#FFCF99"}
           value={searchText}
-          onChangeText={(text) => {
-            setSearchText(text);
-            fetchSuggestions(text);
-          }}
+          onChangeText={setSearchText}
+          onSubmitEditing={fetchIngredients}
         />
+
         <FlatList
-          data={suggestions}
+          data={searchResults}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={styles.addToPantryButton}
-              onPress={() => handleAddItem(item)}
+              onPress={() => handleAddToPantry(item)}
+              style={styles.resultItem}
             >
-              <Text style={styles.addToPantryButtonText}>{item.name}</Text>
+              <Image
+                source={{ uri: `https://spoonacular.com/cdn/ingredients_100x100/${item.image}` }}
+                style={styles.ingredientImage}
+              />
+              <Text style={styles.itemName}>{item.name}</Text>
             </TouchableOpacity>
           )}
         />
+
+        <Text style={styles.caption}>Your Pantry</Text>
         <FlatList
-          style={styles.flatListContainer}
           data={pantryItems}
-          keyExtractor={(item) => item._id}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <View style={styles.row}>
-              <View style={styles.itemInfo}>
-                <Text style={styles.itemName}>{item.itemName}</Text>
-                <Text style={styles.subText}>
-                  x{item.quantity} from {item.origin}
-                </Text>
-              </View>
-              <TouchableOpacity onPress={() => handleRemoveItem(item._id)} style={styles.removeButton}>
-                <Image
-                  source={
-                    isDarkMode
-                      ? require("../assets/icons/cancel_dark.png")
-                      : require("../assets/icons/cancel_light.png")
-                  }
-                  style={styles.cancelIcon}
-                />
-              </TouchableOpacity>
+            <View style={styles.resultItem}>
+              <Image
+                source={{ uri: `https://spoonacular.com/cdn/ingredients_100x100/${item.image}` }} // Show image if available
+                style={styles.ingredientImage}
+              />
+              <Text style={styles.itemName}>{item.name}</Text>
             </View>
           )}
         />
@@ -194,6 +172,11 @@ const Pantry = () => {
 
 const createStyles = (isDarkMode: boolean) =>
   StyleSheet.create({
+    container: {
+      flex: 1,
+      paddingTop: 20,
+      backgroundColor: isDarkMode ? "#000000" : "#ffffff",
+    },
     contentContainer: {
       flex: 1,
       padding: 20,
@@ -211,15 +194,6 @@ const createStyles = (isDarkMode: boolean) =>
       marginBottom: 20,
       color: isDarkMode ? "#FFCF99" : "#721121",
     },
-    container: {
-      flex: 1,
-      paddingTop: 20,
-      backgroundColor: isDarkMode ? "#000000" : "#ffffff",
-    },
-    flatListContainer: {
-      flex: 0.6,
-      paddingHorizontal: 15,
-    },
     searchInput: {
       height: 50,
       borderColor: isDarkMode ? "#721121" : "#FFCF999A",
@@ -230,58 +204,22 @@ const createStyles = (isDarkMode: boolean) =>
       color: isDarkMode ? "#721121" : "#FFCF999A",
       backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
     },
-    addToPantryButton: {
-      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
-      padding: 15,
-      borderRadius: 8,
-      alignItems: "center",
-      marginBottom: 20,
-    },
-    addToPantryButtonText: {
-      color: isDarkMode ? "#721121" : "#FFCF99",
-      fontSize: 18,
-      fontWeight: "bold",
-    },
-    row: {
+    resultItem: {
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "space-between",
+      paddingVertical: 12,
       borderBottomWidth: 1,
       borderColor: isDarkMode ? "#FFCF99" : "#721121",
-      paddingVertical: 12,
-    },
-    itemInfo: {
-      flex: 1,
     },
     itemName: {
-      color: isDarkMode ? "#FFCF99" : "#721121",
+      marginLeft: 15,
       fontSize: 16,
-      fontWeight: "600",
-    },
-    subText: {
-      fontSize: 12,
       color: isDarkMode ? "#FFCF99" : "#721121",
-      marginTop: 2,
     },
-    removeButton: {
-      paddingHorizontal: 12,
-      paddingVertical: 4,
-    },
-    cancelIcon: {
-      width: 24,
-      height: 24,
-    },
-    button: {
-      marginTop: 10,
-      alignSelf: "center",
-      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
-      padding: 20,
-      borderRadius: 10,
-      marginBottom: 10,
-    },
-    buttonText: {
-      fontWeight: "bold",
-      color: isDarkMode ? "#721121" : "#FFCF99",
+    ingredientImage: {
+      width: 50,
+      height: 50,
+      borderRadius: 8,
     },
   });
 

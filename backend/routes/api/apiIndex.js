@@ -9,6 +9,7 @@ const intoleranceRoute = require('./intolerance');
 const shoppingCartRoute = require('./shoppingCart');
 const KrogerTestRoute = require('./KrogerTest');
 const favoriteRecipeRoute = require('./favoriteRecipe');
+const pantryRoute = require('./pantry');
 // Use all the routes
 router.use('/cuisineLike', cuisineLikeRoute);
 router.use('/cuisineDislike', cuisineDisikeRoute);
@@ -17,5 +18,6 @@ router.use('/intolerance', intoleranceRoute);
 router.use('/shoppingCart', shoppingCartRoute);
 router.use('/KrogerTest', KrogerTestRoute);
 router.use('/favoriteRecipe', favoriteRecipeRoute);
+router.use('/pantry', pantryRoute);
 
 module.exports = router;
