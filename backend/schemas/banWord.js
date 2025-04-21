@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const banWordSchema = new mongoose.Schema(
+
   {
     word: {
       type: String,
@@ -18,4 +19,3 @@ const banWordSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('banWordInfo', banWordSchema);

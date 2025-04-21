@@ -1,15 +1,13 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+
 require("../../schemas/User.js");
-const Admin = mongoose.model("AdminInfo");const express = require('express');
+const User = mongoose.model("UserInfo");
+const express = require('express');
 const bcrypt = require('bcrypt');
-const db = require('../../dbSetup.js');
-const { default: mongoose } = require('mongoose');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const SECRET_KEY = process.env.JWT_SECRET_KEY;
-require('../../schemas/User.js');
-const User = mongoose.model("UserInfo");
+
 
 router.post('/', async (req,res) => {
   const {firstName, lastName, username, password, email} = req.body;
@@ -63,7 +61,7 @@ router.post('/', async (req,res) => {
     const hashedPassword = await bcrypt.hash(password, encrpyVal);
     const newAdmin = new User ({ username: username, password: hashedPassword, email:email, firstName: firstName, lastName:lastName, AccountType:'admin'});
     await newAdmin.save();
-      res.status(200).json({ message: 'Sign up successful' , token});
+      res.status(200).json({ message: 'Sign up successful'});
   }
   
 });

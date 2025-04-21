@@ -50,10 +50,16 @@ export default function Index() {
         const jwtDecodeFn = require("jwt-decode").jwtDecode;
         const decoded = jwtDecodeFn(data.token);
         console.log("Decoded token:", decoded);
+        const isAdmin = decoded.AccountType?.includes("admin");
         // Store the decoded user details in AsyncStorage under "UserInfo"
         await AsyncStorage.setItem("UserInfo", JSON.stringify(decoded));
         setErrors({});
+        if(!isAdmin) {
         router.push('/HomePage'); // Navigate to HomePage after login
+        }
+        else if(isAdmin) {
+          router.push('/adminHomePage'); // Navigate to AdminHomePage after login
+        }
       } else {
         console.error('Login failed:', data);
         setErrors({ general: data.message || 'Invalid username or password.' });

@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
   }
   const token = jwt.sign(
 
-    { id: user._id, username: user.username, firstName: user.firstName,lastName: user.lastName, email: user.email, picturePath: user.picturePath},
+    { id: user._id, username: user.username, firstName: user.firstName,lastName: user.lastName, email: user.email, AccountType: user.AccountType},
     SECRET_KEY, 
     { expiresIn: '2h' }
   );
