@@ -118,6 +118,30 @@ const Pantry = () => {
     }
   };  
 
+  const handleRemoveFromPantry = async (id: number) => {
+    try {
+      const token = await getToken();
+      const response = await fetch("http://localhost:3001/routes/api/pantry", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ itemId: id }),
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        setPantryItems((prev) => prev.filter((item) => item.id !== id));
+      } else {
+        console.error("Server error:", data.message);
+      }
+    } catch (error) {
+      console.error("❌ Error deleting pantry item:", error);
+    }
+  };
+  
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.contentContainer}>
@@ -157,10 +181,20 @@ const Pantry = () => {
           renderItem={({ item }) => (
             <View style={styles.resultItem}>
               <Image
-                source={{ uri: `https://spoonacular.com/cdn/ingredients_100x100/${item.image}` }} // Show image if available
+                source={{ uri: `https://spoonacular.com/cdn/ingredients_100x100/${item.image}` }}
                 style={styles.ingredientImage}
               />
               <Text style={styles.itemName}>{item.name}</Text>
+              <TouchableOpacity onPress={() => handleRemoveFromPantry(item.id)} style={styles.removeButton}>
+                <Image
+                  source={
+                    isDarkMode
+                      ? require("../assets/icons/cancel_dark.png")
+                      : require("../assets/icons/cancel_light.png")
+                  }
+                  style={styles.cancelIcon}
+                />
+              </TouchableOpacity>
             </View>
           )}
         />
@@ -220,6 +254,14 @@ const createStyles = (isDarkMode: boolean) =>
       width: 50,
       height: 50,
       borderRadius: 8,
+    },
+    removeButton: {
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+    },
+    cancelIcon: {
+      width: 24,
+      height: 24,
     },
   });
 

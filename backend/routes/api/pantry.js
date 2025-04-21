@@ -51,5 +51,31 @@ router.post("/", async (req, res) => {
     }
 });
 
+// DELETE remove item from pantry
+router.delete("/", async (req, res) => {
+    const userId = getUserIdFromToken(req);
+    const { itemId } = req.body;
+
+    if (!userId || itemId === undefined) {
+        return res.status(400).json({ message: "Missing user or item ID" });
+    }
+
+    try {
+        const updatedPantry = await Pantry.findOneAndUpdate(
+            { userId },
+            { $pull: { items: { id: itemId } } },
+            { new: true }
+        );
+
+        if (!updatedPantry) {
+            return res.status(404).json({ message: "Pantry not found" });
+        }
+
+        return res.status(200).json({ message: "Item removed", items: updatedPantry.items });
+    } catch (err) {
+        console.error("❌ Pantry delete error:", err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
 
 module.exports = router;

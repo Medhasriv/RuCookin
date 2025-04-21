@@ -2,7 +2,6 @@
   "name": "rucookin",
   "version": "1.0.0",
   "main": "expo-router/entry",
-  "type": "module",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -67,5 +66,4 @@
     "typescript": "^5.3.3"
   },
   "private": true
-  
 }
