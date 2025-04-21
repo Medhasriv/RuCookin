@@ -7,36 +7,39 @@ const router = express.Router();
 const tokenStore = new Map(); 
 
 router.get('/', async (req, res) => {
-  const code = req.query.code;
-  const { KROGER_CLIENT_ID, KROGER_CLIENT_SECRET, KROGER_REDIRECT_URI } = process.env;
+  const { code } = req.query;
 
-  const basicAuth = Buffer.from(`${KROGER_CLIENT_ID}:${KROGER_CLIENT_SECRET}`).toString('base64');
+  if (!code) {
+    return res.status(400).json({ error: "Missing authorization code" });
+  }
 
   try {
-    const response = await axios.post(
-      'https://api.kroger.com/v1/connect/oauth2/token',
-      qs.stringify({
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri: KROGER_REDIRECT_URI,
-      }),
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Basic ${basicAuth}`,
-        },
-      }
-    );
+    const { KROGER_CLIENT_ID, KROGER_CLIENT_SECRET, KROGER_REDIRECT_URI } = process.env;
+
+    const response = await axios.post("https://api.kroger.com/v1/connect/oauth2/token", qs.stringify({
+      grant_type: "authorization_code",
+      code: code,
+      redirect_uri: KROGER_REDIRECT_URI,
+    }), {
+      auth: {
+        username: KROGER_CLIENT_ID,
+        password: KROGER_CLIENT_SECRET,
+      },
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
 
     const accessToken = response.data.access_token;
+    tokenStore.set(req.ip, accessToken); // ✅ Store access token by IP
 
-    tokenStore.set(req.ip, accessToken);
+    // Optional: redirect or confirm success
+    res.redirect("http://localhost:8081/KrogerShoppingCart"); // Or your React Native screen URL
 
-    res.json({ message: 'Authenticated! Please exit the page'});
   } catch (err) {
-    console.error(err.response?.data || err.message);
-    res.status(500).send('Token exchange failed');
+    console.error("❌ Kroger OAuth callback error:", err.message);
+    res.status(500).json({ error: "Failed to exchange code for token" });
   }
 });
 
-module.exports = router;
+module.exports = { router, tokenStore };

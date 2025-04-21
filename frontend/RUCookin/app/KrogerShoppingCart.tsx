@@ -15,10 +15,11 @@ type CartItem = {
   origin: string;
 };
 
-const ShoppingCart = () => {
+const KrogerShoppingCart  = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [searchText, setSearchText] = useState("");
   const [userTheme, setUserTheme] = useState<string | null>(null);
+  const [zipcode, setZipcode] = useState("");
+  const [matchedItems, setMatchedItems] = useState<any[]>([]);
   const deviceScheme = useColorScheme();
   const effectiveTheme = userTheme ? userTheme : deviceScheme;
   const isDarkMode = effectiveTheme === "dark";
@@ -57,121 +58,114 @@ const ShoppingCart = () => {
     }
   };
   
-  const handleAddItem = async () => {
+  const handleFetchKrogerPrices  = async () => {
     try {
       const token = await getToken();
-      if (!searchText.trim()) return;
-      const newItem = {
-        _id: `${searchText.trim()}-${Date.now()}`,
-        itemName: searchText.trim(),
-        quantity: 1,
-        origin: "Search",
-      };
-      const response = await fetch("http://localhost:3001/routes/api/shoppingCart", {
+      const response = await fetch(`http://localhost:3001/routes/api/krogerCart?zipcode=${zipcode}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+    if (response.ok) {
+      console.log("✅ Kroger Prices Fetched", data);
+      setMatchedItems(data.matched); 
+    } else {
+      console.error("❌ Failed to fetch Kroger data:", data.error);
+    }
+  } catch (err) {
+    console.error("❌ Error:", err);
+  }
+};
+  const handleAddToKrogerCart  = async () => {
+    try {
+      const token = await getToken();
+      const response = await fetch("http://localhost:3001/routes/api/krogerCart", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ cartItems: newItem }),
+        body: JSON.stringify({ matchedItems }),
       });
       const data = await response.json();
-      if (response.ok) {
-        setCartItems([...cartItems, newItem]);
-        setSearchText("");
-      } else {
-        console.error("Data error: ", data);
-      }
-    } catch (error) {
-      console.error("❌ Error during Shopping Cart:", error);
+    if (response.ok) {
+      console.log("✅ Added to Kroger Cart:", data);
+      setCartItems([]);
+      setMatchedItems([]);
+    } else {
+      console.error("❌ Failed to add to Kroger cart:", data.error);
     }
-  };
+  } catch (err) {
+    console.error("❌ Error adding to Kroger cart:", err);
+  }
+};
 
-  const handleRemoveItem = async (_id: string) => {
-    try {
-      const token = await getToken();
-      const response = await fetch("http://localhost:3001/routes/api/shoppingCart", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ cartItemId: _id }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setCartItems((prevItems) => prevItems.filter((item) => item._id !== _id));
-      } else {
-        console.error("Server error:", data.message);
-      }
-    } catch (error) {
-      console.error("❌ Error deleting cart item:", error);
-    }
-  };
-  const handleKrogerLogin = async () => {
-    console.log("Hello World")
-    await WebBrowser.openBrowserAsync("http://localhost:3001/routes/auth/krogerLogin");
-  };
-  return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.contentContainer}>
-        {/* Header */}
-        <Text style={styles.header}>
-          Shopping Cart
-        </Text>
-        <Text style={styles.caption}>
-          Add your items to the Kroger™ Cart
-        </Text>
-        {/* Search Bar */}
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Zipcode"
-          placeholderTextColor={isDarkMode ? '#721121' : '#FFCF99'}
-          value={searchText}
-          onChangeText={setSearchText}
-          onSubmitEditing={handleAddItem}
-        />
+return (
+  <View style={styles.container}>
+    <SafeAreaView style={styles.contentContainer}>
+      {/* Header */}
+      <Text style={styles.header}>Shopping Cart</Text>
+      <Text style={styles.caption}>Add your items to the Kroger™ Cart</Text>
 
-        {/* Add to Cart Button */}
-        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddItem}>
-          <Text style={styles.addToCartButtonText}>Search for your zipcode</Text>
+      {/* Zip Code Input */}
+      <TextInput
+      style={styles.searchInput}
+       placeholder="Enter ZIP Code"
+      placeholderTextColor={isDarkMode ? '#721121' : '#FFCF99'}
+      value={zipcode}
+      onChangeText={setZipcode}
+      onSubmitEditing={handleFetchKrogerPrices}
+/>
+
+      {/* Check Prices Button */}
+      <TouchableOpacity style={styles.addToCartButton} onPress={handleFetchKrogerPrices}>
+        <Text style={styles.addToCartButtonText}>Check Kroger Prices</Text>
         </TouchableOpacity>
-        
-        {/* FlatList Container with horizontal padding */}
-        <FlatList style={styles.flatListContainer}
-          data={cartItems}
-          keyExtractor={(item) => item._id}
-          renderItem={({ item }) => (
-            <View style={styles.row}>
-              <View style={styles.itemInfo}>
-                <Text style={styles.itemName}>{item.itemName}</Text>
-                <Text style={styles.subText}>
-                  x{item.quantity} from {item.origin || "Unknown Recipe"}
-                </Text>
-              </View>
-              <TouchableOpacity onPress={() => handleRemoveItem(item._id)} style={styles.removeButton}>
-                <Image
-                  source={
-                    isDarkMode
-                      ? require("../assets/icons/cancel_dark.png")
-                      : require("../assets/icons/cancel_light.png")
-                  }
-                  style={styles.cancelIcon}
-                />
-              </TouchableOpacity>
-              
+
+      {/* FlatList for Original Cart Items */}
+      <FlatList
+        style={styles.flatListContainer}
+        data={cartItems}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <View style={styles.row}>
+            <View style={styles.itemInfo}>
+              <Text style={styles.itemName}>{item.itemName}</Text>
+              <Text style={styles.subText}>
+                x{item.quantity} from {item.origin || "Unknown Recipe"}
+              </Text>
             </View>
-          )}
-        />
-        {/* Kroger Login Button */}
-        <TouchableOpacity style={styles.button} onPress={handleKrogerLogin}>
-          <Text style={styles.buttonText}>Add to Kroger Cart</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
-      {/* Bottom Navigation Bar */}
-      <BottomNavBar activeTab="cart" isDarkMode={isDarkMode} />
-    </View>
-  );
+          </View>
+        )}
+      />
+
+      {/* Matched Kroger Price Preview */}
+      {matchedItems.length > 0 && (
+        <View>
+          <Text style={styles.header}>Kroger Price Preview:</Text>
+          {matchedItems.map((item, idx) => (
+            <Text key={idx} style={styles.subText}>
+              {item.name} - ${item.price.toFixed(2)}
+            </Text>
+          ))}
+        </View>
+      )}
+
+      {/* Add to Kroger Cart */}
+      <TouchableOpacity
+        style={styles.button}
+        onPress={handleAddToKrogerCart}
+      >
+        <Text style={styles.buttonText}>Add to Kroger Cart</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
+
+    {/* Bottom Navigation Bar */}
+    <BottomNavBar activeTab="cart" isDarkMode={isDarkMode} />
+  </View>
+);
 };
 const createStyles = (isDarkMode: boolean) =>
   StyleSheet.create({
@@ -266,4 +260,4 @@ const createStyles = (isDarkMode: boolean) =>
     },
   });
 
-export default ShoppingCart;
+export default KrogerShoppingCart;

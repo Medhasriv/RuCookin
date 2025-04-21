@@ -7,7 +7,7 @@ const loginRoute = require('./login');
 const UserInfoRoute = require('./getUserInfo');
 const updateProfileRoute = require('./updateProfile');
 const krogerLoginRoute = require('./krogerLogin');
-const krogerCallbackRoute = require('./krogerCallback');
+const { router: krogerCallbackRouter } = require('./krogerCallback'); 
 // Use all the routes
 router.use('/signup', signupRoute);
 router.use('/login', loginRoute);
@@ -15,5 +15,5 @@ router.use('/getUserInfo', UserInfoRoute);
 router.use('/updateProfile', updateProfileRoute);
 router.use('/krogerLogin', krogerLoginRoute);
 
-router.use('/krogerCallback', krogerCallbackRoute);
+router.use('/krogerCallback', krogerCallbackRouter);
 module.exports = router;

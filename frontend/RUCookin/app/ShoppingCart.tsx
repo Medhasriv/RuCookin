@@ -6,6 +6,7 @@ import { checkAuth, getToken } from "../utils/authChecker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "../components/BottomNavBar";
 import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 
 type CartItem = {
   _id: string;
@@ -108,9 +109,25 @@ const ShoppingCart = () => {
     }
   };
   const handleKrogerLogin = async () => {
-    console.log("Hello World")
-    await WebBrowser.openBrowserAsync("http://localhost:3001/routes/auth/krogerLogin");
-
+    const redirectUri = Linking.createURL("KrogerShoppingCart"); 
+    const result = await WebBrowser.openAuthSessionAsync(
+      "http://localhost:3001/routes/auth/krogerLogin",
+      redirectUri
+    );
+  
+    if (result.type === "success" && result.url) {
+      const url = new URL(result.url);
+      const token = url.searchParams.get("token");
+  
+      if (token) {
+        await AsyncStorage.setItem("krogerToken", token);
+        router.push("/KrogerShoppingCart");
+      } else {
+        console.error("❌ Token not found in callback URL.");
+      }
+    } else {
+      console.warn("❌ OAuth login failed.");
+    }
   };
   return (
     <View style={styles.container}>
