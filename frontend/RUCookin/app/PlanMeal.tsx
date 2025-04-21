@@ -14,6 +14,7 @@ import { getToken } from "../utils/authChecker";
 import { useColorScheme } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BottomNavBar from "../components/BottomNavBar";
+import { useRouter } from "expo-router";
 
 type PantryItem = {
   id: number;
@@ -37,6 +38,7 @@ const PlanMeal = () => {
   const deviceScheme = useColorScheme();
   const isDarkMode = deviceScheme === "dark";
   const styles = createStyles(isDarkMode);
+  const router = useRouter();
 
   useEffect(() => {
     fetchPantryItems();
@@ -133,20 +135,29 @@ const PlanMeal = () => {
           data={recipes}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <View style={styles.recipeItem}>
-              <Image
-                source={{ uri: item.image }}
-                style={styles.recipeImage}
-              />
-              <View style={styles.recipeText}>
-                <Text style={styles.recipeTitle}>{item.title}</Text>
-                <Text style={styles.recipeInfo}>
-                  ✅ Ingredients in Pantry: {item.usedIngredientCount} | 
-                  ❌ Missing: {item.missedIngredientCount} | 
-                  💸 Est. Cost: ${item.missingCost !== undefined ? item.missingCost : "N/A"}
-                </Text>
+            <TouchableOpacity
+              onPress={() =>
+                router.push({
+                  pathname: "/RecipeDetail",
+                  params: {
+                    id: item.id,
+                    title: item.title,
+                    image: item.image,
+                  },
+                })
+              }
+            >
+              <View style={styles.recipeItem}>
+                <Image source={{ uri: item.image }} style={styles.recipeImage} />
+                <View style={styles.recipeText}>
+                  <Text style={styles.recipeTitle}>{item.title}</Text>
+                  <Text style={styles.recipeInfo}>
+                    ✅ Used: {item.usedIngredientCount} | ❌ Missing: {item.missedIngredientCount} | 💸 Est. Cost: $
+                    {item.missingCost !== undefined ? item.missingCost : "N/A"}
+                  </Text>
+                </View>
               </View>
-            </View>
+            </TouchableOpacity>
           )}
         />
 
