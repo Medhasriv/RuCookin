@@ -36,10 +36,26 @@ const SettingsPage = () => {
     await AsyncStorage.setItem("userTheme", newTheme);
   };
 
+  useEffect(() => {
+    const getNotificationStatus = async () => {
+      try {
+        const status = await AsyncStorage.getItem('notificationsEnabled');
+        if (status !== null) {
+          setIsNotificationsEnabled(status === 'true');
+        }
+      } catch (error) {
+        console.error('Error loading notification status:', error);
+      }
+    };
+
+    getNotificationStatus();
+  }, []);
+
   // Toggle notifications switch and request permissions if enabling notifications
   const toggleNotificationsSwitch = async () => {
     const newStatus = !isNotificationsEnabled;
     setIsNotificationsEnabled(newStatus);
+    await AsyncStorage.setItem('notificationsEnabled', newStatus.toString());
     if (newStatus) {
       const { status } = await Notifications.requestPermissionsAsync();
       if (status !== "granted") {
@@ -47,6 +63,8 @@ const SettingsPage = () => {
       }
     }
   };
+
+  
 
   const styles = createStyles(isDarkMode);
   return (

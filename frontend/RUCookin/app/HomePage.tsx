@@ -1,10 +1,17 @@
 import { useRouter } from "expo-router";
-import { Platform, StyleSheet, Text, useColorScheme, View, ImageBackground, TouchableOpacity } from "react-native";
+import { Platform, StyleSheet, Text, useColorScheme, View, Image, ImageBackground, TouchableOpacity } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import React, { useEffect, useState } from "react";
 import { checkAuth } from "../utils/authChecker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "../components/BottomNavBar";
+import { ScrollView, GestureHandlerRootView, Gesture } from "react-native-gesture-handler";
+
+const stripHtml = (html?: string) =>
+  (html ?? "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 
 const HomePage = () => {
   const insets = useSafeAreaInsets();
@@ -33,11 +40,77 @@ const HomePage = () => {
     return "Good Evening!";
   };
 
+  const getMealType = () => {
+    const hour = new Date().getHours();
+    if (hour < 6   ) return "midnightSnack";
+    if (hour < 12  ) return "breakfast";
+    if (hour < 17  ) return "lunch";
+    if (hour < 21  ) return "dinner";
+    return "midnightSnack";
+  };
+
+  const [timeRecipes, setTimeRecipes] = useState<any[]>([]);
+  useEffect(() => {
+    const mealType = getMealType();
+    const API_KEY = "YOUR_SPOON_API_KEY";
+
+    fetch(
+      `https://api.spoonacular.com/recipes/complexSearch?type=${mealType}` +
+      `&number=3&addRecipeInformation=true&apiKey=4521286af69c4db2b67fdda230db9c79`
+    )
+      .then((res) => res.json())
+      .then((json) => setTimeRecipes(json.results || []))
+      .catch((err) => console.error("time‑of‑day fetch:", err));
+  }, []);
+
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.contentContainer}>
         <Text style={styles.greeting}>{getGreeting()}</Text>
-        
+        <Text style={styles.subHeader}>
+        Your Recipe Picks for the{ getGreeting().replace("Good", "") }
+      </Text>
+      <GestureHandlerRootView>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.timeTileRow}
+          centerContent
+        >
+          {timeRecipes.map((r) => (
+            <View key={r.id} style={styles.timeTile}>
+              {/* tappable image */}
+              <TouchableOpacity
+                style={styles.timeTileImage}
+                onPress={() =>
+                  router.push({
+                    pathname: "/recipes/[id]",
+                    params: { id: r.id.toString() },
+                  })
+                }
+              >
+                <Image
+                  source={{ uri: r.image }}
+                  style={styles.imageStyle}
+                />
+              </TouchableOpacity>
+              {/* info below the image */}
+              <View style={styles.info}>
+                <Text style={styles.tileTitle} numberOfLines={2}>
+                  {r.title}
+                </Text>
+                <Text style={styles.infoText}>
+                  ⏱ {r.readyInMinutes ?? "–"} min · 🍽 {r.servings ?? "–"}
+                </Text>
+                <Text style={styles.summaryText} numberOfLines={2}>
+                  {stripHtml(r.summary)}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+      </GestureHandlerRootView>
         <View style={styles.tileGrid}>
           {/* Find a Recipe Tile */}
           <TouchableOpacity style={styles.tile} onPress={() => router.push("/SearchRecipe")}>
@@ -59,7 +132,7 @@ const HomePage = () => {
               imageStyle={styles.imageStyle}
             >
               <View style={styles.overlay} />
-              <Text style={styles.tileText}>Plan a Meal</Text>
+              <Text style={styles.tileText}>Meal Plan</Text>
             </ImageBackground>
           </TouchableOpacity>
           
@@ -83,7 +156,7 @@ const HomePage = () => {
               imageStyle={styles.imageStyle}
             >
               <View style={styles.overlay} />
-              <Text style={styles.tileText}>Order Ingredients</Text>
+              <Text style={styles.tileText}>Order Food</Text>
             </ImageBackground>
           </TouchableOpacity>
         </View>
@@ -120,7 +193,7 @@ function createStyles(isDarkMode: boolean, topInset: number) {
     },
     // Use aspectRatio to maintain a square tile.
     tile: {
-      width: Platform.OS === "web" ? "22%" : "48%",
+      width: Platform.OS === "web" ? "24%" : "27%",
       aspectRatio: 1, // maintain square shape on all platforms
       marginVertical: Platform.OS === "web" ? 15 : 10,
     },
@@ -155,6 +228,48 @@ function createStyles(isDarkMode: boolean, topInset: number) {
       paddingVertical: 5,
       backgroundColor: "rgba(0,0,0,0.3)",
       borderRadius: 5,
+    },
+    subHeader: {
+      fontSize: 22,
+      fontWeight: "600",
+      marginVertical: 12,
+      color: isDarkMode ? "#FFCF99" : "#721121",
+      textAlign: "center",
+    },
+    timeTileRow: {
+      paddingHorizontal: 4,
+      alignItems: "flex-start",
+    },
+    timeTile: {
+      width: 140,
+      marginRight: 12,
+      borderRadius: 10,
+      overflow: "hidden",
+    },
+    timeTileImage: {
+      width: "100%",
+      aspectRatio: 1,      // keep it a square
+      borderRadius: 10,
+      overflow: "hidden",
+      marginBottom: 8,     // space before the info block
+    },
+    info: {
+      padding: 8,
+    },
+    tileTitle: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: isDarkMode ? "#FFF" : "#000",
+      marginBottom: 4,
+    },
+    infoText: {
+      fontSize: 14,
+      color: isDarkMode ? "#CCC" : "#555",
+      marginBottom: 4,
+    },
+    summaryText: {
+      fontSize: 13,
+      color: isDarkMode ? "#AAA" : "#666",
     },
   });
 }
