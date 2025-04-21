@@ -20,6 +20,12 @@ import BottomNavBar from "../components/BottomNavBar";
 import { checkAuth, getToken, getTokenData } from "../utils/authChecker"; 
 import * as dotenv from 'dotenv';
 
+const stripHtml = (html?: string) =>
+  (html ?? "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
 const SearchRecipe = () => {
   const insets = useSafeAreaInsets();
   const deviceScheme = useColorScheme();
@@ -54,7 +60,6 @@ const SearchRecipe = () => {
     })();
   }, []);
   /** Toggle star */
-  /** Toggle star with debug logs */
 const toggleFavourite = async (recipeId: number) => {
   const username = await getTokenData("username");
   const token    = await getToken();
@@ -262,7 +267,7 @@ const toggleFavourite = async (recipeId: number) => {
     } 
     try {    
       const response = await fetch(
-        `https://api.spoonacular.com/recipes/complexSearch?query=${searchRecipe}&excludeCuisine=${excludedCusineString}&cuisine=${selectedCuisinesString}&intolerances=${selectedIntolerancesString}&diet=${selectedDiet}&apiKey=7687f59ac03546c396f6e21ef843c784`
+        `https://api.spoonacular.com/recipes/complexSearch?query=${encodeURIComponent(searchRecipe)}&addRecipeInformation=true&excludeCuisine=${encodeURIComponent(excludedCusineString)}&cuisine=${encodeURIComponent(selectedCuisinesString)}&intolerances=${encodeURIComponent(selectedIntolerancesString)}&diet=${encodeURIComponent(selectedDiet)}&apiKey=7687f59ac03546c396f6e21ef843c784`
       );
       const data = await response.json();
       if (response.ok) {
@@ -396,9 +401,19 @@ const toggleFavourite = async (recipeId: number) => {
                   }
                 >
                   <Image source={{ uri: item.image }} style={styles.imageStyle} />
-                  <View style={styles.overlay} />
-                  <Text style={styles.tileText}>{item.title}</Text>
                 </TouchableOpacity>
+
+                <View style={styles.info}>
+                  <Text style={styles.tileTitle} numberOfLines={2}>
+                    {item.title}
+                  </Text>
+                  <Text style={styles.infoText}>
+                    ⏱ {item.readyInMinutes ?? "–"} min · 🍽 {item.servings ?? "–"}
+                  </Text>
+                  <Text style={styles.summaryText} numberOfLines={2}>
+                    {stripHtml(item.summary)}
+                  </Text>
+                </View>
 
                 {/* star overlay */}
                 <TouchableOpacity
@@ -413,6 +428,7 @@ const toggleFavourite = async (recipeId: number) => {
                 </TouchableOpacity>
               </View>
             ))}
+            
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -575,6 +591,24 @@ function createStyles(isDarkMode: boolean, topInset: number) {
       position: "absolute",
       top: 6,
       right: 6,
+    },
+    info: {
+      padding: 8,
+    },
+    tileTitle: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: isDarkMode ? "#FFF" : "#000",
+      marginBottom: 4,
+    },
+    infoText: {
+      fontSize: 14,
+      color: isDarkMode ? "#CCC" : "#555",
+      marginBottom: 4,
+    },
+    summaryText: {
+      fontSize: 13,
+      color: isDarkMode ? "#AAA" : "#666",
     },
   });
 }
