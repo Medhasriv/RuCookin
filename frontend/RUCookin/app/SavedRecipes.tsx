@@ -1,19 +1,17 @@
 // app/SavedRecipes.tsx
 import React, { useCallback, useState } from "react";
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  ScrollView,
-  View,
-  Image,
-  TouchableOpacity,
-  useColorScheme,
-} from "react-native";
+import { Platform, SafeAreaView, StyleSheet, Text, ScrollView, View, Image, TouchableOpacity, useColorScheme, } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "../components/BottomNavBar";
 import { useRouter, useFocusEffect } from "expo-router";
 import { checkAuth, getToken, getTokenData } from "../utils/authChecker";
+import { Ionicons } from "@expo/vector-icons";
+
+const stripHtml = (html?: string) =>
+    (html ?? "")
+      .replace(/<[^>]*>/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
 
 export default function SavedRecipes() {
   /* ------------- theme ------------- */
@@ -32,7 +30,33 @@ export default function SavedRecipes() {
   /* ------------- recipes ------------- */
   const [recipes, setRecipes] = useState<any[]>([]);
   const router = useRouter();
-
+  // DELETE favorite on backend and remove from UI
+  const removeFavorite = async (recipeId: number) => {
+    const username = await getTokenData("username");
+    const token    = await getToken();
+    if (!username || !token) return;
+    try {
+        const res = await fetch(
+            "http://localhost:3001/routes/api/favoriteRecipe",
+            {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ username, recipeId }),
+            }
+        );
+        if (res.ok) {
+            // remove from local state
+            setRecipes((prev) => prev.filter((r) => r.id !== recipeId)); 
+        } else {
+            console.warn("Failed to delete favorite:", await res.text());
+        }
+    } catch (err) {
+        console.error("Error deleting favorite:", err);
+    }
+  };
   /* fetch favourites each time page is focused */
   useFocusEffect(
     useCallback(() => {
@@ -94,27 +118,46 @@ export default function SavedRecipes() {
                 You haven’t saved any recipes yet.
               </Text>
             )}
-
             {recipes.map((r) => (
-              <TouchableOpacity
-                key={r.id}
-                style={styles.tile}
-                onPress={() =>
-                  router.push({
-                    pathname: "/recipes/[id]",
-                    params: { id: r.id.toString() },
-                  })
-                }
-              >
-                <Image source={{ uri: r.image }} style={styles.img} />
-                <View style={styles.overlay} />
-                <Text style={styles.title}>{r.title}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+                <View key={r.id} style={styles.tile}>
+                    <TouchableOpacity
+                    style={styles.tileBackground}
+                    onPress={() =>
+                        router.push({
+                        pathname: "/recipes/[id]",
+                        params: { id: r.id.toString() },
+                        })
+                    }
+                    >
+                    <Image source={{ uri: r.image }} style={styles.imageStyle} />
+                    </TouchableOpacity>
+
+                    <View style={styles.info}>
+                    <Text style={styles.tileTitle} numberOfLines={2}>
+                        {r.title}
+                    </Text>
+                    <Text style={styles.infoText}>
+                        ⏱ {r.readyInMinutes ?? "–"} min · 🍽 {r.servings ?? "–"}
+                    </Text>
+                    <Text style={styles.summaryText} numberOfLines={2}>
+                        {stripHtml(r.summary)}
+                    </Text>
+                    </View>
+                <TouchableOpacity
+                    style={styles.trash}
+                    onPress={() => removeFavorite(r.id)}
+                >
+                    <Ionicons
+                    name="trash-outline"
+                    size={24}
+                    color={isDark ? "#FFCF99" : "#721121"}
+                    />
+                </TouchableOpacity>
+                </View>
+          ))}
+        </View>
         </ScrollView>
       </SafeAreaView>
-
       <BottomNavBar activeTab="home" isDarkMode={isDark} />
     </View>
   );
@@ -147,13 +190,6 @@ const createStyles = (dark: boolean) =>
       width: "100%",
       marginTop: 40,
     },
-    tile: { width: "48%", aspectRatio: 1, marginBottom: 15 },
-    img: { width: "100%", height: "100%", borderRadius: 10 },
-    overlay: {
-      ...StyleSheet.absoluteFillObject,
-      backgroundColor: "rgba(0,0,0,0.35)",
-      borderRadius: 10,
-    },
     title: {
       position: "absolute",
       bottom: 4,
@@ -162,5 +198,59 @@ const createStyles = (dark: boolean) =>
       color: "#ffffff",
       fontWeight: "600",
       textAlign: "center",
+    },
+    tile: {
+        width: Platform.OS === "web" ? "30%" : "48%",
+        aspectRatio: 1,
+        marginVertical: Platform.OS === "web" ? 15 : 10,
+    },
+    tileBackground: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: 10,
+        overflow: "hidden",
+    },
+    imageStyle: {
+        width: "100%",
+        height: "100%",
+        resizeMode: "cover",
+    },
+    overlay: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0, 0, 0, 0.4)",
+    },
+    info: {
+        padding: 8,
+    },
+    tileTitle: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: dark ? "#FFF" : "#000",
+        marginBottom: 4,
+    },
+    infoText: {
+        fontSize: 14,
+        color: dark ? "#CCC" : "#555", 
+        marginBottom: 4,
+    },
+    summaryText: {
+        fontSize: 13,
+        color: dark ? "#AAA" : "#666",
+    },
+    trash: {
+        position: "absolute",
+        top: 6,
+        left: 6,
+        zIndex: 2,
+        padding: 4,
+        borderRadius: 6,
+        backgroundColor: dark
+          ? "rgba(255,255,255,0.1)"
+          : "rgba(0,0,0,0.1)",
     },
   });
