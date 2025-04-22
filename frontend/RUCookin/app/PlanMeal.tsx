@@ -73,7 +73,7 @@ const PlanMeal = () => {
       const baseResponse = await fetch(
         `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${encodeURIComponent(
           ingredientNames
-        )}&number=10&apiKey=c11a17bfe0a94b5a95c3f70ddbf663af`
+        )}&number=10&apiKey=e4f654951cf040dabe22e878460b9b04`
       );
   
       const baseData: Recipe[] = await baseResponse.json();
@@ -81,7 +81,7 @@ const PlanMeal = () => {
   
       for (const recipe of baseData) {
         const priceResponse = await fetch(
-          `https://api.spoonacular.com/recipes/${recipe.id}/priceBreakdownWidget.json?apiKey=c11a17bfe0a94b5a95c3f70ddbf663af`
+          `https://api.spoonacular.com/recipes/${recipe.id}/priceBreakdownWidget.json?apiKey=e4f654951cf040dabe22e878460b9b04`
         );
         const priceData = await priceResponse.json();
   

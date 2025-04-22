@@ -73,7 +73,7 @@ const Pantry = () => {
       const response = await fetch(
         `https://api.spoonacular.com/food/ingredients/search?query=${encodeURIComponent(
           searchText
-        )}&number=5&apiKey=6ffdf60e9f814440bdbfb6b3f9b9b5cd`
+        )}&number=5&apiKey=e4f654951cf040dabe22e878460b9b04`
       );
 
       const data = await response.json();
