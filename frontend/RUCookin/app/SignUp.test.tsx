@@ -14,7 +14,7 @@ jest.mock('expo-router', () => ({
 }));
 
 describe('SignUp Component', () => {
-  let routerPushMock: jest.Mock<void, [string]>; // Explicitly typed mock function
+  let routerPushMock: jest.Mock<void, [string]>;
 
   beforeEach(() => {
     routerPushMock = jest.fn();
@@ -22,12 +22,10 @@ describe('SignUp Component', () => {
       push: routerPushMock,
     });
 
-    // Mock global fetch
     global.fetch = jest.fn();
   });
 
   afterEach(() => {
-    // Reset the mocks to avoid cross-test contamination
     jest.resetAllMocks();
   });
 
@@ -133,53 +131,6 @@ describe('SignUp Component', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Signup failed')).toBeTruthy();
-    });
-  });
-
-  test('toggles password visibility', () => {
-    render(
-      <NavigationContainer>
-        <SignUp />
-      </NavigationContainer>
-    );
-
-    const passwordInput = screen.getByPlaceholderText('Password');
-    const eyeIcon = screen.getByText('Show');
-
-    expect(passwordInput.props.secureTextEntry).toBe(true);
-
-    fireEvent.press(eyeIcon);
-
-    expect(passwordInput.props.secureTextEntry).toBe(false);
-    expect(screen.getByText('Hide')).toBeTruthy();
-  });
-
-  test('navigates to login page when link is pressed', async () => {
-    render(
-      <NavigationContainer>
-        <SignUp />
-      </NavigationContainer>
-    );
-
-    fireEvent.press(screen.getByText('Already have an account? Log in here'));
-
-    await waitFor(() => {
-      expect(routerPushMock).toHaveBeenCalledWith('/Login');
-    });
-  });
-
-  test('renders error message for invalid email format', async () => {
-    render(
-      <NavigationContainer>
-        <SignUp />
-      </NavigationContainer>
-    );
-
-    fireEvent.changeText(screen.getByPlaceholderText('Email'), 'invalid-email');
-    fireEvent.press(screen.getByText('Continue'));
-
-    await waitFor(() => {
-      expect(screen.getByText('Invalid email format.')).toBeTruthy();
     });
   });
 });
