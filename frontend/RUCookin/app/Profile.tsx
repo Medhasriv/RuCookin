@@ -43,7 +43,7 @@ const Profile = () => {
   const fetchUserData = async () => {
     try {
       const storedUserInfo = await AsyncStorage.getItem("UserInfo");
-      console.log("Stored UserInfo:", storedUserInfo); // Debug log
+      // console.log("Stored UserInfo:", storedUserInfo); // Debug log
       if (storedUserInfo) {
         setUserData(JSON.parse(storedUserInfo));
       }
@@ -55,7 +55,7 @@ const Profile = () => {
   // When a field is submitted, update the database automatically.
   const handleSave = async () => {
     console.log("Saving data:", userData); // Debugging log
-      // Ensure required fields exist
+    // Ensure required fields exist
     if (!userData.username || !userData.email) return;
     try {
       const response = await fetch("http://localhost:3001/routes/auth/updateProfile", {
@@ -93,17 +93,18 @@ const Profile = () => {
     <View style={styles.container}>
       <SafeAreaView style={styles.contentContainer}>
         {/* Header */}
-        <Text style={styles.header}>
+        <Text style={styles.header} testID="profile-header">
           {userData.username ? `${userData.username}'s Profile` : "Profile"}
         </Text>
 
-
         {/* Basic Information Section */}
-        <Text style={styles.sectionHeader}>Basic Information</Text>
+        <Text style={styles.sectionHeader} testID="basic-info-header">
+          Basic Information
+        </Text>
 
-                {/* First Name */}
-                <View style={styles.fieldContainer}>
-          <Text style={styles.label}>First Name:</Text>
+        {/* First Name */}
+        <View style={styles.fieldContainer} testID="first-name-section">
+          <Text style={styles.label} testID="first-name-label">First Name:</Text>
           <View style={styles.inputRow}>
             {editing.firstName ? (
               <>
@@ -111,8 +112,15 @@ const Profile = () => {
                   style={styles.input}
                   value={userData.firstName}
                   onChangeText={(text) => setUserData((prev) => ({ ...prev, firstName: text }))}
+                  testID="first-name-input" // testID for input field
                 />
-                <TouchableOpacity onPress={() => { toggleEditing("firstName"); handleSave(); }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    toggleEditing("firstName");
+                    handleSave();
+                  }}
+                  testID="save-first-name-icon" // testID for save button
+                >
                   <Image
                     source={
                       isDarkMode
@@ -124,9 +132,9 @@ const Profile = () => {
                 </TouchableOpacity>
               </>
             ) : (
-              <Text style={styles.value}>{userData.firstName || "N/A"}</Text>
+              <Text style={styles.value} testID="first-name-display">{userData.firstName || "N/A"}</Text>
             )}
-            <TouchableOpacity onPress={() => toggleEditing("firstName")}>
+            <TouchableOpacity onPress={() => toggleEditing("firstName")} testID="edit-first-name-icon">
               <Image
                 source={
                   isDarkMode
@@ -139,10 +147,9 @@ const Profile = () => {
           </View>
         </View>
 
-
         {/* Last Name */}
-        <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Last Name:</Text>
+        <View style={styles.fieldContainer} testID="last-name-section">
+          <Text style={styles.label} testID="last-name-label">Last Name:</Text>
           <View style={styles.inputRow}>
             {editing.lastName ? (
               <>
@@ -150,8 +157,15 @@ const Profile = () => {
                   style={styles.input}
                   value={userData.lastName}
                   onChangeText={(text) => setUserData((prev) => ({ ...prev, lastName: text }))}
+                  testID="last-name-input" // testID for input field
                 />
-                <TouchableOpacity onPress={() => { toggleEditing("lastName"); handleSave(); }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    toggleEditing("lastName");
+                    handleSave();
+                  }}
+                  testID="save-last-name-icon" // testID for save button
+                >
                   <Image
                     source={
                       isDarkMode
@@ -163,9 +177,9 @@ const Profile = () => {
                 </TouchableOpacity>
               </>
             ) : (
-              <Text style={styles.value}>{userData.lastName || "N/A"}</Text>
+              <Text style={styles.value} testID="last-name-display">{userData.lastName || "N/A"}</Text>
             )}
-            <TouchableOpacity onPress={() => toggleEditing("lastName")}> 
+            <TouchableOpacity onPress={() => toggleEditing("lastName")} testID="edit-last-name-icon">
               <Image
                 source={
                   isDarkMode
@@ -179,8 +193,8 @@ const Profile = () => {
         </View>
 
         {/* Location */}
-        <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Location:</Text>
+        <View style={styles.fieldContainer} testID="location-section">
+          <Text style={styles.label} testID="location-label">Location:</Text>
           <View style={styles.inputRow}>
             {editing.location ? (
               <>
@@ -188,8 +202,15 @@ const Profile = () => {
                   style={styles.input}
                   value={userData.location}
                   onChangeText={(text) => setUserData((prev) => ({ ...prev, location: text }))}
+                  testID="location-input" // testID for input field
                 />
-                <TouchableOpacity onPress={() => { toggleEditing("location"); handleSave(); }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    toggleEditing("location");
+                    handleSave();
+                  }}
+                  testID="save-location-icon" // testID for save button
+                >
                   <Image
                     source={
                       isDarkMode
@@ -201,9 +222,9 @@ const Profile = () => {
                 </TouchableOpacity>
               </>
             ) : (
-              <Text style={styles.value}>{userData.location || "N/A"}</Text>
+              <Text style={styles.value} testID="location-display">{userData.location || "N/A"}</Text>
             )}
-            <TouchableOpacity onPress={() => toggleEditing("location")}> 
+            <TouchableOpacity onPress={() => toggleEditing("location")} testID="edit-location-icon">
               <Image
                 source={
                   isDarkMode
@@ -217,8 +238,8 @@ const Profile = () => {
         </View>
 
         {/* Email */}
-        <View style={styles.fieldContainer}>
-          <Text style={styles.label}>Email:</Text>
+        <View style={styles.fieldContainer} testID="email-section">
+          <Text style={styles.label} testID="email-label">Email:</Text>
           <View style={styles.inputRow}>
             {editing.email ? (
               <>
@@ -227,8 +248,15 @@ const Profile = () => {
                   value={userData.email}
                   onChangeText={(text) => setUserData((prev) => ({ ...prev, email: text }))}
                   keyboardType="email-address"
+                  testID="email-input" // testID for input field
                 />
-                <TouchableOpacity onPress={() => { toggleEditing("email"); handleSave(); }}>
+                <TouchableOpacity
+                  onPress={() => {
+                    toggleEditing("email");
+                    handleSave();
+                  }}
+                  testID="save-email-icon" // testID for save button
+                >
                   <Image
                     source={
                       isDarkMode
@@ -240,9 +268,9 @@ const Profile = () => {
                 </TouchableOpacity>
               </>
             ) : (
-              <Text style={styles.value}>{userData.email || "N/A"}</Text>
+              <Text style={styles.value} testID="email-display">{userData.email || "N/A"}</Text>
             )}
-            <TouchableOpacity onPress={() => toggleEditing("email")}> 
+            <TouchableOpacity onPress={() => toggleEditing("email")} testID="edit-email-icon">
               <Image
                 source={
                   isDarkMode
@@ -255,125 +283,62 @@ const Profile = () => {
           </View>
         </View>
 
-
-        {/* Preferences Button */}
-        <TouchableOpacity
-          style={styles.preferenceButton}
-          onPress={() => router.push("/CuisineLikes")}
-        >
-          <Text style={styles.preferenceButtonText}>
-            Diet and Cuisine Preferences
-          </Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={styles.preferenceButton}
-          onPress={() => router.push("/Settings")}
-        >
-          <Text style={styles.preferenceButtonText}>
-            Back to All Settings
-          </Text>
-        </TouchableOpacity>
-        
+        {/* Bottom navigation bar */}
+        <BottomNavBar activeTab="settings" isDarkMode={isDarkMode} />
       </SafeAreaView>
-
-      {/* Bottom Navigation Bar */}
-      <BottomNavBar activeTab="settings" isDarkMode={isDarkMode} />
     </View>
   );
 };
 
-function createStyles(isDarkMode: boolean) {
-  return StyleSheet.create({
+const createStyles = (isDarkMode: boolean) =>
+  StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: isDarkMode ? "#000000" : "#ffffff",
     },
     contentContainer: {
+      padding: 16,
       flex: 1,
-      padding: 20,
     },
     header: {
-      fontSize: 30,
+      fontSize: 24,
       fontWeight: "bold",
-      textAlign: "center",
       marginBottom: 20,
-      color: isDarkMode ? "#FFCF99" : "#721121",
-    },
-    preferenceButton: {
-      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
-      padding: 15,
-      borderRadius: 8,
-      alignItems: "center",
-      marginBottom: 20,
-    },
-    preferenceButtonText: {
-      color: isDarkMode ? "#721121" : "#FFCF99",
-      fontSize: 18,
-      fontWeight: "bold",
+      color: isDarkMode ? "#ffffff" : "#000000",
     },
     sectionHeader: {
-      fontSize: 22,
-      fontWeight: "bold",
-      color: isDarkMode ? "#FFCF99" : "#721121",
-      marginBottom: 10,
+      fontSize: 20,
+      marginBottom: 12,
+      color: isDarkMode ? "#cccccc" : "#333333",
     },
     fieldContainer: {
-      marginBottom: 15,
+      marginBottom: 16,
     },
     label: {
-      fontSize: 18,
-      fontWeight: "bold",
-      color: isDarkMode ? "#FFCF99" : "#721121",
+      fontSize: 16,
+      color: isDarkMode ? "#ffffff" : "#000000",
     },
     inputRow: {
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "space-between",
-      marginTop: 5,
+    },
+    input: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: isDarkMode ? "#ffffff" : "#000000",
+      padding: 8,
+      marginRight: 10,
+      color: isDarkMode ? "#ffffff" : "#000000",
+      backgroundColor: isDarkMode ? "#333333" : "#f0f0f0",
+    },
+    editIcon: {
+      width: 20,
+      height: 20,
     },
     value: {
       fontSize: 16,
-      padding: 10,
-      borderRadius: 5,
-      backgroundColor: isDarkMode ? "#721121" : "#FFF",
-      color: isDarkMode ? "#FFCF99" : "#721121",
-      flex: 1,
-    },
-    input: {
-      fontSize: 16,
-      padding: 10,
-      borderWidth: 1,
-      borderColor: isDarkMode ? "#FFCF99" : "#721121",
-      borderRadius: 5,
-      color: isDarkMode ? "#FFCF99" : "#721121",
-      backgroundColor: isDarkMode ? "#721121" : "#FFF",
-      flex: 1,
-    },
-    editIcon: {
-      width: 24,
-      height: 24,
-      marginLeft: 10,
-      tintColor: isDarkMode ? "#FFCF99" : "#721121",
-    },
-    buttonContainer: {
-      marginTop: 20,
-      alignItems: "center",
-    },
-    button: {
-      padding: 15,
-      borderRadius: 8,
-      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
-      margin: 10,
-      width: "80%",
-    },
-    buttonText: {
-      color: isDarkMode ? "#721121" : "#FFCF99",
-      fontSize: 18,
-      fontWeight: "bold",
-      textAlign: "center",
+      color: isDarkMode ? "#cccccc" : "#333333",
     },
   });
-}
 
 export default Profile;
