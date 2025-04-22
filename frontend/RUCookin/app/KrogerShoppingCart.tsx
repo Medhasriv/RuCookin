@@ -61,11 +61,13 @@ const KrogerShoppingCart  = () => {
   const handleFetchKrogerPrices  = async () => {
     try {
       const token = await getToken();
-      const response = await fetch(`http://localhost:3001/routes/api/krogerCart?zipcode=${zipcode}`, {
-        method: "GET",
+      const response = await fetch(`http://localhost:3001/routes/api/krogerCart`, {
+        method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({ zipcode }),
       });
       const data = await response.json();
     if (response.ok) {

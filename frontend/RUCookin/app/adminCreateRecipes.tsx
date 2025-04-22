@@ -35,7 +35,7 @@ const AdminCreateRecipe = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:3001/api/admin/recipes/add', {
+      const response = await fetch('http://localhost:3001/routes/api/adminCreateRecipe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -43,14 +43,14 @@ const AdminCreateRecipe = () => {
 
       const data = await response.json();
       if (response.ok) {
-        Alert.alert('Success', 'Recipe created successfully.');
+        console.log('Success', 'Recipe created successfully.');
         router.push('/adminHomePage');
       } else {
-        Alert.alert('Error', data.message || 'Failed to create recipe.');
+        console.log('Error', data.message || 'Failed to create recipe.');
       }
     } catch (error) {
       console.error('Error:', error);
-      Alert.alert('Error', 'Something went wrong.');
+      console.log('Error', 'Something went wrong.');
     }
   };
   
@@ -59,13 +59,13 @@ const AdminCreateRecipe = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>Create New Recipe</Text>
 
-      <TextInput style={styles.input} placeholder="Title" value={title} onChangeText={setTitle} />
+      <TextInput style={styles.input} placeholder="Title *" value={title} onChangeText={setTitle} />
       <TextInput style={styles.input} placeholder="Summary" value={summary} onChangeText={setSummary} />
       <TextInput style={styles.input} placeholder="Ready In Minutes" value={readyInMin} onChangeText={setReadyInMin} keyboardType="numeric" />
-      <TextInput style={styles.textArea} placeholder="Instructions" value={instructions} onChangeText={setInstructions} multiline />
-      <TextInput style={styles.input} placeholder="Ingredients (comma-separated)" value={ingredients} onChangeText={setIngredients} />
-      <TextInput style={styles.input} placeholder="Diets (comma-separated)" value={diets} onChangeText={setDiets} />
-      <TextInput style={styles.input} placeholder="Cuisines (comma-separated)" value={cuisines} onChangeText={setCuisines} />
+      <TextInput style={styles.textArea} placeholder="Instructions *" value={instructions} onChangeText={setInstructions} multiline />
+      <TextInput style={styles.input} placeholder="Ingredients (use commas) *" value={ingredients} onChangeText={setIngredients} />
+      <TextInput style={styles.input} placeholder="Diets (use commas)" value={diets} onChangeText={setDiets} />
+      <TextInput style={styles.input} placeholder="Cuisines (use commas)" value={cuisines} onChangeText={setCuisines} />
 
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Submit Recipe</Text>

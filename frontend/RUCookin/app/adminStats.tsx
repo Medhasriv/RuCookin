@@ -26,10 +26,10 @@ const AdminStats = () => {
       if (!token) return;
 
       const [favRes, prefRes] = await Promise.all([
-        fetch("http://localhost:3001/routes/adminTop/top-favorites", {
+        fetch("http://localhost:3001/routes/api/adminTop/top-favorites", {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch("http://localhost:3001/routes/adminTop/user-preferences", {
+        fetch("http://localhost:3001/routes/api/adminTop/user-preferences", {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);

@@ -1,18 +1,16 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
-const BanWord = require('../../models/banWord');
+
 require("../../schemas/User.js");
 const User = mongoose.model("UserInfo");
-
 require("../../schemas/banWord.js");
-const  banWord = mongoose.model("banWordInfo");
-
-const mongoose = require('mongoose');
-
+const banWord = mongoose.model("banWordInfo");
 
 
 router.post('/add', async (req, res) => {
-    const { word, addedBy } = req.body;
+    const { word } = req.body;
+    const addedBy = req.user?.username || null; 
   
     if (!word) return res.status(400).json({ message: 'Missing word' });
     const wordRegex = /^[A-Za-z]+$/;
@@ -21,9 +19,9 @@ router.post('/add', async (req, res) => {
       }
   
     try {
-      const newBan = new BanWord({
+      const newBan = new banWord({
         word: word.toLowerCase(),
-        addedBy: addedBy || null
+        addedBy
       });
       await newBan.save();
       res.json({ message: 'Ban word added' });
@@ -34,7 +32,7 @@ router.post('/add', async (req, res) => {
 
   router.get('/list', async (req, res) => {
     try {
-      const banWords = await BanWord.find({});
+      const banWords = await banWord.find({});
       res.json(banWords);
     } catch (err) {
       res.status(500).json({ message: 'Failed to fetch ban words' });
@@ -43,7 +41,7 @@ router.post('/add', async (req, res) => {
 
   router.get('/violations', async (req, res) => {
     try {
-      const banWords = await BanWord.find({});
+      const banWords = await banWord.find({});
       const bannedWords = banWords.map(b => b.word.toLowerCase());
   
       const users = await User.find({}, 'username firstName lastName'); 
@@ -54,8 +52,8 @@ router.post('/add', async (req, res) => {
   
         for (const banned of bannedWords) {
           if (user.username.toLowerCase().includes(banned)) matches.push(`username: ${user.username}`);
-          if (user.firstName.toLowerCase().includes(banned)) matches.push(`firstName: ${user.firstName}`);
-          if (user.lastName.toLowerCase().includes(banned)) matches.push(`lastName: ${user.lastName}`);
+          if (user.firstName && user.firstName.toLowerCase().includes(banned)) matches.push(`firstName: ${user.firstName}`);
+          if (user.lastName && user.lastName.toLowerCase().includes(banned)) matches.push(`lastName: ${user.lastName}`);
         }
   
         if (matches.length > 0) {
@@ -75,6 +73,7 @@ router.post('/add', async (req, res) => {
     }
   });
 
+module.exports = router;
 
 
 

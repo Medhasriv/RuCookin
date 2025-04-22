@@ -31,14 +31,14 @@ const AdminHomePage = () => {
               <Text style={styles.buttonText}>Top Lists</Text>
             </TouchableOpacity>
     
-            <TouchableOpacity style={styles.button} onPress={() => router.push("/HomePage")}>
+            <TouchableOpacity style={styles.button} onPress={() => router.push("/adminModifyAccount")}>
               <Text style={styles.buttonText}>Modified Accounts</Text>
             </TouchableOpacity>
     
             <TouchableOpacity style={styles.button} onPress={() => router.push("/adminCreateRecipes")}>
               <Text style={styles.buttonText}>Create Recipes</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => router.push("/HomePage")}>
+            <TouchableOpacity style={styles.button} onPress={() => router.push("/adminSignUp")}>
               <Text style={styles.buttonText}>Create Admin</Text>
             </TouchableOpacity>
           </SafeAreaView>

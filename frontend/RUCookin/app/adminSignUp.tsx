@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { Divider } from "../components/Divider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function SignUp() {
+export default function adminSignUp() {
   // Global Variable Declarations
   const router = useRouter(); // Routing through the different screens
   const [username, setUsername] = useState(""); // Handling username input

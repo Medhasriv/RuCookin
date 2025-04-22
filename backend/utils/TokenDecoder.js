@@ -12,6 +12,7 @@ const getUserIdFromToken = (req) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
       console.log("🔐 decoded token:", decoded);
       console.log("🔐 id token:", decoded.id);
+      console.log("THE ISERID TOKEN IS: ", decoded.id)
       return decoded.id;
     } catch (err) {
       console.error("❌ Token verification failed:", err.message);
