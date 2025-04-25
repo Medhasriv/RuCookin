@@ -12,9 +12,10 @@ const Cart = mongoose.model("CartInfo");
 const { tokenStore } = require("../auth/krogerCallback");
 const { getUserIdFromToken } = require("../../utils/TokenDecoder");
 
-router.post("/", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const { zipcode } = req.body;
+    const zipcode = req.query.zipcode;
+    const krogerToken = req.headers["x-kroger-token"];
     const userId = getUserIdFromToken(req);
     console.log("THE USERD IS: ")
     console.log(userId)
@@ -31,15 +32,10 @@ router.post("/", async (req, res) => {
     if (!userCart || userCart.cartItems.length === 0) {
       return res.status(404).json({ error: "Cart is empty" });
     }
-    
-
-    const userIp =
-    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
-    req.socket?.remoteAddress ||
-    req.ip;
-
-    const krogerToken = tokenStore.get(userIp);
-    console.log("🔎 Looking up Kroger token for IP:", userIp);
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "User not authenticated with Kroger" });
+    }
     console.log("🧠 Retrieved Kroger token:", krogerToken);
 
     if (!krogerToken) {
@@ -108,8 +104,37 @@ router.post("/", async (req, res) => {
       not_found: unmatchedItems,
     });
   } catch (err) {
-    console.error("🔥 krogerCart error:", err.message);
+    console.error("🔥 GET /krogerCart error:", err.message);
+    console.error("📦 Full error:", err.response?.data || err);
     res.status(500).json({ error: "Server error" });
+  }
+});
+router.post("/", async (req, res) => {
+  try {
+    console.log("🔥 Start the clear");
+    const userId = getUserIdFromToken(req);
+    if (!userId) return res.status(401).json({ error: "User not authenticated" });
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const userCart = await Cart.findOne({ userId: user._id });
+    if (!userCart || userCart.cartItems.length === 0) {
+      return res.status(404).json({ error: "Cart is empty" });
+    }
+    await Cart.updateOne(
+      { userId: user._id },
+      { $set: { cartItems: [] } }
+    );
+
+    res.json({
+  message: "🧹 Cart successfully cleared"
+    });
+
+
+  } catch (err) {
+    console.error("🔥 POST /krogerCart error:", err.response?.data || err.message);
+    res.status(500).json({ error: "Failed to add items to Kroger shopping list" });
   }
 });
 

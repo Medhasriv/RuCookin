@@ -69,13 +69,10 @@ router.delete('/', async (req, res) => {
     if (!userCart) {
       return res.status(404).json({ message: "Cart not found for user" });
     }
-    const itemIndex = userCart.cartItems.findIndex(item => item._id === cartItemId);
-    if (itemIndex === -1) {
-      return res.status(404).json({ message: "Item not found in cart" });
-    }
-    userCart.cartItems.splice(itemIndex, 1);
-    await userCart.save();
-
+    await Cart.updateOne(
+      { userId },
+      { $pull: { cartItems: { _id: cartItemId } } }
+    );
     return res.status(200).json({ message: "Cart item deleted successfully" });
 
   } catch (error) {

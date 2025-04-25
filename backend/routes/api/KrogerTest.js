@@ -49,7 +49,7 @@ router.get("/", async (req, res) => {
       const user = await User.findOne({ username });
       if (!user) return res.status(404).json({ error: "User not found" });
   
-      const zipcode = "90210"; // Hardcoded for now
+      const zipcode = "45342"; // Hardcoded for now
   
       // Get the user's cart
       const userCart = await Cart.findOne({ userId: user._id });
