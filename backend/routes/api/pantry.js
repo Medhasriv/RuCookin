@@ -78,4 +78,30 @@ router.delete("/", async (req, res) => {
     }
 });
 
+
+// PUT update expiration date
+router.put("/expiration", async (req, res) => {
+    const userId = getUserIdFromToken(req);
+    const { itemId, expirationDate } = req.body;
+
+    if (!userId || !itemId || !expirationDate) {
+        return res.status(400).json({ message: "Missing user ID, item ID, or expiration date" });
+    }
+
+    try {
+        const pantry = await Pantry.findOneAndUpdate(
+            { userId, "items.id": itemId },
+            { $set: { "items.$.expirationDate": new Date(expirationDate) } },
+            { new: true }
+        );
+
+        if (!pantry) return res.status(404).json({ message: "Item not found" });
+
+        return res.status(200).json({ message: "Expiration date updated", items: pantry.items });
+    } catch (err) {
+        console.error("❌ Pantry update error:", err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 module.exports = router;

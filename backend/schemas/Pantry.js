@@ -14,8 +14,10 @@ const pantrySchema = new mongoose.Schema(
                 id: Number,
                 name: String,
                 image: String,
+                expirationDate: Date,
             },
         ],
+
     },
     {
         collection: "PantryInfo",

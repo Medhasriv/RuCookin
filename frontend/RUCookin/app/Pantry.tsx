@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -21,10 +20,12 @@ type IngredientResult = {
   name: string;
   image: string;
 };
+
 type PantryItem = {
   id: number;
   name: string;
   image: string;
+  expirationDate?: string;
 };
 
 const Pantry = () => {
@@ -32,6 +33,7 @@ const Pantry = () => {
   const [searchResults, setSearchResults] = useState<IngredientResult[]>([]);
   const [userTheme, setUserTheme] = useState<string | null>(null);
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
+  const [expirationInputs, setExpirationInputs] = useState<{ [key: number]: string }>({});
   const deviceScheme = useColorScheme();
   const effectiveTheme = userTheme ? userTheme : deviceScheme;
   const isDarkMode = effectiveTheme === "dark";
@@ -54,17 +56,26 @@ const Pantry = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
-      const data = await response.json();
+
+      const data: PantryItem[] = await response.json();
       if (response.ok) {
         setPantryItems(data);
+
+        // Extract and format expiration dates
+        const newInputs: { [key: number]: string } = {};
+        data.forEach((item) => {
+          if (item.expirationDate) {
+            newInputs[item.id] = item.expirationDate.split("T")[0];
+          }
+        });
+        setExpirationInputs(newInputs);
       } else {
         console.error("Error fetching pantry items:", data);
       }
     } catch (error) {
       console.error("❌ Error:", error);
     }
-  };  
+  };
 
   const fetchIngredients = async () => {
     try {
@@ -86,13 +97,12 @@ const Pantry = () => {
   const handleAddToPantry = async (ingredient: IngredientResult) => {
     try {
       const token = await getToken();
-      // console.log("🔐 token:", token);
-            const newItem = {
+      const newItem = {
         id: ingredient.id,
         name: ingredient.name,
         image: ingredient.image,
       };
-  
+
       const response = await fetch("http://localhost:3001/routes/api/pantry", {
         method: "POST",
         headers: {
@@ -101,22 +111,20 @@ const Pantry = () => {
         },
         body: JSON.stringify({ item: newItem }),
       });
-      
+
       const data = await response.json();
-      // console.log("📬 Response from server:", data);
-      
-        if (response.ok) {
-        // alert(`${ingredient.name} added to pantry!`);
+
+      if (response.ok) {
         setSearchText("");
         setSearchResults([]);
-        fetchPantryItems(); // Re-fetch pantry items after adding to pantry
+        fetchPantryItems(); // Refresh
       } else {
         console.error("Data error: ", data);
       }
     } catch (error) {
       console.error("❌ Error adding to pantry:", error);
     }
-  };  
+  };
 
   const handleRemoveFromPantry = async (id: number) => {
     try {
@@ -129,7 +137,7 @@ const Pantry = () => {
         },
         body: JSON.stringify({ itemId: id }),
       });
-  
+
       const data = await response.json();
       if (response.ok) {
         setPantryItems((prev) => prev.filter((item) => item.id !== id));
@@ -140,7 +148,32 @@ const Pantry = () => {
       console.error("❌ Error deleting pantry item:", error);
     }
   };
-  
+
+  const handleUpdateExpiration = async (itemId: number) => {
+    const expirationDate = expirationInputs[itemId];
+    if (!expirationDate) return;
+
+    try {
+      const token = await getToken();
+      const response = await fetch("http://localhost:3001/routes/api/pantry/expiration", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ itemId, expirationDate }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        fetchPantryItems(); // Refresh
+      } else {
+        console.error("Error updating expiration date:", data.message);
+      }
+    } catch (error) {
+      console.error("❌ Error:", error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -184,7 +217,25 @@ const Pantry = () => {
                 source={{ uri: `https://spoonacular.com/cdn/ingredients_100x100/${item.image}` }}
                 style={styles.ingredientImage}
               />
-              <Text style={styles.itemName}>{item.name}</Text>
+              <View style={{ flex: 1, marginLeft: 10 }}>
+                <Text style={styles.itemName}>{item.name}</Text>
+                <TextInput
+                  style={styles.expirationInput}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor={isDarkMode ? "#ccc" : "#555"}
+                  value={expirationInputs[item.id] || ""}
+                  onChangeText={(text) =>
+                    setExpirationInputs((prev) => ({ ...prev, [item.id]: text }))
+                  }
+                />
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={() => handleUpdateExpiration(item.id)}
+                >
+                  <Text style={styles.saveButtonText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+
               <TouchableOpacity onPress={() => handleRemoveFromPantry(item.id)} style={styles.removeButton}>
                 <Image
                   source={
@@ -262,6 +313,25 @@ const createStyles = (isDarkMode: boolean) =>
     cancelIcon: {
       width: 24,
       height: 24,
+    },
+    expirationInput: {
+      borderWidth: 1,
+      borderColor: "#ccc",
+      borderRadius: 5,
+      padding: 5,
+      marginTop: 5,
+      color: isDarkMode ? "#FFCF99" : "#721121",
+    },
+    saveButton: {
+      backgroundColor: isDarkMode ? "#721121" : "#FFCF99",
+      borderRadius: 5,
+      padding: 6,
+      marginTop: 5,
+      alignSelf: "flex-start",
+    },
+    saveButtonText: {
+      color: isDarkMode ? "#FFCF99" : "#721121",
+      fontSize: 14,
     },
   });
 
