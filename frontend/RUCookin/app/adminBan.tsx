@@ -1,11 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView } from "react-native-safe-area-context";
-import {View,Text, FlatList,StyleSheet,ScrollView, TextInput, Button} from 'react-native';
-import { checkAuth } from "../utils/authChecker";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  useColorScheme,
+} from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import BottomNavBar from "../components/BottomNavBar";
-
+import { checkAuth } from "../utils/authChecker";
+import AdminBottomNavBar from "../components/adminBottomNavBar";
 
 type ViolationItem = {
   username: string;
@@ -19,181 +26,256 @@ type BanWordItem = {
   addedBy?: string;
 };
 
-
-
 const AdminBan = () => {
-  const [banWords, setBanWords] = useState<BanWordItem[]>([]);
-  const [newWord, setNewWord] = useState('');
-  const [violations, setViolations] = useState<ViolationItem[]>([]);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const isDarkMode = useColorScheme() === "dark";
+  const styles = createStyles(isDarkMode, insets.top);
+
+  const [banWords, setBanWords] = useState<BanWordItem[]>([]);
+  const [newWord, setNewWord] = useState("");
+  const [violations, setViolations] = useState<ViolationItem[]>([]);
 
   useEffect(() => {
     checkAuth(router);
     fetchBanWords();
     fetchViolations();
   }, []);
+
   const fetchBanWords = async () => {
     try {
       const res = await fetch("http://localhost:3001/routes/api/adminBan/list");
       const data = await res.json();
       setBanWords(data);
     } catch (err) {
-      console.error('Error fetching ban words:', err);
+      console.error("Error fetching ban words:", err);
     }
   };
-  
 
+  const fetchViolations = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/routes/api/adminBan/violations");
+      if (!res.ok) throw new Error("Failed to fetch violations");
+      const data = await res.json();
+      setViolations(data);
+    } catch (err) {
+      console.error("❌ Error fetching violations:", err);
+    }
+  };
 
-      const fetchViolations = async () => {
-        try {
-
-          const res = await fetch("http://localhost:3001/routes/api/adminBan/violations");
-          if (!res.ok) throw new Error("Failed to fetch");
-          const data = await res.json();
-          setViolations(data);
-        } catch (err) {
-          console.error("❌ Error fetching violations:", err);
-        } 
-      };
-      const handleAddBanWord = async () => {
-        if (!newWord.trim()) return;
-        try {
-          const res = await fetch("http://localhost:3001/routes/api/adminBan/add", {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ word: newWord})
-          });
-          const data = await res.json();
-    
-          if (res.ok) {
-            console.error('Success', 'Ban word added!');
-            setNewWord('');
-            fetchBanWords();
-            fetchViolations();
-          } else {
-            console.error('Error', data.message || 'Could not add ban word.');
-          }
-        } catch (err) {
-          console.error(err);
-          console.error('Error', ' error occurred.');
-        }
-      };
-      const styles = StyleSheet.create({
-        container: {
-          padding: 16,
-          backgroundColor: '#fff',
-          flex: 1,
-        },
-        heading: {
-          fontSize: 22,
-          fontWeight: 'bold',
-          marginBottom: 16,
-          color: '#721121',
-        },
-        subHeader: {
-          fontSize: 18,
-          fontWeight: 'bold',
-          marginTop: 24,
-          marginBottom: 10,
-          color: '#444',
-        },
-        inputRow: {
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginBottom: 16,
-        },
-        input: {
-          flex: 1,
-          borderColor: '#ccc',
-          borderWidth: 1,
-          padding: 10,
-          borderRadius: 8,
-          marginRight: 8,
-          fontSize: 16,
-        },
-        banWord: {
-          fontSize: 16,
-          marginBottom: 4,
-          paddingLeft: 8,
-          color: '#000',
-        },
-        none: {
-          fontStyle: 'italic',
-          color: '#777',
-          marginBottom: 10,
-          fontSize: 16,
-        },
-        card: {
-          padding: 12,
-          borderRadius: 8,
-          borderColor: '#ddd',
-          borderWidth: 1,
-          marginBottom: 12,
-          backgroundColor: '#f9f9f9',
-        },
-        username: {
-          fontWeight: 'bold',
-          fontSize: 16,
-          color: '#2c3e50',
-        },
-        fieldHeader: {
-          marginTop: 6,
-          fontWeight: '600',
-          color: '#555',
-        },
-        matchedField: {
-          paddingLeft: 10,
-          color: '#c0392b',
-        },
+  const handleAddBanWord = async () => {
+    if (!newWord.trim()) return;
+    try {
+      const res = await fetch("http://localhost:3001/routes/api/adminBan/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ word: newWord.trim() }),
       });
+      const data = await res.json();
+      if (res.ok) {
+        setNewWord("");
+        fetchBanWords();
+        fetchViolations();
+      } else {
+        console.error("Error adding ban word:", data.message);
+      }
+    } catch (err) {
+      console.error("Error:", err);
+    }
+  };
 
-      return (
-        <ScrollView style={styles.container}>
-          <Text style={styles.heading}>🚫 Manage Ban Words</Text>
-      
-          {/* Add New Word */}
-          <View style={styles.inputRow}>
-            <TextInput
-              value={newWord}
-              onChangeText={setNewWord}
-              placeholder="Add new ban word"
-              placeholderTextColor="#999"
-              style={styles.input}
-            />
-            <Button title="Add" onPress={handleAddBanWord} />
-          </View>
-      
-          {/* Ban Word List */}
-          <Text style={styles.subHeader}>📋 Current Ban Words</Text>
-          {banWords.length === 0 ? (
-            <Text style={styles.none}>No ban words yet.</Text>
-          ) : (
-            banWords.map((word, index) => (
-              <Text key={index} style={styles.banWord}>• {word.word}</Text>
-            ))
-          )}
-      
-          {/* Violations List */}
-          <Text style={styles.subHeader}>🚨 Violations</Text>
-          {violations.length === 0 ? (
-            <Text style={styles.none}>No violations found.</Text>
-          ) : (
-            <FlatList
-              data={violations}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
-                <View style={styles.card}>
-                  <Text style={styles.username}>{item.username}</Text>
-                  <Text>{item.firstName} {item.lastName}</Text>
-                  <Text style={styles.fieldHeader}>Matched Fields:</Text>
-                  {item.matchedFields.map((field, idx) => (
-                    <Text key={idx} style={styles.matchedField}>• {field}</Text>
-                  ))}
-                </View>
+  const handleRemoveBanWord = async (word: string) => {
+    try {
+      const res = await fetch("http://localhost:3001/routes/api/adminBan/remove", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ word }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        fetchBanWords();
+        fetchViolations();
+      } else {
+        console.error("Error removing ban word:", data.message);
+      }
+    } catch (err) {
+      console.error("Error:", err);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <SafeAreaView style={styles.inner}>
+        <FlatList
+          data={violations}
+          keyExtractor={(_, i) => i.toString()}
+          contentContainerStyle={styles.listContent}
+          ListHeaderComponent={
+            <>
+              <Text style={styles.title}> Manage Ban Words</Text>
+
+              {/* Add New Word */}
+              <View style={styles.inputRow}>
+                <TextInput
+                  value={newWord}
+                  onChangeText={setNewWord}
+                  placeholder="Add new ban word"
+                  placeholderTextColor={isDarkMode ? "#aaa" : "#999"}
+                  style={styles.input}
+                />
+                <TouchableOpacity style={styles.addButton} onPress={handleAddBanWord}>
+                  <Text style={styles.addButtonText}>Add</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Ban Word List */}
+              <Text style={styles.subHeader}>Current Banned Words</Text>
+              {banWords.length === 0 ? (
+                <Text style={styles.none}>No ban words yet.</Text>
+              ) : (
+                banWords.map((w, i) => (
+                  <View key={i} style={styles.banWordRow}>
+                    <Text style={styles.banWord}>• {w.word}</Text>
+                    <TouchableOpacity
+                      style={styles.removeButton}
+                      onPress={() => handleRemoveBanWord(w.word)}
+                    >
+                      <Text style={styles.removeButtonText}>Remove</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))
               )}
-            />
+
+              <Text style={styles.subHeader}>Violations</Text>
+              {violations.length === 0 && <Text style={styles.none}>No violations found.</Text>}
+            </>
+          }
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <Text style={styles.username}>{item.username}</Text>
+              <Text style={styles.name}>
+                {item.firstName} {item.lastName}
+              </Text>
+              <Text style={styles.fieldHeader}>Matched Fields:</Text>
+              {item.matchedFields.map((f, idx) => (
+                <Text key={idx} style={styles.matchedField}>
+                  • {f}
+                </Text>
+              ))}
+            </View>
           )}
-        </ScrollView>
-      );}
-  
-    export default AdminBan;
+        />
+      </SafeAreaView>
+
+      <AdminBottomNavBar activeTab="ban" isDarkMode={isDarkMode} />
+    </View>
+  );
+};
+
+const createStyles = (isDarkMode: boolean, topInset: number) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: isDarkMode ? "#000" : "#fff",
+      paddingTop: Platform.OS === "android" ? topInset : 0,
+    },
+    inner: { flex: 1 },
+    listContent: {
+      paddingHorizontal: 20,
+      paddingBottom: 100, // avoid nav bar
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: "bold",
+      textAlign: "center",
+      color: isDarkMode ? "#FFCF99" : "#721121",
+      marginBottom: 24,
+    },
+    inputRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 16,
+    },
+    input: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: isDarkMode ? "#666" : "#ccc",
+      backgroundColor: isDarkMode ? "#1e1e1e" : "#f9f9f9",
+      color: isDarkMode ? "#fff" : "#000",
+      padding: 10,
+      borderRadius: 8,
+      marginRight: 8,
+      fontSize: 16,
+    },
+    addButton: {
+      backgroundColor: isDarkMode ? "#721121" : "#ffc074",
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 8,
+    },
+    addButtonText: {
+      color: isDarkMode ? "#fff" : "#721121",
+      fontSize: 16,
+      fontWeight: "600",
+    },
+    subHeader: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: isDarkMode ? "#ffc074" : "#444",
+      marginTop: 24,
+      marginBottom: 8,
+    },
+    none: {
+      fontStyle: "italic",
+      color: isDarkMode ? "#888" : "#777",
+      marginBottom: 10,
+      fontSize: 16,
+    },
+    banWordRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 8,
+    },
+    banWord: {
+      fontSize: 16,
+      color: isDarkMode ? "#fff" : "#000",
+    },
+    removeButton: {
+      backgroundColor: isDarkMode ? "#444" : "#e0e0e0",
+      paddingVertical: 4,
+      paddingHorizontal: 10,
+      borderRadius: 6,
+    },
+    removeButtonText: {
+      color: isDarkMode ? "#fff" : "#721121",
+      fontSize: 14,
+    },
+    card: {
+      backgroundColor: isDarkMode ? "#1e1e1e" : "#f9f9f9",
+      padding: 12,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: isDarkMode ? "#333" : "#ddd",
+      marginBottom: 12,
+    },
+    username: {
+      fontWeight: "bold",
+      fontSize: 16,
+      color: isDarkMode ? "#ffc074" : "#2c3e50",
+    },
+    name: {
+      color: isDarkMode ? "#fff" : "#2c3e50",
+    },
+    fieldHeader: {
+      marginTop: 6,
+      fontWeight: "600",
+      color: isDarkMode ? "#fff" : "#555",
+    },
+    matchedField: {
+      paddingLeft: 10,
+      color: isDarkMode ? "#FFCF99" : "#c0392b",
+    },
+  });
+
+export default AdminBan;

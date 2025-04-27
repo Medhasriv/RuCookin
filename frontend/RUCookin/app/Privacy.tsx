@@ -34,7 +34,7 @@ export default function Privacy() {
         <Text style={styles.header}>Privacy & Credits</Text>
 
         <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.text}>Icons made by Freepik, Darwisy Alfarizi, alkhalifi, from www.flaticon.com</Text>
+          <Text style={styles.text}>Icons made by Freepik, Darwisy Alfarizi, alkhalifi, kosonicon, Phoenix Group, Tanah Basah from www.flaticon.com</Text>
 
           <Text style={styles.text}>Photos by Mike Gattorn, S'well, Metin Ozer, nrd on Unsplash</Text>
 

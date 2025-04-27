@@ -1,286 +1,260 @@
+import React, { useRef, useState } from "react";
 import { Link, useRouter } from "expo-router";
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, useColorScheme, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRef, useState } from "react";
-import { Divider } from "../components/Divider";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Platform,
+  StyleSheet,
+  useColorScheme,
+} from "react-native";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Divider } from "../components/Divider";
+import AdminBottomNavBar from "../components/adminBottomNavBar";
 
-export default function adminSignUp() {
-  // Global Variable Declarations
-  const router = useRouter(); // Routing through the different screens
-  const [username, setUsername] = useState(""); // Handling username input
-  const [password, setPassword] = useState(""); // Handling password input
-  const [email, setEmail] = useState(""); // Handling email input
-  const [firstName, setFirstName] = useState(""); // Handling first name input
-  const [lastName, setLastName] = useState(""); // Handling last name input
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Password visibility toggle
-  const [errors, setErrors] = useState<{ 
-    firstName?: string;
-    lastName?: string;
-    username?: string;
-    password?: string;
-    email?: string;
-    general?: string;
-  }>({}); // Handling errors
-  const usernameRef = useRef<TextInput>(null); // Handling lazy username input
-  const passwordRef = useRef<TextInput>(null); // Handling lazy password input
-  const colorScheme = useColorScheme(); // Handling color scheme
-  const isDarkMode = colorScheme === "dark"; // Checks if dark mode
-  const styles = createStyles(isDarkMode); // Changes based on system color scheme
+export default function AdminSignUp() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const isDarkMode = useColorScheme() === "dark";
+  const styles = createStyles(isDarkMode, insets.top);
 
-  // Error Handling - Empty Fields
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [errors, setErrors] = useState<Record<string,string>>({});
+
+  // --- ADD THESE REFS ---
+  const lastNameRef = useRef<TextInput>(null);
+  const emailRef    = useRef<TextInput>(null);
+  const usernameRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+
   const validateForm = () => {
-    let errors: { firstName?: string; lastName?: string; username?: string; password?: string; email?: string } = {};
-    if (!firstName) { errors.firstName = "First name is required."; }
-    if (!lastName) { errors.lastName = "Last name is required."; } 
-    if (!username) { errors.username = "Username is required."; }
-    if (!password) { errors.password = "Password is required."; }
-    if (!email) { errors.email = "Email is required."; }
-    setErrors(errors);
-    return Object.keys(errors).length === 0;
+    const errs: Record<string,string> = {};
+    if (!firstName.trim()) errs.firstName = "First name is required.";
+    if (!lastName.trim())  errs.lastName  = "Last name is required.";
+    if (!email.trim())     errs.email     = "Email is required.";
+    if (!username.trim())  errs.username  = "Username is required.";
+    if (!password)         errs.password  = "Password is required.";
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
-  // Backend SignUp Submit Handling
   const handleSignUpSubmit = async () => {
     if (!validateForm()) return;
-  
     try {
-      const response = await fetch("http://localhost:3001/routes/auth/adminSignUp", {
+      const res = await fetch("http://localhost:3001/routes/auth/adminSignUp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, username, password, email }), 
+        body: JSON.stringify({ firstName, lastName, email, username, password }),
       });
-  
-      const data = await response.json();
-  
-      if (response.ok && data.token) {
-        console.log("✅ Signup successful:", data);
-        console.log("Received token:", data.token);
+      const data = await res.json();
+      if (res.ok && data.token) {
         await AsyncStorage.setItem("token", data.token);
-        setErrors({}); // Clear errors
-        router.push("/adminHomePage"); // Redirect to adminHP
+        router.push("/adminHomePage");
       } else {
-        console.error("❌ Signup failed:", data);
-        setErrors({ general: data.message || "Signup failed. Please try again." });
+        setErrors({ general: data.message || "Signup failed. Try again." });
       }
-    } catch (error) {
-      console.error("❌ Error during signup:", error);
+    } catch (err) {
+      console.error(err);
       setErrors({ general: "Something went wrong. Please try again." });
     }
   };
 
-  // Backend SignUp via Google Handling - CHANGE LATER
-  const handleGoogleSignUpSubmit = () => {
-    console.log("Google Sign Up"); // debug for now
-  };
+  const handleGoogleSignUp = () => console.log("Google signup");
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* RUCookin Logo/Name */}
-      <Text
-        style={Platform.select({
-          ios: styles.iosLogoText,
-          android: styles.iosLogoText,
-          web: styles.webLogoText,
-        })}
-        numberOfLines={1}
-        adjustsFontSizeToFit={Platform.OS !== "web"}
-      >
-        RUCookin'
-      </Text>
-      
-      {/* Create an Account Text */}
-      <Text style={styles.headingText}>Create an Admin Account</Text>
-      
-      {/* Error Messages */}
-      {errors.username && <Text style={styles.errorStyle}>{errors.username}</Text>}
-      {errors.password && <Text style={styles.errorStyle}>{errors.password}</Text>}
-      {errors.email && <Text style={styles.errorStyle}>{errors.email}</Text>}
-      {errors.general && <Text style={styles.errorStyle}>{errors.general}</Text>}
-      
-      {/* First Name Input */}
-      <TextInput 
-        style={styles.inputBoxes} 
-        value={firstName}
-        onChangeText={setFirstName} 
-        placeholder="First Name"
-        placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
-        keyboardAppearance="default"
-        keyboardType="default"
-        autoCorrect={false}
-        autoCapitalize="words"
-        returnKeyType="next"
-      />
+    <View style={styles.container}>
+      <SafeAreaView style={styles.inner}>
+        <ScrollView contentContainerStyle={styles.content}>
+          <Text style={styles.title}>Create an Admin Account</Text>
 
-      {/* Last Name Input */}
-      <TextInput 
-        style={styles.inputBoxes} 
-        value={lastName}
-        onChangeText={setLastName} 
-        placeholder="Last Name"
-        placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
-        keyboardAppearance="default"
-        keyboardType="default"
-        autoCorrect={false}
-        autoCapitalize="words"
-        returnKeyType="next"
-      />
+          {errors.general && <Text style={styles.error}>{errors.general}</Text>}
+          {errors.firstName && <Text style={styles.error}>{errors.firstName}</Text>}
+          {errors.lastName &&  <Text style={styles.error}>{errors.lastName}</Text>}
+          {errors.email &&     <Text style={styles.error}>{errors.email}</Text>}
+          {errors.username &&  <Text style={styles.error}>{errors.username}</Text>}
+          {errors.password &&  <Text style={styles.error}>{errors.password}</Text>}
 
-      {/* Email Input */}
-      <TextInput 
-        style={styles.inputBoxes} 
-        value={email}
-        onChangeText={setEmail} 
-        placeholder="Email"
-        placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
-        keyboardAppearance="default"
-        keyboardType="default"
-        autoCorrect={false}
-        autoCapitalize="none"
-        returnKeyType="next"
-        onSubmitEditing={() => usernameRef.current?.focus()}
-      />
-
-      {/* Username Input */}
-      <TextInput 
-        style={styles.inputBoxes} 
-        value={username}
-        onChangeText={setUsername} 
-        placeholder="Username"
-        placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
-        keyboardAppearance="default"
-        keyboardType="default"
-        autoCorrect={false}
-        autoCapitalize="none"
-        returnKeyType="next"
-        ref={usernameRef}
-        onSubmitEditing={() => passwordRef.current?.focus()}
-      />
-      
-      {/* Password Input */}
-      <View style={styles.passwordContainer}>
-        <TextInput 
-          style={styles.passwordInput} 
-          value={password} 
-          onChangeText={setPassword} 
-          placeholder="Password"
-          placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
-          secureTextEntry={!isPasswordVisible}
-          keyboardAppearance="default"
-          keyboardType="default"
-          autoCorrect={false}
-          autoCapitalize="none"
-          returnKeyType="done"
-          ref={passwordRef}
-          onSubmitEditing={handleSignUpSubmit}
-        />
-        <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={styles.eyeIcon}>
-          <Text>{isPasswordVisible ? "Hide" : "Show"}</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Continue Button */} 
-      <TouchableOpacity style={styles.button} onPress={handleSignUpSubmit}>
-        <Text style={styles.buttonText}>Continue</Text>
-      </TouchableOpacity>
-
-      {/* Divider for Alternative Log In Options */}
-      <Divider isDarkMode={isDarkMode} />
-
-      {/* Google Sign Up Button */}
-      <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignUpSubmit}>
-        <View style={styles.googleButtonContent}>
-          <Image
-            source={require("../assets/icons/google.png")}
-            style={styles.googleIcon}
+          <TextInput
+            style={styles.input}
+            placeholder="First Name"
+            placeholderTextColor={styles.placeholder.color}
+            value={firstName}
+            onChangeText={setFirstName}
+            returnKeyType="next"
+            onSubmitEditing={() => lastNameRef.current?.focus()}
           />
-          <Text style={styles.googleButtonText}>Sign Up with Google</Text>
-        </View>
-      </TouchableOpacity>
-      
-      {/* Sign In Page Link */}
-      <Link href="/Login" style={styles.SignInText}>
-        Already have an account? Log in here
-      </Link>
-    </SafeAreaView>
+
+          <TextInput
+            ref={lastNameRef}
+            style={styles.input}
+            placeholder="Last Name"
+            placeholderTextColor={styles.placeholder.color}
+            value={lastName}
+            onChangeText={setLastName}
+            returnKeyType="next"
+            onSubmitEditing={() => emailRef.current?.focus()}
+          />
+
+          <TextInput
+            ref={emailRef}
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor={styles.placeholder.color}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+            returnKeyType="next"
+            onSubmitEditing={() => usernameRef.current?.focus()}
+          />
+
+          <TextInput
+            ref={usernameRef}
+            style={styles.input}
+            placeholder="Username"
+            placeholderTextColor={styles.placeholder.color}
+            autoCapitalize="none"
+            value={username}
+            onChangeText={setUsername}
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+          />
+
+          <View style={styles.passwordContainer}>
+            <TextInput
+              ref={passwordRef}
+              style={styles.inputFlex}
+              placeholder="Password"
+              placeholderTextColor={styles.placeholder.color}
+              secureTextEntry={!isPasswordVisible}
+              value={password}
+              onChangeText={setPassword}
+              returnKeyType="done"
+              onSubmitEditing={handleSignUpSubmit}
+            />
+            <TouchableOpacity
+              onPress={() => setIsPasswordVisible((v) => !v)}
+              style={styles.toggle}
+            >
+              <Text style={styles.toggleText}>
+                {isPasswordVisible ? "Hide" : "Show"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.button} onPress={handleSignUpSubmit}>
+            <Text style={styles.buttonText}>Continue</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </SafeAreaView>
+
+      <AdminBottomNavBar activeTab="new_admin" isDarkMode={isDarkMode} />
+    </View>
   );
 }
 
-function createStyles(isDarkMode: boolean) {
-  return StyleSheet.create({
+// …rest of imports and component above remain the same…
+
+const createStyles = (isDarkMode: boolean, topInset: number) =>
+  StyleSheet.create({
     container: {
       flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-      backgroundColor: isDarkMode ? "#721121" : "#FFCF99",
+      backgroundColor: isDarkMode ? "#000" : "#fff",
+      paddingTop: Platform.OS === "android" ? topInset : 0,
     },
-    headingText: {
-      fontFamily: "Inter-SemiBold",
-      fontSize: 24,
-      color: isDarkMode ? "#FFFFFF" : "#000000",
+    inner: { flex: 1 },
+    content: {
+      paddingHorizontal: 20,
+      paddingBottom: 100,
+      alignItems: "center",
+    },
+    logo: {
+      fontSize: 36,
+      fontWeight: "700",
+      color: isDarkMode ? "#FFCF99" : "#721121",
+      marginVertical: 16,
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: "bold",
       textAlign: "center",
-    },
-    iosLogoText: {
-      width: 200,
-      fontSize: 48,
-      fontFamily: "InknutAntiqua-SemiBold",
       color: isDarkMode ? "#FFCF99" : "#721121",
+      marginBottom: 24,
     },
-    webLogoText: {
-      fontSize: 48,
-      fontFamily: "InknutAntiqua-SemiBold",
-      color: isDarkMode ? "#FFCF99" : "#721121",
-    },
-    button: {
-      alignContent: "center",
-      alignItems: "center",
-      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
-      margin: 10,
-      padding: 14,
+    input: {
+      width: "100%",
+      borderWidth: 1,
+      borderColor: isDarkMode ? "#666" : "#ccc",
+      backgroundColor: isDarkMode ? "#1e1e1e" : "#f9f9f9",
+      color: isDarkMode ? "#fff" : "#000",
+      padding: 12,
       borderRadius: 8,
-      width: 327,
+      marginBottom: 16,
+    },
+    placeholder: {
+      color: isDarkMode ? "#777" : "#999",
+    },
+
+    // ← UPDATED: box style restored here
+    passwordContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      width: "100%",
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: isDarkMode ? "#666" : "#ccc",
+      backgroundColor: isDarkMode ? "#1e1e1e" : "#f9f9f9",
+      borderRadius: 8,
+      paddingHorizontal: 12,
+    },
+    inputFlex: {
+      flex: 1,
+      color: isDarkMode ? "#fff" : "#000",
+      paddingVertical: 12,
+    },
+    toggle: {
+      padding: 12,
+    },
+    toggleText: {
+      color: isDarkMode ? "#fff" : "#721121",
+      fontWeight: "600",
+    },
+
+    button: {
+      width: "100%",
+      backgroundColor: isDarkMode ? "#721121" : "#ffc074",
+      paddingVertical: 14,
+      borderRadius: 8,
+      alignItems: "center",
+      marginBottom: 24,
     },
     buttonText: {
-      alignContent: "center",
-      color: isDarkMode ? "#721121" : "#FFFFFF",
-      fontFamily: "Inter-SemiBold",
+      color: isDarkMode ? "#fff" : "#721121",
       fontSize: 16,
+      fontWeight: "600",
     },
-    SignInText: {
-      alignContent: "center",
-      color: isDarkMode ? "#FFC074" : "#A5402D",
-      fontFamily: "Inter-SemiBold",
-      fontSize: 16,
-      marginTop: 10,
-    },
-    inputBoxes: {
-      color: isDarkMode ? "#721121" : "#FFCF99",
-      height: 50,
-      margin: 12,
-      borderWidth: 1.5,
-      padding: 10,
-      borderRadius: 10,
-      fontSize: 20,
-      fontFamily: "Inter-Regular",
-      width: 327,
-      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
-    },
-    errorStyle: {
-      color: "#F15156",
-      fontSize: 16,
-      fontFamily: "Inter-SemiBold",
-      marginTop: 10,
+    divider: {
+      width: "80%",
+      marginVertical: 16,
     },
     googleButton: {
-      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
-      padding: 14,
-      borderRadius: 8,
-      width: 327,
-      marginTop: 10,
+      width: "100%",
       borderWidth: 1,
-      borderColor: isDarkMode ? "#FFC074" : "#A5402D",
+      borderColor: isDarkMode ? "#ffc074" : "#721121",
+      paddingVertical: 12,
+      borderRadius: 8,
+      marginBottom: 24,
     },
-    googleButtonContent: {
+    googleContent: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
@@ -288,35 +262,22 @@ function createStyles(isDarkMode: boolean) {
     googleIcon: {
       width: 20,
       height: 20,
-      marginRight: 10,
+      marginRight: 8,
     },
-    googleButtonText: {
-      fontFamily: "Inter-SemiBold",
+    googleText: {
+      color: isDarkMode ? "#fff" : "#721121",
       fontSize: 16,
-      color: isDarkMode ? "#721121" : "#FFFFFF",
+      fontWeight: "600",
     },
-    passwordContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      width: 327,
-      borderWidth: 1.5,
-      borderRadius: 10,
-      paddingHorizontal: 10,
-      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
-      margin: 12,
+    linkText: {
+      color: isDarkMode ? "#ffc074" : "#721121",
+      fontSize: 14,
+      marginBottom: 16,
     },
-    passwordInput: {
-      flex: 1,
-      color: isDarkMode ? "#721121" : "#FFCF99",
-      height: 50,
-      fontSize: 20,
-      fontFamily: "Inter-Regular",
-    },
-    eyeIcon: {
-      padding: 10,
-      color: isDarkMode ? "#721121" : "#FFCF99",
-      fontSize: 16,
-      fontFamily: "Inter-SemiBold",
+    error: {
+      color: "#F15156",
+      marginBottom: 8,
+      width: "100%",
+      textAlign: "left",
     },
   });
-}
