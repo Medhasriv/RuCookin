@@ -1,3 +1,4 @@
+// Import necessary libraries and components
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -10,17 +11,19 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { getToken } from "../utils/authChecker";
-import { useColorScheme } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import BottomNavBar from "../components/BottomNavBar";
-import { useRouter } from "expo-router";
+import { getToken } from "../utils/authChecker"; // Utility to retrieve auth token
+import { useColorScheme } from "react-native"; // Detect device color scheme
+import { SafeAreaView } from "react-native-safe-area-context"; // Avoid safe area issues (like notch)
+import BottomNavBar from "../components/BottomNavBar"; // Custom bottom navigation bar
+import { useRouter } from "expo-router"; // Navigation hook for routing
 
+// Define the PantryItem type
 type PantryItem = {
   id: number;
   name: string;
 };
 
+// Define the Recipe type
 type Recipe = {
   id: number;
   title: string;
@@ -31,30 +34,36 @@ type Recipe = {
 };
 
 const PlanMeal = () => {
+  // State to hold user budget input
   const [budget, setBudget] = useState("");
+  // State to store list of recipes fetched from Spoonacular API
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  // State to store user's pantry items fetched from backend
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
 
+  // Get device color scheme (dark or light mode)
   const deviceScheme = useColorScheme();
   const isDarkMode = deviceScheme === "dark";
-  const styles = createStyles(isDarkMode);
-  const router = useRouter();
+  const styles = createStyles(isDarkMode); // Create styles based on color scheme
+  const router = useRouter(); // Get router for navigation
 
+  // Fetch pantry items when the component first mounts
   useEffect(() => {
     fetchPantryItems();
   }, []);
 
+  // Function to fetch pantry items from the server
   const fetchPantryItems = async () => {
     try {
-      const token = await getToken();
+      const token = await getToken(); // Retrieve auth token
       const response = await fetch("http://localhost:3001/routes/api/pantry", {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // Pass token in header
         },
       });
       const data = await response.json();
       if (response.ok) {
-        setPantryItems(data);
+        setPantryItems(data); // Save fetched pantry items to state
       } else {
         console.error("Failed to fetch pantry:", data);
       }
@@ -63,64 +72,72 @@ const PlanMeal = () => {
     }
   };
 
+  // Function to fetch recipes based on pantry items and user's budget
   const fetchRecipes = async () => {
-    if (!budget.trim()) return;
-  
+    if (!budget.trim()) return; // If budget is empty, do nothing
+
     try {
-      const budgetCents = parseFloat(budget) * 100; // Spoonacular uses cents
-      const ingredientNames = pantryItems.map((item) => item.name).join(",");
-  
+      const budgetCents = parseFloat(budget) * 100; // Convert dollars to cents
+      const ingredientNames = pantryItems.map((item) => item.name).join(","); // Build comma-separated ingredient list
+
+      // Fetch recipes that can be made with pantry ingredients
       const baseResponse = await fetch(
         `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${encodeURIComponent(
           ingredientNames
         )}&number=10&apiKey=e4f654951cf040dabe22e878460b9b04`
       );
-  
+
       const baseData: Recipe[] = await baseResponse.json();
       const filteredRecipes: Recipe[] = [];
-  
+
+      // For each recipe, check the price breakdown
       for (const recipe of baseData) {
         const priceResponse = await fetch(
           `https://api.spoonacular.com/recipes/${recipe.id}/priceBreakdownWidget.json?apiKey=e4f654951cf040dabe22e878460b9b04`
         );
         const priceData = await priceResponse.json();
-  
+
+        // Clean pantry ingredient names for easier matching
         const pantryNames = pantryItems.map((item) =>
           item.name.toLowerCase().replace(/[^a-z]/g, "")
         );
-  
+
+        // Calculate the cost of missing ingredients
         const missingCost = priceData.ingredients
           .filter((ing: any) => {
             const cleanName = ing.name.toLowerCase().replace(/[^a-z]/g, "");
             return !pantryNames.includes(cleanName);
           })
           .reduce((sum: number, ing: any) => sum + ing.price, 0);
-  
-          if (missingCost <= budgetCents) {
-            filteredRecipes.push({
-              ...recipe,
-              missingCost: parseFloat((missingCost / 100).toFixed(2)),
-            });
-          }
-          
+
+        // Only include recipes where missing ingredients cost <= budget
+        if (missingCost <= budgetCents) {
+          filteredRecipes.push({
+            ...recipe,
+            missingCost: parseFloat((missingCost / 100).toFixed(2)), // Convert back to dollars
+          });
+        }
       }
-  
+
+      // Update recipes state
       setRecipes(filteredRecipes);
     } catch (error) {
       console.error("❌ Error fetching recipes with price filter:", error);
     }
   };
-  
 
+  // Render component UI
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <SafeAreaView style={styles.contentContainer}>
+        {/* Header */}
         <Text style={styles.header}>Plan a Meal</Text>
         <Text style={styles.caption}>Enter your budget and we'll find recipes!</Text>
 
+        {/* Budget input field */}
         <TextInput
           style={styles.budgetInput}
           placeholder="Enter max budget in $"
@@ -128,9 +145,10 @@ const PlanMeal = () => {
           keyboardType="numeric"
           value={budget}
           onChangeText={setBudget}
-          onSubmitEditing={fetchRecipes}
+          onSubmitEditing={fetchRecipes} // Fetch recipes when user submits
         />
 
+        {/* List of recipes */}
         <FlatList
           data={recipes}
           keyExtractor={(item) => item.id.toString()}
@@ -148,9 +166,12 @@ const PlanMeal = () => {
               }
             >
               <View style={styles.recipeItem}>
+                {/* Recipe image */}
                 <Image source={{ uri: item.image }} style={styles.recipeImage} />
                 <View style={styles.recipeText}>
+                  {/* Recipe title */}
                   <Text style={styles.recipeTitle}>{item.title}</Text>
+                  {/* Recipe ingredient info */}
                   <Text style={styles.recipeInfo}>
                     ✅ Used: {item.usedIngredientCount} | ❌ Missing: {item.missedIngredientCount} | 💸 Est. Cost: $
                     {item.missingCost !== undefined ? item.missingCost : "N/A"}
@@ -160,13 +181,15 @@ const PlanMeal = () => {
             </TouchableOpacity>
           )}
         />
-
       </SafeAreaView>
+
+      {/* Bottom navigation bar */}
       <BottomNavBar activeTab="home" isDarkMode={isDarkMode} />
     </KeyboardAvoidingView>
   );
 };
 
+// Dynamic styling based on dark mode or light mode
 const createStyles = (isDarkMode: boolean) =>
   StyleSheet.create({
     container: {
