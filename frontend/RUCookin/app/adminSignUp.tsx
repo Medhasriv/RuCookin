@@ -79,7 +79,7 @@ export default function AdminSignUp() {
     <View style={styles.container}>
       <SafeAreaView style={styles.inner}>
         <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.title}>Create an Admin Account</Text>
+          <Text style={styles.title}>Make Admin Account</Text>
 
           {errors.general && <Text style={styles.error}>{errors.general}</Text>}
           {errors.firstName && <Text style={styles.error}>{errors.firstName}</Text>}

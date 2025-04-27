@@ -2,12 +2,12 @@ import { Redirect, Link, useRouter } from "expo-router";
 import { Platform, StyleSheet, Text, TouchableOpacity, useColorScheme } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 // DEV TOOLS
-// const DEV_START_SCREEN = "/adminCreateRecipes"; // CHANGE THIS TO THE SCREEN YOU WANT TO START ON
+const DEV_START_SCREEN = "/adminSignUp"; // CHANGE THIS TO THE SCREEN YOU WANT TO START ON
 export default function Index() {
   // DEV TOOLS TO SKIP THE LANDING PAGE WHEN WE'RE RUNNING EXPO START
-  // if (__DEV__ && DEV_START_SCREEN) {
-  //   return <Redirect href={DEV_START_SCREEN} />;
-  // }
+  if (__DEV__ && DEV_START_SCREEN) {
+    return <Redirect href={DEV_START_SCREEN} />;
+  }
   // END DEV TOOLS
 
   const router = useRouter();
