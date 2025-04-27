@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Platform,
   useColorScheme,
+  ScrollView
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -15,6 +16,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { checkAuth } from "../utils/authChecker";
 import AdminBottomNavBar from "../components/adminBottomNavBar";
+import { LogBox } from "react-native";
+
+LogBox.ignoreLogs([
+  "VirtualizedLists should never be nested inside plain ScrollViews"
+]);
 
 type UserItem = {
   _id: string;
@@ -153,6 +159,7 @@ const AdminModifyAccount = () => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.inner}>
+        <ScrollView contentContainerStyle={styles.content}>
         <FlatList
           data={users}
           keyExtractor={(u) => u._id}
@@ -160,13 +167,14 @@ const AdminModifyAccount = () => {
           ListHeaderComponent={
             <>
               <Text style={styles.title}>Modify Accounts</Text>
-              <Text style={styles.subHeader}>
+              <Text style={styles.caption}>
                 Tap a username to edit it. Admin accounts cannot be edited.
               </Text>
             </>
           }
           renderItem={renderUser}
         />
+        </ScrollView>
       </SafeAreaView>
 
       <AdminBottomNavBar activeTab="list" isDarkMode={isDarkMode} />
@@ -193,15 +201,19 @@ const createStyles = (isDarkMode: boolean, topInset: number) =>
       color: isDarkMode ? "#FFCF99" : "#721121",
       marginBottom: 24,
     },
-    subHeader: {
-      fontSize: 16,
-      color: isDarkMode ? "#aaa" : "#444",
-      marginBottom: 16,
+    content: {
+      padding: 20,
+      paddingBottom: 100, // avoid nav bar
+    },
+    caption: {
+      fontSize: 18,
       textAlign: "center",
+      marginBottom: 24,
+      color: isDarkMode ? "#FFCF99" : "#721121",
     },
     card: {
-      backgroundColor: isDarkMode ? "#1e1e1e" : "#f9f9f9",
-      padding: 16,
+      backgroundColor: isDarkMode ? "#721121" : "#FFCF99",
+      padding: 8,
       borderRadius: 8,
       marginBottom: 12,
       borderWidth: 1,

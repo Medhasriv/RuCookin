@@ -8,11 +8,17 @@ import {
   StyleSheet,
   Platform,
   useColorScheme,
+  ScrollView
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { checkAuth } from "../utils/authChecker";
 import AdminBottomNavBar from "../components/adminBottomNavBar";
+import { LogBox } from "react-native";
+
+LogBox.ignoreLogs([
+  "VirtualizedLists should never be nested inside plain ScrollViews"
+]);
 
 type ViolationItem = {
   username: string;
@@ -106,6 +112,7 @@ const AdminBan = () => {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.inner}>
+        <ScrollView contentContainerStyle={styles.content}>
         <FlatList
           data={violations}
           keyExtractor={(_, i) => i.toString()}
@@ -165,6 +172,7 @@ const AdminBan = () => {
             </View>
           )}
         />
+        </ScrollView>
       </SafeAreaView>
 
       <AdminBottomNavBar activeTab="ban" isDarkMode={isDarkMode} />
@@ -180,6 +188,10 @@ const createStyles = (isDarkMode: boolean, topInset: number) =>
       paddingTop: Platform.OS === "android" ? topInset : 0,
     },
     inner: { flex: 1 },
+    content: {
+      padding: 20,
+      paddingBottom: 100, // avoid nav bar
+    },
     listContent: {
       paddingHorizontal: 20,
       paddingBottom: 100, // avoid nav bar

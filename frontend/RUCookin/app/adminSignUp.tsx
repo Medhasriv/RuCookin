@@ -15,6 +15,11 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Divider } from "../components/Divider";
 import AdminBottomNavBar from "../components/adminBottomNavBar";
+import { LogBox } from "react-native";
+
+LogBox.ignoreLogs([
+  "VirtualizedLists should never be nested inside plain ScrollViews"
+]);
 
 export default function AdminSignUp() {
   const router = useRouter();
@@ -173,7 +178,7 @@ const createStyles = (isDarkMode: boolean, topInset: number) =>
     },
     inner: { flex: 1 },
     content: {
-      paddingHorizontal: 20,
+      padding: 20,
       paddingBottom: 100,
       alignItems: "center",
     },

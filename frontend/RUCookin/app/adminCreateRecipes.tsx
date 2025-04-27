@@ -12,6 +12,11 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import AdminBottomNavBar from "../components/adminBottomNavBar";
+import { LogBox } from "react-native";
+
+LogBox.ignoreLogs([
+  "VirtualizedLists should never be nested inside plain ScrollViews"
+]);
 
 const AdminCreateRecipe = () => {
   const router = useRouter();
@@ -132,7 +137,6 @@ const AdminCreateRecipe = () => {
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
-
       <AdminBottomNavBar activeTab="new_recipe" isDarkMode={isDarkMode} />
     </View>
   );
@@ -147,7 +151,7 @@ const createStyles = (isDarkMode: boolean, topInset: number) =>
     },
     inner: { flex: 1 },
     content: {
-      paddingHorizontal: 20,
+      padding: 20,
       paddingBottom: 100, // leave space for nav bar
     },
     title: {

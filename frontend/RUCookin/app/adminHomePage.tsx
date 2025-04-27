@@ -7,8 +7,10 @@ import {
   useColorScheme,
   View,
   ScrollView,
+  TouchableOpacity
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import AdminBottomNavBar from "../components/adminBottomNavBar";
 
@@ -33,6 +35,18 @@ const AdminHomePage = () => {
             {"\n\n"}•{" "}<Text style={styles.bold}>Create Recipes</Text>: add new recipes into the system for users to interact with.
             {"\n\n"}•{" "}<Text style={styles.bold}>Create Admin</Text>: create additional admin accounts.
           </Text>
+
+          {/* Log Out Button */}
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            AsyncStorage.removeItem("token");
+            AsyncStorage.removeItem("userTheme");
+            router.push("/Login");
+          }}
+        >
+          <Text style={styles.buttonText}>Log Out</Text>
+        </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
 
@@ -72,6 +86,19 @@ const createStyles = (isDarkMode: boolean, topInset: number) =>
     bold: {
       fontWeight: "600",
       color: isDarkMode ? "#ffc074" : "#721121",
+    },
+    button: {
+      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
+      padding: 15,
+      borderRadius: 8,
+      marginTop: 24,
+      width: "100%",
+      alignItems: "center",
+    },
+    buttonText: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: isDarkMode ? "#721121" : "#FFCF99",
     },
   });
 
