@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      min: 12,
+      min: 8,
     },
     picturePath: {
       type: String,
@@ -45,12 +45,12 @@ const userSchema = new mongoose.Schema(
       enum: ['user', 'admin'],
       default: 'user',
       required: true
-  },
+    },
     location: String,
     viewedProfile: Number,
     impressions: Number,
-  },{
-    collection: 'UserInfo'
+  }, {
+  collection: 'UserInfo'
 });
 
 module.exports = mongoose.model("UserInfo", userSchema);

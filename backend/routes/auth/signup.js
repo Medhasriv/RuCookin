@@ -59,7 +59,7 @@ router.post('/', async (req, res) => {
   }
 
   // Password regex: At least 1 lowercase, 1 uppercase, 1 digit, and 1 special character
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{12,}$/;
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/;
   if (!passwordRegex.test(password)) {
     return res.status(400).json({
       message: 'Password must contain at least: 1 lowercase letter, 1 uppercase letter, 1 number, and 1 special character'
