@@ -1,133 +1,125 @@
+// Import React libraries and necessary React Native components
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList, View } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
-import { checkAuth,getTokenData } from "../utils/authChecker"; 
 
+// Import authentication-related utilities
+import { checkAuth, getTokenData } from "../utils/authChecker"; 
+
+// Define static list of available cuisine types
 const CUISINE_TYPES = [
-  'African',
-  'Asian',
-  'American',
-  'British',
-  'Cajun',
-  'Caribbean',
-  'Chinese',
-  'Eastern European',
-  'European',
-  'French',
-  'German',
-  'Greek',
-  'Indian',
-  'Irish',
-  'Italian',
-  'Japanese',
-  'Jewish',
-  'Korean',
-  'Latin American',
-  'Mediterranean',
-  'Mexican',
-  'Middle Eastern',
-  'Nordic',
-  'Southern',
-  'Spanish',
-  'Thai',
-  'Vietnamese'
+  'African', 'Asian', 'American', 'British', 'Cajun', 'Caribbean', 'Chinese',
+  'Eastern European', 'European', 'French', 'German', 'Greek', 'Indian', 'Irish',
+  'Italian', 'Japanese', 'Jewish', 'Korean', 'Latin American', 'Mediterranean',
+  'Mexican', 'Middle Eastern', 'Nordic', 'Southern', 'Spanish', 'Thai', 'Vietnamese'
 ];
 
+// Main component for selecting liked cuisines
 const CuisineLikes = () => {
-  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
-  const colorScheme = useColorScheme();
-  const [userId, setUserId] = useState<string | null>(null);
-  const isDarkMode = colorScheme === 'dark';
-  const styles = createStyles(isDarkMode);
-  const router = useRouter();
+  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]); // State to track selected cuisines
+  const colorScheme = useColorScheme(); // Detect device color scheme (dark/light)
+  const [userId, setUserId] = useState<string | null>(null); // User ID (currently unused)
+  const isDarkMode = colorScheme === 'dark'; // Boolean for dark mode
+  const styles = createStyles(isDarkMode); // Dynamic styles based on theme
+  const router = useRouter(); // Navigation router
 
+  // Check user authentication on component mount
   useEffect(() => {
     checkAuth(router);
   }, []);
 
+  // Toggle selection or deselection of a cuisine item
   const toggle = (cuisine: string) => {
     setSelectedCuisines((prevSelected) =>
       prevSelected.includes(cuisine)
-        ? prevSelected.filter((item) => item !== cuisine)
-        : [...prevSelected, cuisine]
+        ? prevSelected.filter((item) => item !== cuisine) // Remove if already selected
+        : [...prevSelected, cuisine] // Add if not selected
     );
   };
 
-  const handleContinue =  async () => {
+  // Handle "Continue" button press
+  const handleContinue = async () => {
     console.log('Selected Cuisines:', selectedCuisines);
-    
+
     try {
-      const username = await getTokenData("username");
-    if (!username) {
-      console.error("Username not found in token.");
-      return;
-    }
-    const payload = { username: username.trim(),
-      cuisineLike:Array.isArray(selectedCuisines) ? [...selectedCuisines] : [],
-    };
-    console.log("🚀 Sending payload:", JSON.stringify(payload));
+      const username = await getTokenData("username"); // Get username from JWT token
+      if (!username) {
+        console.error("Username not found in token.");
+        return;
+      }
+
+      // Prepare payload to send
+      const payload = { 
+        username: username.trim(),
+        cuisineLike: Array.isArray(selectedCuisines) ? [...selectedCuisines] : [],
+      };
+      console.log("🚀 Sending payload:", JSON.stringify(payload));
+
+      // Send POST request to server to save liked cuisines
       const response = await fetch("http://localhost:3001/routes/api/cuisineLike", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username: username.trim(),
-          cuisineLike:Array.isArray(selectedCuisines) ? [...selectedCuisines] : [] }), 
+        body: JSON.stringify(payload),
       });
+
       const data = await response.json();
-      if(response.ok) {
+
+      if (response.ok) {
+        // Navigate to next page (Cuisine Dislikes page) on success
         router.push('/CuisineDislikes');
+      } else {
+        console.error('Data error: ', data);
       }
-      else {
-        console.error('Data error: ', data)
-      }
-    }
-    catch (error) {
+    } catch (error) {
       console.error('❌ Error during Cuisine Likes:', error);
     }
-
-
-    //console.log('Selected Cuisines:', selectedCuisines);
-    
   };
 
+  // Render component
   return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.heading}>Let’s get to know you. Select all the cuisines you like</Text>
-  
-        {/* body flexes to fill, centres grid vertically */}
-        <View style={styles.body}>
-          <FlatList
-            data={CUISINE_TYPES}
-            numColumns={3}
-            keyExtractor={(item) => item}
-            columnWrapperStyle={styles.row}
-            contentContainerStyle={styles.listContent}
-            renderItem={({ item }) => {
-              const selected = selectedCuisines.includes(item);
-              return (
-                <TouchableOpacity
-                  style={[styles.pill, selected && styles.pillSelected]}
-                  onPress={() => toggle(item)}
-                >
-                  <Text style={[styles.pillText, selected && styles.pillTextSel]}>
-                    {item}
-                  </Text>
-                </TouchableOpacity>
-              );
-            }}
-          />
-        </View>
-  
-        {/* fixed near bottom */}
-        <TouchableOpacity style={styles.continue} onPress={handleContinue}>
-          <Text style={styles.continueTxt}>Continue</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
+    <SafeAreaView style={styles.container}>
+      {/* Heading text */}
+      <Text style={styles.heading}>
+        Let’s get to know you. Select all the cuisines you like
+      </Text>
+
+      {/* Body section with grid layout */}
+      <View style={styles.body}>
+        {/* FlatList for displaying cuisines as selectable pills */}
+        <FlatList
+          data={CUISINE_TYPES}
+          numColumns={3} // Display items in 3 columns
+          keyExtractor={(item) => item}
+          columnWrapperStyle={styles.row} // Style for each row
+          contentContainerStyle={styles.listContent} // Style for entire list
+          renderItem={({ item }) => {
+            const selected = selectedCuisines.includes(item); // Check if item is selected
+            return (
+              <TouchableOpacity
+                style={[styles.pill, selected && styles.pillSelected]}
+                onPress={() => toggle(item)} // Toggle selection on press
+              >
+                <Text style={[styles.pillText, selected && styles.pillTextSel]}>
+                  {item}
+                </Text>
+              </TouchableOpacity>
+            );
+          }}
+        />
+      </View>
+
+      {/* Continue button fixed near bottom */}
+      <TouchableOpacity style={styles.continue} onPress={handleContinue}>
+        <Text style={styles.continueTxt}>Continue</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 };
 
+// Create dynamic styles depending on dark or light mode
 const createStyles = (dark: boolean) =>
   StyleSheet.create({
     container: {
@@ -143,22 +135,21 @@ const createStyles = (dark: boolean) =>
       marginTop: 25,
       marginBottom: 4,
     },
-
-    /* centre grid vertically */
-    body: { 
-      flex: 1, 
-      justifyContent: "flex-start", 
+    body: {
+      flex: 1,
+      justifyContent: "flex-start",
       marginTop: 50,
     },
-    listContent: { 
-      flexGrow: 1, 
+    listContent: {
+      flexGrow: 1,
       justifyContent: "flex-start",
     },
-    row: { justifyContent: "space-evenly" },
-
+    row: {
+      justifyContent: "space-evenly", // Evenly space items in row
+    },
     pill: {
       flex: 1,
-      flexBasis: "30%",
+      flexBasis: "30%", // Each pill takes 30% width
       margin: 8,
       paddingVertical: 10,
       borderRadius: 20,
@@ -166,7 +157,7 @@ const createStyles = (dark: boolean) =>
       alignItems: "center",
     },
     pillSelected: {
-      backgroundColor: dark ? "#FFC074" : "#A5402D",
+      backgroundColor: dark ? "#FFC074" : "#A5402D", // Highlight color when selected
     },
     pillText: {
       fontFamily: "Inter-Regular",
@@ -174,11 +165,12 @@ const createStyles = (dark: boolean) =>
       color: dark ? "#721121" : "#FFCF99",
       textAlign: "center",
     },
-    pillTextSel: { fontWeight: "600" },
-
+    pillTextSel: {
+      fontWeight: "600", // Bolder font for selected pills
+    },
     continue: {
       marginHorizontal: 20,
-      marginBottom: 24, /* leaves space for home‑indicator */
+      marginBottom: 24, // Leaves space for device home indicator (iPhone, etc.)
       padding: 15,
       borderRadius: 8,
       backgroundColor: dark ? "#FFCF99" : "#721121",
@@ -191,4 +183,5 @@ const createStyles = (dark: boolean) =>
     },
   });
 
+// Export the CuisineLikes component as default
 export default CuisineLikes;

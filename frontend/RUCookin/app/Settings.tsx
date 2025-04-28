@@ -1,106 +1,110 @@
+// Import necessary libraries and components
 import React, { useEffect, useState } from "react";
 import { Platform, StyleSheet, Text, Switch, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useColorScheme } from "react-native";
-import { useRouter } from "expo-router";
-import { checkAuth } from "../utils/authChecker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Notifications from "expo-notifications";
-import BottomNavBar from "../components/BottomNavBar";
+import { SafeAreaView } from "react-native-safe-area-context"; // For safe area support (notch areas)
+import { useColorScheme } from "react-native"; // Detect if the user is using light or dark mode
+import { useRouter } from "expo-router"; // For navigation
+import { checkAuth } from "../utils/authChecker"; // Custom utility to check if the user is authenticated
+import AsyncStorage from "@react-native-async-storage/async-storage"; // To store and retrieve user preferences
+import * as Notifications from "expo-notifications"; // To handle notifications and permissions
+import BottomNavBar from "../components/BottomNavBar"; // Custom bottom navigation bar component
 
 const SettingsPage = () => {
-  // Get device color scheme as fallback
+  // Get device's color scheme as a fallback value
   const deviceScheme = useColorScheme();
-  const router = useRouter();
-  
-  // Initialize isDarkMode based on device scheme; it will be updated from AsyncStorage if available
-  const [isDarkMode, setIsDarkMode] = useState(deviceScheme === "dark");
-  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true);
+  const router = useRouter(); // Router instance for navigation
 
-  // On mount, check AsyncStorage for a stored userTheme value and update isDarkMode
+  // States to store user's preferences for dark mode and notifications
+  const [isDarkMode, setIsDarkMode] = useState(deviceScheme === "dark"); // Default to system theme
+  const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true); // Default to notifications enabled
+
+  // Effect to load user's stored theme preference from AsyncStorage on component mount
   useEffect(() => {
     const getStoredTheme = async () => {
-      const storedTheme = await AsyncStorage.getItem("userTheme");
+      const storedTheme = await AsyncStorage.getItem("userTheme"); // Retrieve stored theme
       if (storedTheme) {
-        setIsDarkMode(storedTheme === "dark");
+        setIsDarkMode(storedTheme === "dark"); // Set theme based on stored value
       }
     };
-    getStoredTheme();
-    checkAuth(router);
+    getStoredTheme(); // Call function to fetch stored theme
+
+    checkAuth(router); // Check if the user is authenticated (navigate if not)
   }, []);
 
-  // Toggle dark mode and save preference
+  // Function to toggle dark mode preference and store it in AsyncStorage
   const toggleDarkModeSwitch = async () => {
-    const newTheme = isDarkMode ? "light" : "dark";
-    setIsDarkMode(!isDarkMode);
-    await AsyncStorage.setItem("userTheme", newTheme);
+    const newTheme = isDarkMode ? "light" : "dark"; // Toggle between dark and light themes
+    setIsDarkMode(!isDarkMode); // Update the local state
+    await AsyncStorage.setItem("userTheme", newTheme); // Store updated theme in AsyncStorage
   };
 
+  // Effect to fetch and set notification status from AsyncStorage
   useEffect(() => {
     const getNotificationStatus = async () => {
       try {
-        const status = await AsyncStorage.getItem('notificationsEnabled');
+        const status = await AsyncStorage.getItem('notificationsEnabled'); // Get notification status
         if (status !== null) {
-          setIsNotificationsEnabled(status === 'true');
+          setIsNotificationsEnabled(status === 'true'); // Set notifications state based on stored value
         }
       } catch (error) {
-        console.error('Error loading notification status:', error);
+        console.error('Error loading notification status:', error); // Handle any errors
       }
     };
 
-    getNotificationStatus();
+    getNotificationStatus(); // Call function to load notification status
   }, []);
 
-  // Toggle notifications switch and request permissions if enabling notifications
+  // Function to toggle notification preference, request permissions if enabling notifications
   const toggleNotificationsSwitch = async () => {
-    const newStatus = !isNotificationsEnabled;
-    setIsNotificationsEnabled(newStatus);
-    await AsyncStorage.setItem('notificationsEnabled', newStatus.toString());
+    const newStatus = !isNotificationsEnabled; // Toggle the current notification status
+    setIsNotificationsEnabled(newStatus); // Update state
+    await AsyncStorage.setItem('notificationsEnabled', newStatus.toString()); // Store new status in AsyncStorage
+
     if (newStatus) {
-      const { status } = await Notifications.requestPermissionsAsync();
+      const { status } = await Notifications.requestPermissionsAsync(); // Request notification permissions
       if (status !== "granted") {
-        alert("Notification permissions were not granted.");
+        alert("Notification permissions were not granted."); // Alert if permissions are denied
       }
     }
   };
 
-  
-
+  // Generate styles based on dark mode preference
   const styles = createStyles(isDarkMode);
+  
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.contentContainer}>
-        {/* Header */}
+        {/* Page header */}
         <Text style={styles.header}>Settings</Text>
 
-        {/* Notifications Toggle */}
+        {/* Notifications Toggle Switch */}
         <View style={styles.switchContainer}>
           <Text style={styles.text}>Notifications</Text>
           <Switch
-            value={isNotificationsEnabled}
-            onValueChange={toggleNotificationsSwitch}
-            trackColor={{ false: "#D3D3D3", true: "#FFCF99" }}
-            thumbColor={isNotificationsEnabled ? "#721121" : "#701C1C"}
+            value={isNotificationsEnabled} // Bind switch value to notifications state
+            onValueChange={toggleNotificationsSwitch} // Toggle notifications on/off
+            trackColor={{ false: "#D3D3D3", true: "#FFCF99" }} // Color when off/on
+            thumbColor={isNotificationsEnabled ? "#721121" : "#701C1C"} // Color of thumb when on/off
           />
         </View>
 
-        {/* Dark Mode Toggle */}
+        {/* Dark Mode Toggle Switch */}
         <View style={styles.switchContainer}>
           <Text style={styles.text}>Dark Mode</Text>
           <Switch
-            value={isDarkMode}
-            onValueChange={toggleDarkModeSwitch}
-            trackColor={{ false: "#D3D3D3", true: "#FFCF99" }}
-            thumbColor={isDarkMode ? "#721121" : "#701C1C"}
+            value={isDarkMode} // Bind switch value to dark mode state
+            onValueChange={toggleDarkModeSwitch} // Toggle dark mode on/off
+            trackColor={{ false: "#D3D3D3", true: "#FFCF99" }} // Color when off/on
+            thumbColor={isDarkMode ? "#721121" : "#701C1C"} // Color of thumb when on/off
           />
         </View>
 
-        {/* Profile Button */}
+        {/* Profile Button, navigates to the Profile page */}
         <TouchableOpacity style={styles.button} onPress={() => router.push("/Profile")}>
           <Text style={styles.buttonText}>Profile</Text>
         </TouchableOpacity>
         
-        {/* Privacy Button */}
+        {/* Privacy Button, navigates to the Privacy & Credits page */}
         <TouchableOpacity style={styles.button} onPress={() => router.push("/Privacy")}>
           <Text style={styles.buttonText}>Privacy & Credits</Text>
         </TouchableOpacity>
@@ -109,24 +113,27 @@ const SettingsPage = () => {
         <TouchableOpacity
           style={styles.button}
           onPress={() => {
-            AsyncStorage.removeItem("token");
-            AsyncStorage.removeItem("userTheme");
-            router.push("/Login");
+            AsyncStorage.removeItem("token"); // Remove stored token
+            AsyncStorage.removeItem("userTheme"); // Remove stored theme preference
+            router.push("/Login"); // Redirect to Login page
           }}
         >
           <Text style={styles.buttonText}>Log Out</Text>
         </TouchableOpacity>
       </SafeAreaView>
+      
+      {/* Bottom navigation bar */}
       <BottomNavBar activeTab="settings" isDarkMode={isDarkMode} />
     </View>
   );
 };
 
+// Function to create styles based on dark mode preference
 function createStyles(isDarkMode: boolean) {
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: isDarkMode ? "#000000" : "#ffffff",
+      backgroundColor: isDarkMode ? "#000000" : "#ffffff", // Dark/light background
     },
     contentContainer: {
       flex: 1,
@@ -137,7 +144,7 @@ function createStyles(isDarkMode: boolean) {
     header: {
       fontSize: 30,
       fontWeight: "bold",
-      color: isDarkMode ? "#FFCF99" : "#721121",
+      color: isDarkMode ? "#FFCF99" : "#721121", // Header text color changes with theme
       marginBottom: 30,
     },
     switchContainer: {
@@ -150,10 +157,10 @@ function createStyles(isDarkMode: boolean) {
     },
     text: {
       fontSize: 20,
-      color: isDarkMode ? "#FFCF99" : "#721121",
+      color: isDarkMode ? "#FFCF99" : "#721121", // Text color for switches
     },
     button: {
-      backgroundColor: isDarkMode ? "#FFCF99" : "#721121",
+      backgroundColor: isDarkMode ? "#FFCF99" : "#721121", // Button background color changes with theme
       padding: 15,
       borderRadius: 8,
       marginVertical: 10,
@@ -163,7 +170,7 @@ function createStyles(isDarkMode: boolean) {
     buttonText: {
       fontSize: 18,
       fontWeight: "bold",
-      color: isDarkMode ? "#721121" : "#FFCF99",
+      color: isDarkMode ? "#721121" : "#FFCF99", // Button text color changes with theme
     },
   });
 }

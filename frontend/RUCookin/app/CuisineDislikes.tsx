@@ -1,3 +1,4 @@
+// Import necessary React and React Native components
 import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
@@ -7,44 +8,53 @@ import {
   FlatList,
   View,
 } from "react-native";
-import { useColorScheme } from "react-native";
-import { useRouter } from "expo-router";
-import { checkAuth, getTokenData } from "../utils/authChecker";
+import { useColorScheme } from "react-native"; // For detecting dark/light theme
+import { useRouter } from "expo-router"; // For navigation
+import { checkAuth, getTokenData } from "../utils/authChecker"; // Custom auth utilities
 
+// List of available cuisine types
 const CUISINE_TYPES = [
-  "African","Asian","American","British","Cajun","Caribbean",
-  "Chinese","Eastern European","European","French","German","Greek",
-  "Indian","Irish","Italian","Japanese","Jewish","Korean",
-  "Latin American","Mediterranean","Mexican","Middle Eastern","Nordic",
-  "Southern","Spanish","Thai","Vietnamese",
+  "African", "Asian", "American", "British", "Cajun", "Caribbean",
+  "Chinese", "Eastern European", "European", "French", "German", "Greek",
+  "Indian", "Irish", "Italian", "Japanese", "Jewish", "Korean",
+  "Latin American", "Mediterranean", "Mexican", "Middle Eastern", "Nordic",
+  "Southern", "Spanish", "Thai", "Vietnamese",
 ];
 
+// Main component for selecting disliked cuisines
 export default function CuisineDislikes() {
-  const [disliked, setDisliked] = useState<string[]>([]);
-  const dark = useColorScheme() === "dark";
-  const styles = createStyles(dark);
-  const router = useRouter();
+  const [disliked, setDisliked] = useState<string[]>([]); // State to store selected dislikes
+  const dark = useColorScheme() === "dark"; // Determine if device is in dark mode
+  const styles = createStyles(dark); // Generate theme-specific styles
+  const router = useRouter(); // Router instance for page navigation
 
+  // Check user authentication when component mounts
   useEffect(() => {
     checkAuth(router);
   }, []);
 
+  // Toggle cuisine selection (add or remove from disliked list)
   const toggle = (c: string) =>
     setDisliked((prev) =>
       prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]
     );
 
+  // Handle "Continue" button press: submit disliked cuisines to server
   const handleContinue = async () => {
     try {
-      const username = await getTokenData("username");
-      if (!username) return;
+      const username = await getTokenData("username"); // Get username from stored token
+      if (!username) return; // Exit if no username found
 
       const payload = { username: username.trim(), cuisineDislike: disliked };
+      
+      // Send POST request to save disliked cuisines
       const res = await fetch("http://localhost:3001/routes/api/cuisineDislike", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+
+      // If successful, navigate to "Diets" screen
       if (res.ok) router.push("/Diets");
       else console.error(await res.json());
     } catch (e) {
@@ -55,21 +65,22 @@ export default function CuisineDislikes() {
   /* ------------ UI ----------------------------------------------------- */
   return (
     <SafeAreaView style={styles.container}>
+      {/* Heading */}
       <Text style={styles.heading}>Select cuisines you dislike</Text>
 
-      {/* body flexes to fill, centres grid vertically */}
+      {/* Main body containing selectable cuisine items */}
       <View style={styles.body}>
         <FlatList
           data={CUISINE_TYPES}
-          numColumns={3}
+          numColumns={3} // Display in 3 columns
           keyExtractor={(item) => item}
-          columnWrapperStyle={styles.row}
-          contentContainerStyle={styles.listContent}
+          columnWrapperStyle={styles.row} // Row styling
+          contentContainerStyle={styles.listContent} // List container styling
           renderItem={({ item }) => {
-            const selected = disliked.includes(item);
+            const selected = disliked.includes(item); // Check if item is selected
             return (
               <TouchableOpacity
-                style={[styles.pill, selected && styles.pillSelected]}
+                style={[styles.pill, selected && styles.pillSelected]} // Apply selected style
                 onPress={() => toggle(item)}
               >
                 <Text style={[styles.pillText, selected && styles.pillTextSel]}>
@@ -81,7 +92,7 @@ export default function CuisineDislikes() {
         />
       </View>
 
-      {/* fixed near bottom */}
+      {/* Continue button fixed near the bottom */}
       <TouchableOpacity style={styles.continue} onPress={handleContinue}>
         <Text style={styles.continueTxt}>Continue</Text>
       </TouchableOpacity>
@@ -90,6 +101,8 @@ export default function CuisineDislikes() {
 }
 
 /* ----------------- STYLES --------------------------------------------- */
+
+// Generate styles dynamically based on dark/light theme
 const createStyles = (dark: boolean) =>
   StyleSheet.create({
     container: {
@@ -105,8 +118,7 @@ const createStyles = (dark: boolean) =>
       marginTop: 25,
       marginBottom: 4,
     },
-
-    /* centre grid vertically */
+    /* Centre the list vertically */
     body: { 
       flex: 1, 
       justifyContent: "flex-start", 
@@ -116,11 +128,12 @@ const createStyles = (dark: boolean) =>
       flexGrow: 1, 
       justifyContent: "flex-start",
     },
-    row: { justifyContent: "space-evenly" },
-
+    row: { 
+      justifyContent: "space-evenly" 
+    },
     pill: {
       flex: 1,
-      flexBasis: "30%",
+      flexBasis: "30%", // Take up roughly 1/3 of the row width
       margin: 8,
       paddingVertical: 10,
       borderRadius: 20,
@@ -136,11 +149,12 @@ const createStyles = (dark: boolean) =>
       color: dark ? "#721121" : "#FFCF99",
       textAlign: "center",
     },
-    pillTextSel: { fontWeight: "600" },
-
+    pillTextSel: { 
+      fontWeight: "600" // Bold text for selected pill
+    },
     continue: {
       marginHorizontal: 20,
-      marginBottom: 24, /* leaves space for home‑indicator */
+      marginBottom: 24, /* leaves space for the device home indicator */
       padding: 15,
       borderRadius: 8,
       backgroundColor: dark ? "#FFCF99" : "#721121",
