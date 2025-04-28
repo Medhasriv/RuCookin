@@ -1,21 +1,13 @@
 // Import necessary libraries and components
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, Image, KeyboardAvoidingView, Platform, } from "react-native";
 import { getToken } from "../utils/authChecker"; // Utility to retrieve auth token
 import { useColorScheme } from "react-native"; // Detect device color scheme
-import { SafeAreaView } from "react-native-safe-area-context"; // Avoid safe area issues (like notch)
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"; // Avoid safe area issues (like notch)
 import BottomNavBar from "../components/BottomNavBar"; // Custom bottom navigation bar
 import { useRouter } from "expo-router"; // Navigation hook for routing
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Async storage for persisting data
+import { checkAuth } from "../utils/authChecker";
 
 // Define the PantryItem type
 type PantryItem = {
@@ -41,11 +33,24 @@ const PlanMeal = () => {
   // State to store user's pantry items fetched from backend
   const [pantryItems, setPantryItems] = useState<PantryItem[]>([]);
 
-  // Get device color scheme (dark or light mode)
+  // Get color scheme based on user preference or device setting if not set
+  const insets = useSafeAreaInsets();
   const deviceScheme = useColorScheme();
-  const isDarkMode = deviceScheme === "dark";
-  const styles = createStyles(isDarkMode); // Create styles based on color scheme
-  const router = useRouter(); // Get router for navigation
+  const [userTheme, setUserTheme] = useState<string | null>(null);
+  const router = useRouter();
+  useEffect(() => { // Check if user has set a theme preference
+    AsyncStorage.getItem("userTheme").then((value) => {
+      console.log("Stored userTheme:", value);
+      if (value) setUserTheme(value);
+    });
+    console.log("Device color scheme:", deviceScheme); // debugging log
+    checkAuth(router);
+  }, []);
+
+  // setting effective theme based on user preference or device setting
+  const effectiveTheme = userTheme ? userTheme : deviceScheme; 
+  const isDarkMode = effectiveTheme === "dark";
+  const styles = createStyles(isDarkMode, insets.top);
 
   // Fetch pantry items when the component first mounts
   useEffect(() => {
@@ -190,7 +195,7 @@ const PlanMeal = () => {
 };
 
 // Dynamic styling based on dark mode or light mode
-const createStyles = (isDarkMode: boolean) =>
+const createStyles = (isDarkMode: boolean, topInset: number) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -198,7 +203,9 @@ const createStyles = (isDarkMode: boolean) =>
     },
     contentContainer: {
       flex: 1,
+      paddingTop: topInset,
       padding: 20,
+      // justifyContent: "flex-start"
     },
     header: {
       fontSize: 28,
