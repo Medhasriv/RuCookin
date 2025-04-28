@@ -9,7 +9,7 @@ const getUserIdFromToken = (req) => {
   console.log("🔐 extracted token:", token);
   let decoded;
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     console.log("🔐 decoded token:", decoded);
     console.log("🔐 id token:", decoded.id);
     console.log("THE USERID TOKEN IS: ", decoded.id)

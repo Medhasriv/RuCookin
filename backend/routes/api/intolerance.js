@@ -42,7 +42,7 @@ router.post("/", async (req, res) => {
       console.log("✅ New Preferences Saved:", newPreferences);
     }
 
-    console.log("Intolerance saved successfully");
+    // console.log("Intolerance saved successfully");
     return res.status(200).json({ message: "Intolerance saved successfully" });
   } catch (error) {
     console.error("Error saving preferences:", error);
@@ -60,7 +60,7 @@ router.get('/', async (req, res) => {
 
   if (!userId) return res.status(401).json({ message: "Invalid or missing token" });
 
-    try {
+  try {
     let existingPreferences = await Preferences.findOne({ userId });
 
     if (!existingPreferences) {
@@ -69,11 +69,11 @@ router.get('/', async (req, res) => {
 
     console.log(existingPreferences.intolerance);
     return res.status(200).json(existingPreferences.intolerance);
-  
-    } catch (error) {
-      console.error("❌ Error fetching cart", error);
-      return res.status(500).json({ message: "Internal server error" });
-    }
-  });
+
+  } catch (error) {
+    console.error("❌ Error fetching cart", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 module.exports = router;

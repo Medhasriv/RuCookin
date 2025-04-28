@@ -42,10 +42,25 @@ const Profile = () => {
 
   const fetchUserData = async () => {
     try {
-      const storedUserInfo = await AsyncStorage.getItem("UserInfo");
-      // console.log("Stored UserInfo:", storedUserInfo); // Debug log
-      if (storedUserInfo) {
-        setUserData(JSON.parse(storedUserInfo));
+      const token = await AsyncStorage.getItem("token"); // Get stored JWT token
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+  
+      const response = await fetch("http://localhost:3001/routes/auth/profile", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        setUserData(data.user);
+        await AsyncStorage.setItem("UserInfo", JSON.stringify(data.user)); // Update local storage too
+      } else {
+        console.error("Failed to fetch user profile:", data.message);
       }
     } catch (error) {
       console.error("Failed to load user data", error);
@@ -54,33 +69,40 @@ const Profile = () => {
 
   // When a field is submitted, update the database automatically.
   const handleSave = async () => {
-    console.log("Saving data:", userData); // Debugging log
-    // Ensure required fields exist
-    if (!userData.username || !userData.email) return;
+    console.log("Saving data:", userData);
     try {
-      const response = await fetch("http://localhost:3001/routes/auth/updateProfile", {
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        console.error("No token found");
+        return;
+      }
+  
+      const response = await fetch("http://localhost:3001/routes/auth/profile", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          id: userData.id, // from the decoded token stored during login
           firstName: userData.firstName,
           lastName: userData.lastName,
           email: userData.email,
           location: userData.location,
         }),
       });
+  
       const updatedData = await response.json();
       if (response.ok) {
-        // Update local state and AsyncStorage with the updated user info
-        setUserData(updatedData.user);
-        await AsyncStorage.setItem("UserInfo", JSON.stringify(updatedData.user));
+        setUserData(updatedData.user); // Update the screen with the new data
+        await AsyncStorage.setItem("UserInfo", JSON.stringify(updatedData.user)); // Update local cache
+        console.log("Profile updated successfully!");
       } else {
         console.error("Profile update failed:", updatedData.message);
       }
     } catch (error) {
       console.error("Error updating profile:", error);
     }
-  };
+  };  
 
   // Toggle editing mode for a given field.
   const toggleEditing = (field: keyof typeof editing) => {

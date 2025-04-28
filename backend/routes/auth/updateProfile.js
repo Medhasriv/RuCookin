@@ -1,20 +1,25 @@
 const express = require("express");
 const router = express.Router();
+const { getUserIdFromToken } = require("../../utils/TokenDecoder"); // Import token decoder
 
 require("../../schemas/Preference.js");
 const User = require("mongoose").model("UserInfo");
 
 router.put("/", async (req, res) => {
   try {
-    const { id, firstName, lastName, email, location } = req.body;
-    if (!id || !email) {
-      return res.status(400).json({ message: "User ID and Email are required." });
+    const id = getUserIdFromToken(req); // Get ID from token
+    if (!id) {
+      return res.status(401).json({ message: "Unauthorized: Invalid token." });
     }
+
+    const { firstName, lastName, email, location } = req.body;
+
     const updatedUser = await User.findByIdAndUpdate(
       id,
       { firstName, lastName, email, location },
-      { new: true } // return the updated document
+      { new: true }
     );
+
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found." });
     }
