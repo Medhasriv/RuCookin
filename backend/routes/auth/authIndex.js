@@ -5,7 +5,7 @@ const router = express.Router();
 const signupRoute = require('./signup');
 const loginRoute = require('./login');
 const UserInfoRoute = require('./getUserInfo');
-const updateProfileRoute = require('./updateProfile');
+// const updateProfileRoute = require('./updateProfile');
 const krogerLoginRoute = require('./krogerLogin');
 const { router: krogerCallbackRouter } = require('./krogerCallback');
 const adminCreateAccountRoute = require('./adminCreateAccount');
@@ -15,7 +15,7 @@ const profileRoute = require('./profile');
 router.use('/signup', signupRoute);
 router.use('/login', loginRoute);
 router.use('/getUserInfo', UserInfoRoute);
-router.use('/updateProfile', updateProfileRoute);
+// router.use('/updateProfile', updateProfileRoute);
 router.use('/krogerLogin', krogerLoginRoute);
 router.use('/adminCreateAccount', adminCreateAccountRoute)
 router.use('/krogerCallback', krogerCallbackRouter);
