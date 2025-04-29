@@ -13,8 +13,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-import { checkAuth } from "../utils/authChecker";
+import { checkAuth, checkAdmin, getToken } from "../utils/authChecker";
 import AdminBottomNavBar from "../components/adminBottomNavBar";
 import { LogBox } from "react-native";
 
@@ -27,7 +26,7 @@ type UserItem = {
   username: string;
   firstName: string;
   lastName: string;
-  AccountType?: string[];  // make it optional
+  AccountType?: string[];
 };
 
 const AdminModifyAccount = () => {
@@ -43,17 +42,11 @@ const AdminModifyAccount = () => {
 
   useEffect(() => {
     checkAuth(router);
+    checkAdmin(router);
     fetchUsers();
-    fetchCurrentUserId();
   }, []);
 
-  const fetchCurrentUserId = async () => {
-    const token = await AsyncStorage.getItem("token");
-    if (!token) return;
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    setCurrentUserId(payload.userId);
-  };
-
+//WORKS
   const fetchUsers = async () => {
     try {
       const res = await fetch("http://localhost:3001/routes/api/adminMaintain");
@@ -63,18 +56,26 @@ const AdminModifyAccount = () => {
       console.error("Error fetching users:", err);
     }
   };
-
+//it works
   const handleEdit = (user: UserItem) => {
     setEditingId(user._id);
     setEditedUsername(user.username);
   };
-
+//Work
   const handleSave = async () => {
     if (!editingId || !editedUsername.trim()) return;
     try {
+      const token = await getToken();
+            if (!token) {
+              console.error("No token found in storage.");
+              return;
+            }
       await fetch("http://localhost:3001/routes/api/adminMaintain", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({
           userId: editingId,
           username: editedUsername.trim(),
@@ -87,17 +88,25 @@ const AdminModifyAccount = () => {
       console.error("Error updating user:", err);
     }
   };
-
+// WORK
   const handleCancel = () => {
     setEditingId(null);
     setEditedUsername("");
   };
-
+//DOESN't WORK
   const handleDelete = async (userId: string) => {
     try {
+      const token = await getToken();
+            if (!token) {
+              console.error("No token found in storage.");
+              return;
+            }
       await fetch("http://localhost:3001/routes/api/adminMaintain", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({ userId }),
       });
       fetchUsers();
@@ -109,7 +118,7 @@ const AdminModifyAccount = () => {
   const renderUser = ({ item }: { item: UserItem }) => {
     const isSelf = item._id === currentUserId;
     const isAdmin =
-      Array.isArray(item.AccountType) && item.AccountType.includes("admin");  // guard here
+      Array.isArray(item.AccountType) && item.AccountType.includes("admin"); 
 
     return (
       <View style={styles.card}>

@@ -18,6 +18,7 @@ LogBox.ignoreLogs([
   "VirtualizedLists should never be nested inside plain ScrollViews"
 ]);
 
+
 const AdminCreateRecipe = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();

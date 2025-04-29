@@ -51,7 +51,7 @@ const AdminStats = () => {
 
       const favData = await favRes.json();
       const prefData = await prefRes.json();
-
+      //TALK ABOUT REDOING PREFERENCE
       const favs: StatItem[] = Array.isArray(favData)
         ? favData.map((item: any) => ({
             _id: `${item._id}`,

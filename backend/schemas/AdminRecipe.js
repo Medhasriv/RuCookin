@@ -1,12 +1,7 @@
 const mongoose = require('mongoose');
 
 const adminRecipeSchema = new mongoose.Schema(
-  {
-    recipeId: {
-        type: String, 
-        required: true
-      },
-    
+  {    
       title: {
         type: String,
         required: true
@@ -27,9 +22,19 @@ const adminRecipeSchema = new mongoose.Schema(
       },
       diets: {
         type: [String],
+        enum: [
+          "Gluten Free", "Ketogenic", "Vegetarian", "Lacto-Vegetarian", "Ovo-Vegetarian", 
+          "Vegan", "Pescetarian", "Paleo", "Primal", "Low FODMAP", "Whole30"
+        ],
       },
       cuisines: {
         type: [String],
+        enum: [
+          "African", "Asian", "American", "British", "Cajun", "Caribbean", "Chinese", 
+          "Eastern European", "European", "French", "German", "Greek", "Indian", "Irish", 
+          "Italian", "Japanese", "Jewish", "Korean", "Latin American", "Mediterranean", 
+          "Mexican", "Middle Eastern", "Nordic", "Southern", "Spanish", "Thai", "Vietnamese"
+        ],
       }  
     },
     {
