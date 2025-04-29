@@ -9,7 +9,8 @@ const Pantry = mongoose.model("PantryInfo");
 
 // GET pantry items
 router.get("/", async (req, res) => {
-    const userId = getUserIdFromToken(req);
+    const user = getUserIdFromToken(req);
+    const userId = user?.id;
     if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
     try {
@@ -24,7 +25,8 @@ router.get("/", async (req, res) => {
 
 // POST add to pantry
 router.post("/", async (req, res) => {
-    const userId = getUserIdFromToken(req);
+    const user = getUserIdFromToken(req);
+    const userId = user?.id;
     const { item } = req.body;
 
     // console.log("📥 Received POST /pantry");
@@ -53,7 +55,8 @@ router.post("/", async (req, res) => {
 
 // DELETE remove item from pantry
 router.delete("/", async (req, res) => {
-    const userId = getUserIdFromToken(req);
+    const user = getUserIdFromToken(req);
+    const userId = user?.id;
     const { itemId } = req.body;
 
     if (!userId || itemId === undefined) {
@@ -81,7 +84,8 @@ router.delete("/", async (req, res) => {
 
 // PUT update expiration date
 router.put("/expiration", async (req, res) => {
-    const userId = getUserIdFromToken(req);
+    const user = getUserIdFromToken(req);
+    const userId = user?.id;
     const { itemId, expirationDate } = req.body;
 
     if (!userId || !itemId || !expirationDate) {

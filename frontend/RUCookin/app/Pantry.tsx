@@ -93,18 +93,25 @@ const Pantry = () => {
 
   // Add an ingredient to the pantry
   const handleAddToPantry = async (ingredient: IngredientResult) => {
+    // Check if item already exists in the pantry
+    const alreadyExists = pantryItems.some((item) => item.id === ingredient.id);
+    if (alreadyExists) {
+      console.warn("Item already exists in pantry");
+      return; // Skip adding if duplicate
+    }
+  
     try {
       const token = await getToken();
       const newItem = { id: ingredient.id, name: ingredient.name, image: ingredient.image };
-
+  
       const response = await fetch("http://localhost:3001/routes/api/pantry", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ item: newItem }),
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
         setSearchText(""); // Clear search bar
         setSearchResults([]); // Clear search results
@@ -115,7 +122,7 @@ const Pantry = () => {
     } catch (error) {
       console.error("❌ Error adding to pantry:", error);
     }
-  };
+  };  
 
   // Remove an item from the pantry
   const handleRemoveFromPantry = async (id: number) => {
