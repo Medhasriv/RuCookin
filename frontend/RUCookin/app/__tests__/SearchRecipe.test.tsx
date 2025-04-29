@@ -136,3 +136,65 @@ describe("SearchRecipe Screen", () => {
 
 
 });
+  test("toggles favourite star icon when pressed", async () => {
+      jest.clearAllMocks();
+  
+      // 1) GET favourites returns [1]
+      // 2) complexSearch returns our one recipe
+      // 3) POST/DELETE for toggling favourites
+      (global.fetch as jest.Mock).mockImplementation((url: string, opts?: any) => {
+        if (opts?.method === "GET" && url.includes("/routes/api/favoriteRecipe")) {
+          return Promise.resolve(
+            createMockResponse([1])
+          );
+        }
+        if (url.includes("complexSearch")) {
+          return Promise.resolve(
+            createMockResponse({
+              results: [
+              {
+                  id: 1,
+                  title: "Spaghetti",
+                  image: "https://example.com/spaghetti.jpg",
+                summary: "<b>Tasty</b> spaghetti.",
+                  servings: 2,
+                readyInMinutes: 30,
+                },
+              ],
+            })
+          );
+        }
+        // For toggle POST/DELETE
+        if (opts?.method === "POST" || opts?.method === "DELETE") {
+          return Promise.resolve(createMockResponse({}));
+        }
+        return Promise.reject(`Unexpected fetch: ${url}`);
+      });
+  
+      const { getByPlaceholderText, getByTestId, getByText } = render(
+        <SafeAreaProvider>
+          <SearchRecipe />
+      </SafeAreaProvider>
+      );
+  
+      // perform search
+      const input = getByPlaceholderText("Search for a recipe...");
+    fireEvent.changeText(input, "spaghetti");
+    fireEvent(input, "submitEditing");
+  
+      // wait for the recipe tile to show up
+      await waitFor(() => {
+        expect(getByText("Spaghetti")).toBeTruthy();
+      });
+
+      // since GET favourites returned [1], it should render a filled star
+      expect(getByText("Icon-star")).toBeTruthy();
+  
+      // press the star button
+      fireEvent.press(getByTestId("star-button-1"));
+  
+      // now it should render the outline star
+      await waitFor(() => {
+        expect(getByText("Icon-star-outline")).toBeTruthy();
+  });
+});
