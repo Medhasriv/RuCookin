@@ -13,7 +13,8 @@ const Cart = mongoose.model("CartInfo");
 const { getUserIdFromToken } = require('../../utils/TokenDecoder');
 
 router.get('/', async (req, res) => {
-  const userId = getUserIdFromToken(req);
+  const user = getUserIdFromToken(req);
+  const userId = user?.id;
   console.log(userId)
   if (!userId) return res.status(401).json({ message: "Invalid or missing token" });
   try {
@@ -31,7 +32,8 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   console.log("Incoming Request:", req.body)
-  const userId = getUserIdFromToken(req);
+  const user = getUserIdFromToken(req);
+  const userId = user?.id;
   const { cartItems } = req.body;
   if (!cartItems) {
     return res.status(400).json({ message: "Missing cartItems" });
@@ -60,7 +62,8 @@ router.post('/', async (req, res) => {
 });
 
 router.delete('/', async (req, res) => {
-  const userId = getUserIdFromToken(req);
+  const user = getUserIdFromToken(req);
+  const userId = user?.id;
   if (!userId) return res.status(401).json({ message: "Invalid or missing token" });
   const { cartItemId } = req.body;
   if (!cartItemId) return res.status(400).json({ message: "Missing cartItemId" });
