@@ -50,7 +50,8 @@ export default function Index() {
         const jwtDecodeFn = require("jwt-decode").jwtDecode;
         const decoded = jwtDecodeFn(data.token);
         console.log("Decoded token:", decoded);
-        const isAdmin = decoded.AccountType?.includes("admin");
+        const isAdmin = decoded.accountType?.includes("admin");
+        console.log(isAdmin)
         // Store the decoded user details in AsyncStorage under "UserInfo"
         await AsyncStorage.setItem("UserInfo", JSON.stringify(decoded));
         setErrors({});

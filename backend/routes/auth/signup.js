@@ -8,6 +8,7 @@ const SECRET_KEY = process.env.JWT_SECRET_KEY;
 require('../../schemas/User.js');
 const User = mongoose.model("UserInfo");
 
+
 router.post('/', async (req, res) => {
   const { firstName, lastName, username, password, email } = req.body;
 
@@ -94,7 +95,7 @@ router.post('/', async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: newUser._id, username: newUser.username, firstName: newUser.firstName, lastName: newUser.lastName, email: newUser.email, AccountType: newUser.AccountType },
+      { id: newUser._id, username: newUser.username, firstName: newUser.firstName, lastName: newUser.lastName, email: newUser.email, accountType: newUser.accountType },
       SECRET_KEY,
       { expiresIn: '2h' }
     );

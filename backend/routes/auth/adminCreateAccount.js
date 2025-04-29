@@ -87,7 +87,7 @@ router.post('/', async (req, res) => {
       email: email,
       firstName: firstName,
       lastName: lastName,
-      AccountType: 'admin'
+      accountType: 'admin'
     });
 
     // Save new user to the database

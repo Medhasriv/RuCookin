@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { checkAuth } from "../utils/authChecker";
+import { checkAuth, checkAdmin, getToken } from "../utils/authChecker";
 import AdminBottomNavBar from "../components/adminBottomNavBar";
 import { LogBox } from "react-native";
 
@@ -44,6 +44,7 @@ const AdminBan = () => {
 
   useEffect(() => {
     checkAuth(router);
+    checkAdmin(router);
     fetchBanWords();
     fetchViolations();
   }, []);
@@ -71,10 +72,19 @@ const AdminBan = () => {
 
   const handleAddBanWord = async () => {
     if (!newWord.trim()) return;
+    
     try {
+      const token = await getToken();
+      if (!token) {
+        console.error("No token found in storage.");
+        return;
+      }
       const res = await fetch("http://localhost:3001/routes/api/adminBan/add", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({ word: newWord.trim() }),
       });
       const data = await res.json();

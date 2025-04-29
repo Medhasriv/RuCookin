@@ -13,7 +13,11 @@ const getUserIdFromToken = (req) => {
     console.log("🔐 decoded token:", decoded);
     console.log("🔐 id token:", decoded.id);
     console.log("THE USERID TOKEN IS: ", decoded.id)
-    return decoded.id;
+    console.log("THE ACCOUNTTYPE TOKEN IS: ", decoded.accountType);
+    return {
+      id: decoded.id,
+      accountType: decoded.accountType,
+    };
   } catch (err) {
     console.error("❌ Token verification failed:", err.message);
     return null;

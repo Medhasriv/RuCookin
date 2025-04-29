@@ -55,7 +55,7 @@ export default function AdminSignUp() {
   const handleSignUpSubmit = async () => {
     if (!validateForm()) return;
     try {
-      const res = await fetch("http://localhost:3001/routes/auth/adminSignUp", {
+      const res = await fetch("http://localhost:3001/routes/auth/adminCreateAccount", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ firstName, lastName, email, username, password }),

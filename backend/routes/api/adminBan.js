@@ -6,11 +6,19 @@ require("../../schemas/User.js");
 const User = mongoose.model("UserInfo");
 require("../../schemas/banWord.js");
 const banWord = mongoose.model("banWordInfo");
+const { getUserIdFromToken } = require('../../utils/TokenDecoder');
 
 
 router.post('/add', async (req, res) => {
     const { word } = req.body;
-    const addedBy = req.user?.username || null; 
+    const currentUser = getUserIdFromToken(req);
+    console.log(word)
+    console.log(currentUser)
+    const user = await User.findById(currentUser.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const addedBy = user?.username || null; 
   
     if (!word) return res.status(400).json({ message: 'Missing word' });
     const wordRegex = /^[A-Za-z]+$/;
@@ -21,7 +29,7 @@ router.post('/add', async (req, res) => {
     try {
       const newBan = new banWord({
         word: word.toLowerCase(),
-        addedBy
+        addedBy: addedBy
       });
       await newBan.save();
       res.json({ message: 'Ban word added' });
@@ -70,6 +78,24 @@ router.post('/add', async (req, res) => {
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: 'Error checking users for banned words', error: err.message });
+    }
+  });
+  router.post('/remove', async (req, res) => {
+    const { word  } = req.body
+    if (!word ) {
+      return res.status(400).json({ message: "Missing ban word" });
+    }
+  
+    try {
+      const deletedBanWord  = await banWord.findOneAndDelete({ word });
+      if (!deletedBanWord) {
+        return res.status(404).json({ message: "Ban word not found" });
+      }
+      return res.status(200).json({ message: "Ban word deleted successfully" });
+  
+    } catch (error) {
+      console.error("❌ Error deleting ban word:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
   });
 

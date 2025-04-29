@@ -25,6 +25,7 @@ router.put('/', async(req,res) => {
         const userToEdit = await User.findById(req.params.id);
         const currentUser = await User.findById(currentUserId);
         if (!userToEdit) return res.status(404).json({ message: 'User not found' });
+        const isSelf= userToEdit._id.toString() === currentUserId.toString()
         const isOtherAdmin = userToEdit.AccountType.includes('admin') && !isSelf;
 
     if (isOtherAdmin) {

@@ -32,23 +32,12 @@ const userSchema = new mongoose.Schema(
       required: true,
       min: 8,
     },
-    picturePath: {
-      type: String,
-      default: "",
-    },
-    friends: {
-      type: Array,
-      default: [],
-    },
-    AccountType: {
+    accountType: {
       type: String,
       enum: ['user', 'admin'],
       default: 'user',
       required: true
     },
-    location: String,
-    viewedProfile: Number,
-    impressions: Number,
   }, {
   collection: 'UserInfo'
 });
