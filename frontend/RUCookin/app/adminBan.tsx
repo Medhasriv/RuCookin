@@ -1,43 +1,32 @@
-import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-  useColorScheme,
-  ScrollView
-} from "react-native";
+import React, { useEffect, useState } from "react"; //
+import {View,Text,FlatList,TextInput,TouchableOpacity,StyleSheet,Platform,useColorScheme,ScrollView} from "react-native"; // React Native UI components
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { checkAuth, checkAdmin, getToken } from "../utils/authChecker";
+import { useRouter } from "expo-router"; // To handle navigation
+import { checkAuth, checkAdmin, getToken } from "../utils/authChecker"; // Custom utility for authentication and token fetching
 import AdminBottomNavBar from "../components/adminBottomNavBar";
-import { LogBox } from "react-native";
 
-LogBox.ignoreLogs([
-  "VirtualizedLists should never be nested inside plain ScrollViews"
-]);
 
+
+// Type definition for ViolationItem
 type ViolationItem = {
   username: string;
   firstName: string;
   lastName: string;
   matchedFields: string[];
 };
-
+// Type definition for BanWordItem
 type BanWordItem = {
   word: string;
   addedBy?: string;
 };
-
+// Main component for the Admin Ban
 const AdminBan = () => {
+   // Determine the current theme based on the user's preference or device setting
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const isDarkMode = useColorScheme() === "dark";
   const styles = createStyles(isDarkMode, insets.top);
-
+// States for managing ban words and violators
   const [banWords, setBanWords] = useState<BanWordItem[]>([]);
   const [newWord, setNewWord] = useState("");
   const [violations, setViolations] = useState<ViolationItem[]>([]);

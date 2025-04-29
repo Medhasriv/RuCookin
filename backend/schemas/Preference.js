@@ -45,9 +45,14 @@ const preferenceSchema = new mongoose.Schema(
       default: []
     }, 
     favoriteRecipes: {
-      type: [Number], // Spoonacular recipe IDs are numerical
+      type: [
+        {
+          id: { type: Number, required: true },
+          name: { type: String, required: true }
+        }
+      ],
       default: []
-    } 
+    }
   },
   {  // <-- FIXED: Added comma here
     collection: "UserPreferences"

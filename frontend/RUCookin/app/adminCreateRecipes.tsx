@@ -1,16 +1,8 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  Platform,
-  useColorScheme,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import {View,Text,TextInput,TouchableOpacity,ScrollView,StyleSheet,Platform,useColorScheme} from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { checkAuth, checkAdmin } from "../utils/authChecker";
 import AdminBottomNavBar from "../components/adminBottomNavBar";
 import { LogBox } from "react-native";
 
@@ -37,6 +29,10 @@ const AdminCreateRecipe = () => {
     if (!title.trim() || !instructions.trim() || !ingredients.trim()) {
       return alert("Please fill in Title, Instructions, and Ingredients."); 
     }
+    useEffect(() => {
+      checkAuth(router);
+      checkAdmin(router);
+    }, []);
 
     const payload = {
       title: title.trim(),

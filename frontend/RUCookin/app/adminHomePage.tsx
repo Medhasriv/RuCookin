@@ -1,17 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "expo-router";
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-  ScrollView,
-  TouchableOpacity
-} from "react-native";
+import {Platform,StyleSheet,Text,useColorScheme,View,ScrollView,TouchableOpacity} from "react-native"; // React Native UI components
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { checkAuth, checkAdmin } from "../utils/authChecker";
 import AdminBottomNavBar from "../components/adminBottomNavBar";
 
 const AdminHomePage = () => {
@@ -20,6 +12,12 @@ const AdminHomePage = () => {
   const isDarkMode = useColorScheme() === "dark";
 
   const styles = createStyles(isDarkMode, insets.top);
+
+  useEffect(() => {
+        checkAuth(router);
+        checkAdmin(router);
+      }, []);
+  
 
   return (
     <View style={styles.container}>

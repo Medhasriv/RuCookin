@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { getToken, checkAuth } from "../utils/authChecker";
+import { getToken, checkAuth, checkAdmin } from "../utils/authChecker";
 import AdminBottomNavBar from "../components/adminBottomNavBar";
 
 type StatItem = {
@@ -32,6 +32,7 @@ const AdminStats = () => {
 
   useEffect(() => {
     checkAuth(router);
+    checkAdmin(router);
     fetchAnalytics();
   }, []);
 
