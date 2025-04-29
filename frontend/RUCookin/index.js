@@ -85,3 +85,4 @@ const Index = () => {
 };
 
 registerRootComponent(Index);
+export default Index;

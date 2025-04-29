@@ -18,5 +18,5 @@
     "nativewind-env.d.ts",
     "image.d.ts",
     "../utils/authChecker.tsx",
-    "**/*.ts", "**/*.tsx", "**/*.test.tsx",  ]
+    "**/*.ts", "**/*.tsx", "**/*.test.tsx", "app/__tests__/Notifications.test.js",  ]
 }
