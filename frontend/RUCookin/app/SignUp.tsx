@@ -93,6 +93,8 @@ export default function SignUp() {
       <Text style={styles.headingText}>Create an Account</Text>
       
       {/* Error Messages */}
+      {errors.firstName && <Text style={styles.errorStyle}>{errors.firstName}</Text>}
+      {errors.lastName && <Text style={styles.errorStyle}>{errors.lastName}</Text>}
       {errors.username && <Text style={styles.errorStyle}>{errors.username}</Text>}
       {errors.password && <Text style={styles.errorStyle}>{errors.password}</Text>}
       {errors.email && <Text style={styles.errorStyle}>{errors.email}</Text>}

@@ -1,15 +1,22 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import CuisineIntolerances from './Intolerances';
+import CuisineIntolerances from '../Intolerances';
 import { useRouter } from 'expo-router';
-import { checkAuth, getTokenData } from "../utils/authChecker";
+import { checkAuth, getTokenData } from "../../utils/authChecker";
+
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+}));
 
 // mck necessary functions
 jest.mock('expo-router', () => ({
   useRouter: jest.fn(),
 }));
 
-jest.mock('../utils/authChecker', () => ({
+jest.mock('../../utils/authChecker', () => ({
   checkAuth: jest.fn(),
   getTokenData: jest.fn().mockResolvedValue('test-username'), // mocking token data
 }));

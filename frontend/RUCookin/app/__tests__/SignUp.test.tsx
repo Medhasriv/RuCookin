@@ -1,17 +1,19 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import SignUp from './SignUp';
+import SignUp from '../SignUp';
 import { NavigationContainer } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 
+//performing the mocking before testing
 jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn(),
 }));
 
 jest.mock('expo-router', () => ({
-  useRouter: jest.fn(),
-}));
+    useRouter: jest.fn(),
+    Link: ({ children }: { children: ReactNode }) => <>{children}</>,
+  }));
 
 describe('SignUp Component', () => {
   let routerPushMock: jest.Mock<void, [string]>;
@@ -25,17 +27,21 @@ describe('SignUp Component', () => {
     global.fetch = jest.fn();
   });
 
-  afterEach(() => {
+    afterEach(() => {
     jest.resetAllMocks();
-  });
+    jest.clearAllMocks(); 
+    global.fetch = undefined as any; 
+    });
 
-  test('renders the SignUp screen correctly', () => {
+    //checking if signup is rendered
+  test('renders the SignUp screen', () => {
     render(
       <NavigationContainer>
         <SignUp />
       </NavigationContainer>
     );
 
+    //checking if these each show up for the sign up screen
     expect(screen.getByText("RUCookin'")).toBeTruthy();
     expect(screen.getByText("Create an Account")).toBeTruthy();
     expect(screen.getByPlaceholderText('First Name')).toBeTruthy();
