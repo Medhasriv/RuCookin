@@ -20,8 +20,8 @@ const scheduleDailyNotifications = () => {
     const trigger = getTriggerTime(time);
     Notifications.scheduleNotificationAsync({
       content: {
-        title: `Time to plan a meal!`,
-        body: `It's ${time}:00! Check your saved recipes, or find something new!.`,
+        title: `RuCookin?`,
+        body: `It's ${time}:00! RuCookin' right now? Check your saved recipes, or find something new!.`,
       },
       trigger,
     });
