@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { checkAuth, checkAdmin } from "../utils/authChecker";
 import AdminBottomNavBar from "../components/adminBottomNavBar";
 import { LogBox } from "react-native";
+import { useLocalSearchParams } from 'expo-router';
 
 LogBox.ignoreLogs([
   "VirtualizedLists should never be nested inside plain ScrollViews"
@@ -22,26 +23,24 @@ const AdminCreateRecipe = () => {
   const [readyInMin, setReadyInMin] = useState("");
   const [instructions, setInstructions] = useState("");
   const [ingredients, setIngredients] = useState("");
-  const [diets, setDiets] = useState("");
-  const [cuisines, setCuisines] = useState("");
+  useEffect(() => {
+    checkAuth(router);
+    checkAdmin(router);
+  }, []);
+
 
   const handleSubmit = async () => {
     if (!title.trim() || !instructions.trim() || !ingredients.trim()) {
       return alert("Please fill in Title, Instructions, and Ingredients."); 
     }
-    useEffect(() => {
-      checkAuth(router);
-      checkAdmin(router);
-    }, []);
+
 
     const payload = {
       title: title.trim(),
       summary: summary.trim(),
       readyInMin: readyInMin ? parseInt(readyInMin, 10) : undefined,
       instructions: instructions.trim(),
-      ingredients: ingredients.split(",").map((i) => i.trim()),
-      diets: diets ? diets.split(",").map((d) => d.trim()) : [],
-      cuisines: cuisines ? cuisines.split(",").map((c) => c.trim()) : [],
+      ingredients: ingredients.split(",").map((i) => i.trim())
     };
 
     try {
@@ -55,7 +54,10 @@ const AdminCreateRecipe = () => {
       );
       const data = await res.json();
       if (res.ok) {
-        router.push("/adminHomePage");
+        router.push({
+          pathname: "/adminCreateRecipeCuisine",
+          params: { recipeTitle: title.trim() }
+        });
       } else {
         alert(data.message || "Failed to create recipe.");
       }
@@ -112,25 +114,8 @@ const AdminCreateRecipe = () => {
             value={ingredients}
             onChangeText={setIngredients}
           />
-
-          <TextInput
-            style={styles.input}
-            placeholder="Diets (comma-separated)"
-            placeholderTextColor={isDarkMode ? "#777" : "#999"}
-            value={diets}
-            onChangeText={setDiets}
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder="Cuisines (comma-separated)"
-            placeholderTextColor={isDarkMode ? "#777" : "#999"}
-            value={cuisines}
-            onChangeText={setCuisines}
-          />
-
           <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>Submit Recipe</Text>
+            <Text style={styles.buttonText}>Continue Making the Recipe</Text>
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>

@@ -12,6 +12,8 @@ const favoriteRecipeRoute = require('./favoriteRecipe');
 const pantryRoute = require('./pantry');
 const adminBanRoute = require('./adminBan');
 const adminRecipeRoute = require('./adminCreateRecipe');
+const adminCuisineRoute = require ('./adminCuisine')
+const adminDietRoute = require ('./adminDiet')
 const adminTopRoute = require('./adminTop');
 const adminMaintainRoute = require ('./adminMaintain')
 // Use all the routes
@@ -25,6 +27,8 @@ router.use('/pantry', pantryRoute);
 router.use('/krogerCart', KrogerCartRoute);
 router.use('/adminBan', adminBanRoute);
 router.use('/adminCreateRecipe', adminRecipeRoute);
+router.use('/adminCuisine', adminCuisineRoute);
+router.use('/adminDiet', adminDietRoute);
 router.use('/adminTop', adminTopRoute);
 router.use('/adminMaintain', adminMaintainRoute);
 module.exports = router;
