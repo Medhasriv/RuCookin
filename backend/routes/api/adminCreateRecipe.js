@@ -5,8 +5,9 @@ const router = express.Router();
 require('../../schemas/AdminRecipe.js');
 const adminRecipe = mongoose.model("adminRecipeInfo");
 
+
 router.post('/', async (req,res) => {
-  const {title, instructions, ingredients, summary, readyinMins,diets, cuisines} = req.body;
+  const {title, instructions, ingredients, summary, readyinMins} = req.body;
   if (!title || !instructions || !ingredients) {
     return res.status(400).json({ message: 'Missing a required field' });
   }
@@ -15,9 +16,9 @@ router.post('/', async (req,res) => {
     return res.status(400).json({ message: 'This recipe already exists' });
   }
   else {
-    const newRecipe = new adminRecipe ({ title: title, instructions: instructions, ingredients:ingredients, summary: summary, readyinMins:readyinMins, diets:diets, cuisines: cuisines});
+    const newRecipe = new adminRecipe ({ title: title, instructions: instructions, ingredients:ingredients, summary: summary, readyinMins:readyinMins});
     await newRecipe.save();
-      res.status(200).json({ message: 'Sign up successful'});
+      res.status(200).json({ message: 'Create new recipe successful'});
   }
   
 });
