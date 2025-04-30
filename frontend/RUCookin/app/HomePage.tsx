@@ -6,6 +6,9 @@ import { checkAuth } from "../utils/authChecker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "../components/BottomNavBar";
 import { ScrollView, GestureHandlerRootView, Gesture } from "react-native-gesture-handler";
+import Constants from 'expo-constants';
+// Connect to the Spoonacular API
+const spoonacularApiKey = Constants.manifest?.extra?.spoonacularApiKey ?? (Constants.expoConfig as any).expo.extra.spoonacularApiKey;
 
 const stripHtml = (html?: string) =>
   (html ?? "")
@@ -56,7 +59,7 @@ const HomePage = () => {
 
     fetch(
       `https://api.spoonacular.com/recipes/complexSearch?type=${mealType}` +
-      `&number=3&addRecipeInformation=true&apiKey=4521286af69c4db2b67fdda230db9c79`
+      `&number=3&addRecipeInformation=true&apiKey=${spoonacularApiKey}`
     )
       .then((res) => res.json())
       .then((json) => setTimeRecipes(json.results || []))

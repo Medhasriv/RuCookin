@@ -12,6 +12,10 @@ import { useColorScheme } from "react-native"; // For detecting dark or light th
 import { useRouter } from "expo-router"; // Navigation helper
 import { checkAuth, getTokenData, checkAdmin } from "../utils/authChecker"; // Custom auth utils
 import { useLocalSearchParams } from 'expo-router';
+import Constants from 'expo-constants';
+
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 // List of available diet types
 const DIET_TYPES = [
@@ -62,7 +66,7 @@ export default function adminCreateRecipeDiet() {
       console.log("🚀 Sending payload:", JSON.stringify(payload));
 
       // Send POST request to server to save Diet
-      const response = await fetch("http://localhost:3001/routes/api/adminDiet", {
+      const response = await fetch(`${API_BASE}/routes/api/adminDiet`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

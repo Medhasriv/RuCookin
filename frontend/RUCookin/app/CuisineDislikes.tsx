@@ -11,6 +11,10 @@ import {
 import { useColorScheme } from "react-native"; // For detecting dark/light theme
 import { useRouter } from "expo-router"; // For navigation
 import { checkAuth, getTokenData } from "../utils/authChecker"; // Custom auth utilities
+import Constants from 'expo-constants';
+
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 // List of available cuisine types
 const CUISINE_TYPES = [
@@ -48,7 +52,7 @@ export default function CuisineDislikes() {
       const payload = { username: username.trim(), cuisineDislike: disliked };
       
       // Send POST request to save disliked cuisines
-      const res = await fetch("http://localhost:3001/routes/api/cuisineDislike", {
+      const res = await fetch(`${API_BASE}/routes/api/cuisineDislike`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

@@ -7,6 +7,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme } from "react-native";
 import { checkAuth, getToken } from "../utils/authChecker";
 import BottomNavBar from "../components/BottomNavBar";
+import Constants from 'expo-constants';
+
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
+// Connect to the Spoonacular API
+const spoonacularApiKey = Constants.manifest?.extra?.spoonacularApiKey ?? (Constants.expoConfig as any).expo.extra.spoonacularApiKey;
+
 
 // Define types for ingredients and pantry items
 type IngredientResult = {
@@ -51,7 +58,7 @@ const Pantry = () => {
   const fetchPantryItems = async () => {
     try {
       const token = await getToken();
-      const response = await fetch("http://localhost:3001/routes/api/pantry", {
+      const response = await fetch(`${API_BASE}/routes/api/pantry`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -88,7 +95,7 @@ const Pantry = () => {
       if (!searchText.trim()) return;
 
       const response = await fetch(
-        `https://api.spoonacular.com/food/ingredients/search?query=${encodeURIComponent(searchText)}&number=5&apiKey=e4f654951cf040dabe22e878460b9b04`
+        `https://api.spoonacular.com/food/ingredients/search?query=${encodeURIComponent(searchText)}&number=5&apiKey=${spoonacularApiKey}`
       );
 
       const data = await response.json();
@@ -111,7 +118,7 @@ const Pantry = () => {
       const token = await getToken();
       const newItem = { id: ingredient.id, name: ingredient.name, image: ingredient.image };
   
-      const response = await fetch("http://localhost:3001/routes/api/pantry", {
+      const response = await fetch(`${API_BASE}/routes/api/pantry`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ item: newItem }),
@@ -135,7 +142,7 @@ const Pantry = () => {
   const handleRemoveFromPantry = async (id: number) => {
     try {
       const token = await getToken();
-      const response = await fetch("http://localhost:3001/routes/api/pantry", {
+      const response = await fetch(`${API_BASE}/routes/api/pantry`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ itemId: id }),
@@ -159,7 +166,7 @@ const Pantry = () => {
 
     try {
       const token = await getToken();
-      const response = await fetch("http://localhost:3001/routes/api/pantry/expiration", {
+      const response = await fetch(`${API_BASE}/routes/api/pantry/expiration`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ itemId, expirationDate }),

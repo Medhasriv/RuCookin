@@ -4,8 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRef, useState } from "react";
 import { Divider } from "../components/Divider";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
-
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 export default function Index() {
   // Global Variable Declarations
@@ -33,7 +35,7 @@ export default function Index() {
     if (!validateForm()) return;
   
     try {
-      const response = await fetch('http://localhost:3001/routes/auth/login', {
+      const response = await fetch(`${API_BASE}/routes/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

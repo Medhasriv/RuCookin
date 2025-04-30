@@ -6,6 +6,10 @@ import { useRouter } from 'expo-router';
 
 // Import authentication-related utilities
 import { checkAuth, getTokenData } from "../utils/authChecker"; 
+import Constants from 'expo-constants';
+
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 // Define static list of available cuisine types
 const CUISINE_TYPES = [
@@ -57,7 +61,7 @@ const CuisineLikes = () => {
       console.log("🚀 Sending payload:", JSON.stringify(payload));
 
       // Send POST request to server to save liked cuisines
-      const response = await fetch("http://localhost:3001/routes/api/cuisineLike", {
+      const response = await fetch(`${API_BASE}/routes/api/cuisineLike`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

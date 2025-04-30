@@ -19,6 +19,12 @@ import { RadioButton, Checkbox } from "react-native-paper";
 import BottomNavBar from "../components/BottomNavBar";
 import { checkAuth, getToken, getTokenData } from "../utils/authChecker"; 
 import * as dotenv from 'dotenv';
+import Constants from 'expo-constants';
+
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
+// Connect to the Spoonacular API
+const spoonacularApiKey = Constants.manifest?.extra?.spoonacularApiKey ?? (Constants.expoConfig as any).expo.extra.spoonacularApiKey;
 
 const stripHtml = (html?: string) =>
   (html ?? "")
@@ -52,7 +58,7 @@ const SearchRecipe = () => {
       const token    = await getToken();
       if (!username || !token) return;
       try {
-        const res  = await fetch("http://localhost:3001/routes/api/favoriteRecipe",
+        const res  = await fetch(`${API_BASE}/routes/api/favoriteRecipe`,
           { method: "GET", headers: { Authorization:`Bearer ${token}`, Username:username }});
         const data = await res.json();
         if (res.ok) setFavourites(data);           // [12345, 9876, …]
@@ -83,7 +89,7 @@ const toggleFavourite = async (recipeId: number) => {
 
   try {
     const res = await fetch(
-      "http://localhost:3001/routes/api/favoriteRecipe",
+      `${API_BASE}/routes/api/favoriteRecipe`,
       {
         method: already ? "DELETE" : "POST",
         headers: { "Content-Type": "application/json" },
@@ -191,7 +197,7 @@ const toggleFavourite = async (recipeId: number) => {
       //getting the user preferences (function..?)
       console.log("dislikes");
       try {
-          const response = await fetch("http://localhost:3001/routes/api/cuisineDislike", {
+          const response = await fetch(`${API_BASE}/routes/api/cuisineDislike`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -210,7 +216,7 @@ const toggleFavourite = async (recipeId: number) => {
         }
 
       try {
-          const response = await fetch("http://localhost:3001/routes/api/cuisineLike", {
+          const response = await fetch(`${API_BASE}/routes/api/cuisineLike`, {
             method: "GET",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -229,7 +235,7 @@ const toggleFavourite = async (recipeId: number) => {
           console.error("❌ Error fetching likes", error);
         }
       try {
-        const response = await fetch("http://localhost:3001/routes/api/intolerance", {
+        const response = await fetch(`${API_BASE}/routes/api/intolerance`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -247,7 +253,7 @@ const toggleFavourite = async (recipeId: number) => {
         console.error("❌ Error fetching intolerances", error);
       }
       try {
-        const response = await fetch("http://localhost:3001/routes/api/diet", {
+        const response = await fetch(`${API_BASE}/routes/api/diet`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -267,7 +273,7 @@ const toggleFavourite = async (recipeId: number) => {
     } 
     try {    
       const response = await fetch(
-        `https://api.spoonacular.com/recipes/complexSearch?query=${encodeURIComponent(searchRecipe)}&addRecipeInformation=true&excludeCuisine=${encodeURIComponent(excludedCusineString)}&cuisine=${encodeURIComponent(selectedCuisinesString)}&intolerances=${encodeURIComponent(selectedIntolerancesString)}&diet=${encodeURIComponent(selectedDiet)}&apiKey=7687f59ac03546c396f6e21ef843c784`
+        `https://api.spoonacular.com/recipes/complexSearch?query=${encodeURIComponent(searchRecipe)}&addRecipeInformation=true&excludeCuisine=${encodeURIComponent(excludedCusineString)}&cuisine=${encodeURIComponent(selectedCuisinesString)}&intolerances=${encodeURIComponent(selectedIntolerancesString)}&diet=${encodeURIComponent(selectedDiet)}&apiKey=${spoonacularApiKey}`
       );
       const data = await response.json();
       if (response.ok) {

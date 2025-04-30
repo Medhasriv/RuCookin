@@ -6,6 +6,12 @@ import BottomNavBar from "../components/BottomNavBar";
 import { useRouter, useFocusEffect } from "expo-router";
 import { checkAuth, getToken, getTokenData } from "../utils/authChecker";
 import { Ionicons } from "@expo/vector-icons";
+import Constants from 'expo-constants';
+
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
+// Connect to the Spoonacular API
+const spoonacularApiKey = Constants.manifest?.extra?.spoonacularApiKey ?? (Constants.expoConfig as any).expo.extra.spoonacularApiKey;
 
 const stripHtml = (html?: string) =>
     (html ?? "")
@@ -37,7 +43,7 @@ export default function SavedRecipes() {
     if (!username || !token) return;
     try {
         const res = await fetch(
-            "http://localhost:3001/routes/api/favoriteRecipe",
+            `${API_BASE}/routes/api/favoriteRecipe`,
             {
                 method: "DELETE",
                 headers: {
@@ -69,7 +75,7 @@ export default function SavedRecipes() {
 
         try {
           const res = await fetch(
-            "http://localhost:3001/routes/api/favoriteRecipe",
+            `${API_BASE}/routes/api/favoriteRecipe`,
             {
               method: "GET",
               headers: {
@@ -88,7 +94,7 @@ export default function SavedRecipes() {
           const spoon = await fetch(
             `https://api.spoonacular.com/recipes/informationBulk?ids=${ids.join(
               ","
-            )}&apiKey=7687f59ac03546c396f6e21ef843c784`
+            )}&apiKey=${spoonacularApiKey}`
           );
           const data = await spoon.json();
           if (isActive) setRecipes(data);

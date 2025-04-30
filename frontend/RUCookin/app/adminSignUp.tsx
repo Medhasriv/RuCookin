@@ -16,6 +16,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Divider } from "../components/Divider";
 import AdminBottomNavBar from "../components/adminBottomNavBar";
 import { LogBox } from "react-native";
+import Constants from 'expo-constants';
+
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 LogBox.ignoreLogs([
   "VirtualizedLists should never be nested inside plain ScrollViews"
@@ -55,7 +59,7 @@ export default function AdminSignUp() {
   const handleSignUpSubmit = async () => {
     if (!validateForm()) return;
     try {
-      const res = await fetch("http://localhost:3001/routes/auth/adminCreateAccount", {
+      const res = await fetch(`${API_BASE}routes/auth/adminCreateAccount`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ firstName, lastName, email, username, password }),

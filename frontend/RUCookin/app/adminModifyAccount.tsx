@@ -16,6 +16,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { checkAuth, checkAdmin, getToken } from "../utils/authChecker";
 import AdminBottomNavBar from "../components/adminBottomNavBar";
 import { LogBox } from "react-native";
+import Constants from 'expo-constants';
+
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 LogBox.ignoreLogs([
   "VirtualizedLists should never be nested inside plain ScrollViews"
@@ -49,7 +53,7 @@ const AdminModifyAccount = () => {
 //WORKS
   const fetchUsers = async () => {
     try {
-      const res = await fetch("http://localhost:3001/routes/api/adminMaintain");
+      const res = await fetch(`${API_BASE}/routes/api/adminMaintain`);
       const data = await res.json();
       setUsers(data);
     } catch (err) {
@@ -70,7 +74,7 @@ const AdminModifyAccount = () => {
               console.error("No token found in storage.");
               return;
             }
-      await fetch("http://localhost:3001/routes/api/adminMaintain", {
+      await fetch(`${API_BASE}/routes/api/adminMaintain`, {
         method: "PUT",
         headers: { 
           "Content-Type": "application/json",
@@ -101,7 +105,7 @@ const AdminModifyAccount = () => {
               console.error("No token found in storage.");
               return;
             }
-      await fetch("http://localhost:3001/routes/api/adminMaintain", {
+      await fetch(`${API_BASE}/routes/api/adminMaintain`, {
         method: "DELETE",
         headers: { 
           "Content-Type": "application/json",

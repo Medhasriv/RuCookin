@@ -14,6 +14,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "@/components/BottomNavBar";
 import { Ionicons } from "@expo/vector-icons";
 import { checkAuth } from "@/utils/authChecker";
+import Constants from 'expo-constants';
+// Connect to the Spoonacular API
+const spoonacularApiKey = Constants.manifest?.extra?.spoonacularApiKey ?? (Constants.expoConfig as any).expo.extra.spoonacularApiKey;
 
 /* ------------- helpers ------------- */
 const stripHtml = (html?: string) =>
@@ -53,7 +56,7 @@ export default function Recipe() {
 
       try {
         const res = await fetch(
-          `https://api.spoonacular.com/recipes/${id}/information?apiKey=7687f59ac03546c396f6e21ef843c784`
+          `https://api.spoonacular.com/recipes/${id}/information?apiKey=${spoonacularApiKey}`
         );
         const data = await res.json();
         setRecipe(data);

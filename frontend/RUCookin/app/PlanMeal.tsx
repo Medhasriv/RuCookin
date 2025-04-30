@@ -8,6 +8,12 @@ import BottomNavBar from "../components/BottomNavBar"; // Custom bottom navigati
 import { useRouter } from "expo-router"; // Navigation hook for routing
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Async storage for persisting data
 import { checkAuth } from "../utils/authChecker";
+import Constants from 'expo-constants';
+
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
+// Connect to the Spoonacular API
+const spoonacularApiKey = Constants.manifest?.extra?.spoonacularApiKey ?? (Constants.expoConfig as any).expo.extra.spoonacularApiKey;
 
 // Define the PantryItem type
 type PantryItem = {
@@ -61,7 +67,7 @@ const PlanMeal = () => {
   const fetchPantryItems = async () => {
     try {
       const token = await getToken(); // Retrieve auth token
-      const response = await fetch("http://localhost:3001/routes/api/pantry", {
+      const response = await fetch(`${API_BASE}/routes/api/pantry`, {
         headers: {
           Authorization: `Bearer ${token}`, // Pass token in header
         },
@@ -89,7 +95,7 @@ const PlanMeal = () => {
       const baseResponse = await fetch(
         `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${encodeURIComponent(
           ingredientNames
-        )}&number=10&apiKey=e4f654951cf040dabe22e878460b9b04`
+        )}&number=10&apiKey=${spoonacularApiKey}`
       );
 
       const baseData: Recipe[] = await baseResponse.json();
@@ -98,7 +104,7 @@ const PlanMeal = () => {
       // For each recipe, check the price breakdown
       for (const recipe of baseData) {
         const priceResponse = await fetch(
-          `https://api.spoonacular.com/recipes/${recipe.id}/priceBreakdownWidget.json?apiKey=e4f654951cf040dabe22e878460b9b04`
+          `https://api.spoonacular.com/recipes/${recipe.id}/priceBreakdownWidget.json?apiKey=${spoonacularApiKey}`
         );
         const priceData = await priceResponse.json();
 

@@ -11,6 +11,10 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { useRouter } from "expo-router";
 import { getToken, checkAuth, checkAdmin } from "../utils/authChecker";
 import AdminBottomNavBar from "../components/adminBottomNavBar";
+import Constants from 'expo-constants';
+
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 type StatItem = {
   _id: string | number;
@@ -42,10 +46,10 @@ const AdminStats = () => {
       if (!token) return;
 
       const [favRes, prefRes] = await Promise.all([
-        fetch("http://localhost:3001/routes/api/adminTop/top-favorites", {
+        fetch(`${API_BASE}/routes/api/adminTop/top-favorites`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch("http://localhost:3001/routes/api/adminTop/user-preferences", {
+        fetch(`${API_BASE}/routes/api/adminTop/user-preferences`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);

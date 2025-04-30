@@ -11,6 +11,10 @@ import {
 import { useColorScheme } from "react-native"; // For detecting dark or light theme
 import { useRouter } from "expo-router"; // Navigation helper
 import { checkAuth, getTokenData } from "../utils/authChecker"; // Custom auth utils
+import Constants from 'expo-constants';
+
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 // List of available diet types
 const DIET_TYPES = [
@@ -52,7 +56,7 @@ export default function DietPreferences() {
       if (!username) return; // If no username, abort
 
       const payload = { username: username.trim(), diet: selected }; // Build payload
-      const res = await fetch("http://localhost:3001/routes/api/diet", {
+      const res = await fetch(`${API_BASE}/routes/api/diet`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

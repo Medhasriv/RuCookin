@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList, View } from 'react-native';
 import { useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
+import Constants from 'expo-constants';
 
 // Import authentication checking utilities
 import { checkAuth, getTokenData } from "../utils/authChecker";  
@@ -12,6 +13,9 @@ const INTOLERANCES = [
   'Dairy', 'Egg', 'Gluten', 'Grain', 'Peanut', 'Seafood', 
   'Sesame', 'Shellfish', 'Soy', 'Sulfite', 'Tree Nut', 'Wheat'
 ];
+
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 // Main component for setting intolerance preferences
 const IntolerancePreferences = () => {
@@ -54,7 +58,7 @@ const IntolerancePreferences = () => {
       console.log("🚀 Sending payload:", JSON.stringify(payload));
 
       // Send POST request to server
-      const response = await fetch("http://localhost:3001/routes/api/intolerance", {
+      const response = await fetch(`${API_BASE}/routes/api/intolerance`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -4,8 +4,12 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { useRouter } from "expo-router"; // To handle navigation
 import { checkAuth, checkAdmin, getToken } from "../utils/authChecker"; // Custom utility for authentication and token fetching
 import AdminBottomNavBar from "../components/adminBottomNavBar";
+import Constants from 'expo-constants';
 
-
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
+// debugging to make sure 
+console.log("👉 API_BASE is now:", API_BASE);
 
 // Type definition for ViolationItem
 type ViolationItem = {
@@ -19,6 +23,8 @@ type BanWordItem = {
   word: string;
   addedBy?: string;
 };
+
+
 // Main component for the Admin Ban
 const AdminBan = () => {
    // Determine the current theme based on the user's preference or device setting
@@ -40,7 +46,7 @@ const AdminBan = () => {
 
   const fetchBanWords = async () => {
     try {
-      const res = await fetch("http://localhost:3001/routes/api/adminBan/list");
+      const res = await fetch(`${API_BASE}/routes/api/adminBan/list`);
       const data = await res.json();
       setBanWords(data);
     } catch (err) {
@@ -50,7 +56,7 @@ const AdminBan = () => {
 
   const fetchViolations = async () => {
     try {
-      const res = await fetch("http://localhost:3001/routes/api/adminBan/violations");
+      const res = await fetch(`${API_BASE}/routes/api/adminBan/violations`);
       if (!res.ok) throw new Error("Failed to fetch violations");
       const data = await res.json();
       setViolations(data);
@@ -68,7 +74,7 @@ const AdminBan = () => {
         console.error("No token found in storage.");
         return;
       }
-      const res = await fetch("http://localhost:3001/routes/api/adminBan/add", {
+      const res = await fetch(`${API_BASE}/routes/api/adminBan/add`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -91,7 +97,7 @@ const AdminBan = () => {
 
   const handleRemoveBanWord = async (word: string) => {
     try {
-      const res = await fetch("http://localhost:3001/routes/api/adminBan/remove", {
+      const res = await fetch(`${API_BASE}/routes/api/adminBan/remove`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ word }),

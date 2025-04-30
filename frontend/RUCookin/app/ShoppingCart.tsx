@@ -7,6 +7,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "../components/BottomNavBar";
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
+import Constants from 'expo-constants';
+
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 type CartItem = {
   _id: string;
@@ -41,7 +45,7 @@ const ShoppingCart = () => {
         console.error("No token found in storage.");
         return;
       }
-      const response = await fetch("http://localhost:3001/routes/api/shoppingCart", {
+      const response = await fetch(`${API_BASE}/routes/api/shoppingCart`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -68,7 +72,7 @@ const ShoppingCart = () => {
         quantity: 1,
         origin: "Search",
       };
-      const response = await fetch("http://localhost:3001/routes/api/shoppingCart", {
+      const response = await fetch(`${API_BASE}/routes/api/shoppingCart`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -91,7 +95,7 @@ const ShoppingCart = () => {
   const handleRemoveItem = async (_id: string) => {
     try {
       const token = await getToken();
-      const response = await fetch("http://localhost:3001/routes/api/shoppingCart", {
+      const response = await fetch(`${API_BASE}/routes/api/shoppingCart`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -112,7 +116,7 @@ const ShoppingCart = () => {
   const handleKrogerLogin = async () => {
     const redirectUri = Linking.createURL("KrogerShoppingCart"); 
     const result = await WebBrowser.openAuthSessionAsync(
-      "http://localhost:3001/routes/auth/krogerLogin",
+      `${API_BASE}/routes/auth/krogerLogin`,
       redirectUri
     );
   

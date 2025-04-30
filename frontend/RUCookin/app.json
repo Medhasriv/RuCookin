@@ -47,6 +47,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "expo": {
+      "extra": {
+        "apiUrl": "https://backend-service-612145494931.us-east1.run.app",
+        "spoonacularApiKey": "7687f59ac03546c396f6e21ef843c784"
+      }
     }
   }
 }

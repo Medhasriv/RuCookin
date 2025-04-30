@@ -7,6 +7,10 @@ import { useRouter } from "expo-router";
 import { checkAuth } from "../utils/authChecker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "../components/BottomNavBar";
+import Constants from 'expo-constants';
+
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 // Profile screen component
 const Profile = () => {
@@ -65,7 +69,7 @@ const Profile = () => {
         return;
       }
   
-      const response = await fetch("http://localhost:3001/routes/auth/profile", {
+      const response = await fetch(`${API_BASE}/routes/auth/profile`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -94,7 +98,7 @@ const Profile = () => {
         return;
       }
   
-      const response = await fetch("http://localhost:3001/routes/auth/profile", {
+      const response = await fetch(`${API_BASE}/routes/auth/profile`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

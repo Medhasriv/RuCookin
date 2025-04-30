@@ -9,6 +9,9 @@ import BottomNavBar from "../components/BottomNavBar"; // Custom bottom navigati
 import * as WebBrowser from 'expo-web-browser'; // To handle web browser functionality (not used here)
 import Constants from 'expo-constants'; // Access app constants
 
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
+
 // Type definition for CartItem
 type CartItem = {
   _id: string;
@@ -68,7 +71,7 @@ const KrogerShoppingCart = () => {
         return;
       }
       // Fetch cart items from the server
-      const response = await fetch("http://localhost:3001/routes/api/shoppingCart", {
+      const response = await fetch(`${API_BASE}/routes/api/shoppingCart`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -95,7 +98,7 @@ const KrogerShoppingCart = () => {
       }
       const userToken = await getToken(); // Retrieve user token
       // Fetch prices from Kroger API based on zip code
-      const response = await fetch(`http://localhost:3001/routes/api/krogerCart?zipcode=${zipcode}`, {
+      const response = await fetch(`${API_BASE}/routes/api/krogerCart?zipcode=${zipcode}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -119,7 +122,7 @@ const KrogerShoppingCart = () => {
     try {
       const userToken = await getToken(); // Retrieve user token
       // Send request to add items to Kroger cart
-      const response = await fetch("http://localhost:3001/routes/api/krogerCart", {
+      const response = await fetch(`${API_BASE}/routes/api/krogerCart`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${userToken}`,
