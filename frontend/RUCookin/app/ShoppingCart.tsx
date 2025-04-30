@@ -33,6 +33,7 @@ const ShoppingCart = () => {
     checkAuth(router);
     fetchCart();
   }, []);
+  
   const fetchCart = async () => {
     try {
       const token = await getToken();
@@ -166,7 +167,7 @@ const ShoppingCart = () => {
                   x{item.quantity} from {item.origin || "Unknown Recipe"}
                 </Text>
               </View>
-              <TouchableOpacity onPress={() => handleRemoveItem(item._id)} style={styles.removeButton}>
+              <TouchableOpacity accessibilityRole="button" onPress={() => handleRemoveItem(item._id)} style={styles.removeButton}>
                 <Image
                   source={
                     isDarkMode

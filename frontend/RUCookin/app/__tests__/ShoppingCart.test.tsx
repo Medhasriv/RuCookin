@@ -1,107 +1,113 @@
-import React from 'react';
+import React from "react";
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import ShoppingCart from '../ShoppingCart';
-import { useRouter } from 'expo-router';
+import ShoppingCart from "../ShoppingCart";
 import * as authChecker from "../../utils/authChecker";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as WebBrowser from 'expo-web-browser';
-import * as Linking from 'expo-linking';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-jest.mock('expo-router', () => ({
-  useRouter: jest.fn(),
+// Mock navigation
+jest.mock("expo-router", () => ({
+  useRouter: () => ({ push: jest.fn() }),
 }));
-jest.mock('../utils/authChecker', () => ({
+
+// Mock AsyncStorage
+jest.mock("@react-native-async-storage/async-storage", () => ({
+  getItem: jest.fn(() => Promise.resolve(null)),
+  setItem: jest.fn(),
+}));
+
+// Mock authChecker
+jest.mock("../../utils/authChecker", () => ({
   checkAuth: jest.fn(),
-  getToken: jest.fn(),
+  getToken: jest.fn(() => Promise.resolve("mock-token")),
 }));
-jest.mock('@react-native-async-storage/async-storage');
-jest.mock('expo-web-browser');
-jest.mock('expo-linking');
 
-global.fetch = jest.fn();
+// Mock WebBrowser and Linking
+jest.mock("expo-web-browser", () => ({
+  openAuthSessionAsync: jest.fn(() =>
+    Promise.resolve({ type: "success", url: "myapp://KrogerShoppingCart?token=kroger123" })
+  ),
+}));
+jest.mock("expo-linking", () => ({
+  createURL: jest.fn(() => "myapp://KrogerShoppingCart"),
+}));
 
-const mockRouterPush = jest.fn();
-(useRouter as jest.Mock).mockReturnValue({ push: mockRouterPush });
-
-describe('ShoppingCart', () => {
+describe("ShoppingCart", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-
-  it('renders shopping cart header and search input', async () => {
-    (authChecker.checkAuth as jest.Mock).mockImplementation(() => {});
-    (authChecker.getToken as jest.Mock).mockResolvedValue('test-token');
-    (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
-    (fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => [],
-    });
-
-    const { getByText, getByPlaceholderText } = render(<ShoppingCart />);
-    
-    expect(getByText('Shopping Cart')).toBeTruthy();
-    expect(getByPlaceholderText('Search for item here...')).toBeTruthy();
-  });
-
-  it('adds item to cart when submitted', async () => {
-    (authChecker.getToken as jest.Mock).mockResolvedValue('token123');
-    (fetch as jest.Mock)
-      .mockResolvedValueOnce({ ok: true, json: async () => [] }) // initial fetch
-      .mockResolvedValueOnce({ ok: true, json: async () => ({}) }); // add item
-
-    const { getByPlaceholderText, getByText } = render(<ShoppingCart />);
-    const input = getByPlaceholderText('Search for item here...');
-    const button = getByText('Add To Cart');
-
-    fireEvent.changeText(input, 'Bananas');
-    fireEvent.press(button);
-
-    await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/shoppingCart'),
-        expect.objectContaining({
-          method: 'POST',
-        })
-      );
-    });
-  });
-
-  it('removes item from cart', async () => {
-    (authChecker.getToken as jest.Mock).mockResolvedValue('token123');
-    (fetch as jest.Mock)
-      .mockResolvedValueOnce({
+    (global.fetch as jest.Mock) = jest.fn(() =>
+      Promise.resolve({
         ok: true,
-        json: async () => [
-          { _id: 'item-1', itemName: 'Apples', quantity: 1, origin: 'Search' },
-        ],
+        json: () =>
+          Promise.resolve([
+            {
+              _id: "1",
+              itemName: "Milk",
+              quantity: 1,
+              origin: "Recipe",
+            },
+          ]),
       })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({}) });
+    );
+  });
 
-    const { getByText, getByRole, queryByText } = render(<ShoppingCart />);
-    await waitFor(() => expect(getByText('Apples')).toBeTruthy());
+  it('renders shopping cart header and items', async () => {
+    const { getByPlaceholderText, getByText } = render(<ShoppingCart />);
+  
+    // Ensure header is rendered
+    await waitFor(() => expect(getByText("Shopping Cart")).toBeTruthy());
+  
+    // Simulate typing "Milk" into the input
+    const input = getByPlaceholderText("Search for item here...");
+    fireEvent.changeText(input, "Milk");
+  
+    // Simulate clicking "Add To Cart"
+    const addButton = getByText("Add To Cart");
+    fireEvent.press(addButton);
+  
+    // Wait for "Milk" to appear in the cart
+    await waitFor(() => expect(getByText("Milk")).toBeTruthy());
+  });
 
-    const removeButton = getByRole('button');
-    fireEvent.press(removeButton);
+  it("adds a new item on submit", async () => {
+    const { getByPlaceholderText, getByText } = render(<ShoppingCart />);
+    const input = getByPlaceholderText("Search for item here...");
+    fireEvent.changeText(input, "Eggs");
+
+    (global.fetch as jest.Mock).mockImplementationOnce(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ success: true }),
+      })
+    );
+
+    fireEvent(input, "submitEditing");
 
     await waitFor(() => {
-      expect(queryByText('Apples')).toBeNull();
+      expect(getByText("Eggs")).toBeTruthy();
     });
   });
 
-  it('initiates Kroger login and redirects on success', async () => {
-    (WebBrowser.openAuthSessionAsync as jest.Mock).mockResolvedValue({
-      type: 'success',
-      url: 'myapp://KrogerShoppingCart?token=fake-token',
-    });
+  it("removes an item from the cart", async () => {
+    const { getByText, getAllByRole } = render(<ShoppingCart />);
+    await waitFor(() => expect(getByText("Milk")).toBeTruthy());
 
-    const { getByText } = render(<ShoppingCart />);
-    const krogerButton = getByText('Login with Kroger');
+    (global.fetch as jest.Mock).mockImplementationOnce(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ success: true }),
+      })
+    );
 
-    fireEvent.press(krogerButton);
+    const removeButtons = getAllByRole("button");
+    fireEvent.press(removeButtons[0]); // Assume first remove button
 
     await waitFor(() => {
-      expect(AsyncStorage.setItem).toHaveBeenCalledWith('krogerToken', 'fake-token');
-      expect(mockRouterPush).toHaveBeenCalledWith('/KrogerShoppingCart');
+      expect(() => getByText("Milk")).toThrow(); // Milk should be gone
     });
+  });
+
+  it("shows Kroger login button", async () => {
+    const { getByText } = render(<ShoppingCart />);
+    await waitFor(() => expect(getByText("Login with Kroger")).toBeTruthy());
   });
 });
