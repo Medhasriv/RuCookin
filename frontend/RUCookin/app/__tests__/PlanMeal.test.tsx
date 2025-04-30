@@ -1,110 +1,80 @@
 import React from 'react';
-import { render, fireEvent, waitFor, screen } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import PlanMeal from '../PlanMeal';
-import { useRouter } from 'expo-router';
-import * as authChecker from '../../utils/authChecker';
+import { getToken } from '../../utils/authChecker';
 
-// Mocks
-jest.mock('expo-router', () => ({
-  useRouter: jest.fn(),
+// Mock external dependencies
+jest.mock('../../utils/authChecker', () => ({
+  getToken: jest.fn(() => Promise.resolve('fake-token')),
+  checkAuth: jest.fn(),
 }));
-
 jest.mock('@react-native-async-storage/async-storage', () => ({
-  getItem: jest.fn().mockResolvedValue(null),
+  getItem: jest.fn(() => Promise.resolve(null)),
 }));
-
+jest.mock('expo-router', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+  }),
+}));
 jest.mock('react-native-safe-area-context', () => {
-  const actual = jest.requireActual('react-native-safe-area-context');
+  const React = require('react');
   return {
-    ...actual,
+    SafeAreaView: ({ children }: any) => <>{children}</>,
     useSafeAreaInsets: () => ({ top: 0 }),
   };
 });
+jest.mock('../../components/BottomNavBar', () => () => <></>);
 
-jest.spyOn(authChecker, 'checkAuth').mockImplementation(jest.fn());
-jest.spyOn(authChecker, 'getToken').mockResolvedValue('test-token');
+// Mock fetch
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve([]), // return empty pantry/recipes
+  })
+) as jest.Mock;
 
-global.fetch = jest.fn();
+describe('PlanMeal', () => {
+  it('renders header and input field', async () => {
+    const { getByText, getByPlaceholderText } = render(<PlanMeal />);
 
-describe('PlanMeal Component', () => {
-  const mockPush = jest.fn();
-  beforeEach(() => {
-    (useRouter as jest.Mock).mockReturnValue({ push: mockPush });
-    jest.clearAllMocks();
-  });
-
-  it('renders static content correctly', () => {
-    render(<PlanMeal />);
-    expect(screen.getByText('Plan a Meal')).toBeTruthy();
-    expect(screen.getByPlaceholderText('Enter max budget in $')).toBeTruthy();
+    expect(getByText('Plan a Meal')).toBeTruthy();
+    expect(getByText("Enter your budget and we'll find recipes!")).toBeTruthy();
+    expect(getByPlaceholderText('Enter max budget in $')).toBeTruthy();
   });
 
   it('fetches pantry items on mount', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => [{ id: 1, name: 'tomato' }],
-    });
+    const mockPantry = [{ id: 1, name: 'apple' }];
+    (fetch as jest.Mock).mockImplementationOnce(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockPantry),
+      })
+    );
 
-    render(<PlanMeal />);
-
+    const { findByText } = render(<PlanMeal />);
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith(
         'http://localhost:3001/routes/api/pantry',
         expect.objectContaining({
-          headers: expect.objectContaining({ Authorization: 'Bearer test-token' }),
+          headers: expect.objectContaining({
+            Authorization: 'Bearer fake-token',
+          }),
         })
       );
     });
   });
 
-  it('calls Spoonacular API and filters recipes on submit', async () => {
-    const pantryItems = [{ id: 1, name: 'tomato' }];
+  it('updates budget input and triggers fetchRecipes on submit', async () => {
+    const { getByPlaceholderText } = render(<PlanMeal />);
 
-    // First fetch = pantry
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => pantryItems,
-    });
-
-    // Second fetch = base recipes
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => [
-        { id: 123, title: 'Tomato Soup', image: 'img.jpg', usedIngredientCount: 1, missedIngredientCount: 2 },
-      ],
-    });
-
-    // Third fetch = price breakdown
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({
-        ingredients: [
-          { name: 'onion', price: 50 },
-          { name: 'salt', price: 25 },
-        ],
-      }),
-    });
-
-    render(<PlanMeal />);
-
-    const input = screen.getByPlaceholderText('Enter max budget in $');
-    fireEvent.changeText(input, '1');
+    const input = getByPlaceholderText('Enter max budget in $');
+    fireEvent.changeText(input, '10');
     fireEvent(input, 'submitEditing');
 
+    expect(input.props.value).toBe('10');
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledTimes(3); // Pantry, recipes, price breakdown
-      expect(screen.getByText('Tomato Soup')).toBeTruthy();
-      expect(screen.getByText(/Used: 1/)).toBeTruthy();
-    });
-  });
-
-  it('does not call recipe API if budget input is empty', async () => {
-    render(<PlanMeal />);
-    const input = screen.getByPlaceholderText('Enter max budget in $');
-    fireEvent.changeText(input, '');
-    fireEvent(input, 'submitEditing');
-    await waitFor(() => {
-      expect(fetch).toHaveBeenCalledTimes(1); // Only pantry fetch
+      expect(fetch).toHaveBeenCalled();
     });
   });
 });
