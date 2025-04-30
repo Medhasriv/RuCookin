@@ -61,11 +61,18 @@ const Pantry = () => {
 
         // Pre-fill expiration date inputs if available
         const newInputs: { [key: number]: string } = {};
-        data.forEach((item) => {
-          if (item.expirationDate) {
-            newInputs[item.id] = item.expirationDate.split("T")[0]; // Format date
-          }
-        });
+        
+
+        if (Array.isArray(data)) {
+          data.forEach((item) => {
+            if (item.expirationDate) {
+              newInputs[item.id] = item.expirationDate.split("T")[0]; // Format date
+            }
+          });
+        } else {
+          console.error("Unexpected data format:", data);
+        }
+        
         setExpirationInputs(newInputs);
       } else {
         console.error("Error fetching pantry items:", data);

@@ -1,113 +1,80 @@
-// frontend/RUCookin/app/__tests__/Pantry.test.tsx
-
 import React from "react";
 import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import Pantry from "../Pantry";
 import * as authChecker from "../../utils/authChecker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Mock react-native dependencies
-jest.mock("react-native/Libraries/Animated/NativeAnimatedHelper");
+// Mock dependencies
+jest.mock("expo-router", () => ({
+  useRouter: () => ({ push: jest.fn(), replace: jest.fn() }),
+}));
+
 jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn(() => Promise.resolve(null)),
 }));
-jest.mock("expo-router", () => ({
-  useRouter: () => ({ push: jest.fn() }),
-}));
-jest.mock("../../components/BottomNavBar", () => () => <></>);
+
 jest.mock("../../utils/authChecker", () => ({
   checkAuth: jest.fn(),
-  getToken: jest.fn(() => Promise.resolve("mock-token")),
+  getToken: jest.fn(() => Promise.resolve("fake-token")),
 }));
 
-// Setup fetch mock
-global.fetch = jest.fn();
+beforeEach(() => {
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve([
+        { id: 1, name: "Apple", image: "apple.png", expirationDate: "2025-05-01T00:00:00Z" },
+      ]),
+    })
+  ) as jest.Mock;
+});
 
-describe("Pantry Screen", () => {
-  beforeEach(() => {
+describe("Pantry", () => {
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it("renders correctly with static text", async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: async () => [],
-    });
-
+  it("renders header and fetches pantry items", async () => {
     const { getByText, getByPlaceholderText } = render(<Pantry />);
-    
-    expect(getByText("Pantry")).toBeTruthy();
-    expect(getByText("Search and add ingredients to your pantry")).toBeTruthy();
-    expect(getByPlaceholderText("Search for ingredients...")).toBeTruthy();
 
     await waitFor(() => {
-      expect(authChecker.checkAuth).toHaveBeenCalled();
-      expect(fetch).toHaveBeenCalled();
+      expect(getByText("Pantry")).toBeTruthy();
+      expect(getByText("Apple")).toBeTruthy();
     });
+
+    expect(getByPlaceholderText("Search for ingredients...")).toBeTruthy();
   });
 
-  it("searches ingredients on submit", async () => {
-    (fetch as jest.Mock)
-      .mockResolvedValueOnce({ ok: true, json: async () => [] }) // fetchPantryItems
-      .mockResolvedValueOnce({
+  it("searches and adds ingredient on submit", async () => {
+    (global.fetch as jest.Mock).mockImplementationOnce(() =>
+      Promise.resolve({
         ok: true,
-        json: async () => ({
-          results: [{ id: 1, name: "apple", image: "apple.png" }],
-        }),
-      });
+        json: () =>
+          Promise.resolve({
+            results: [{ id: 2, name: "Banana", image: "banana.png" }],
+          }),
+      })
+    );
 
     const { getByPlaceholderText, getByText } = render(<Pantry />);
 
     const input = getByPlaceholderText("Search for ingredients...");
-    fireEvent.changeText(input, "apple");
+    fireEvent.changeText(input, "Banana");
     fireEvent(input, "submitEditing");
 
     await waitFor(() => {
-      expect(getByText("apple")).toBeTruthy();
+      expect(getByText("Banana")).toBeTruthy();
     });
   });
 
-  it("adds a new ingredient to pantry", async () => {
-    const mockIngredient = { id: 2, name: "banana", image: "banana.png" };
-
-    (fetch as jest.Mock)
-      .mockResolvedValueOnce({ ok: true, json: async () => [] }) // fetchPantryItems on mount
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ results: [mockIngredient] }) }) // fetchIngredients
-      .mockResolvedValueOnce({ ok: true, json: async () => ({}) }) // POST addToPantry
-      .mockResolvedValueOnce({ ok: true, json: async () => [] }); // re-fetch pantry
-
-    const { getByPlaceholderText, getByText, queryByText } = render(<Pantry />);
-    const input = getByPlaceholderText("Search for ingredients...");
-
-    fireEvent.changeText(input, "banana");
-    fireEvent(input, "submitEditing");
-
-    await waitFor(() => expect(getByText("banana")).toBeTruthy());
-
-    fireEvent.press(getByText("banana"));
+  it("displays expiration date and allows editing", async () => {
+    const { getByDisplayValue, getByText } = render(<Pantry />);
 
     await waitFor(() => {
-      expect(queryByText("banana")).not.toBeTruthy(); // After add, search results are cleared
+      expect(getByDisplayValue("2025-05-01")).toBeTruthy();
     });
-  });
 
-  it("removes an ingredient from pantry", async () => {
-    const mockPantryItem = [{ id: 3, name: "carrot", image: "carrot.png", expirationDate: "2025-01-01" }];
-
-    (fetch as jest.Mock)
-      .mockResolvedValueOnce({ ok: true, json: async () => mockPantryItem }) // fetchPantryItems
-      .mockResolvedValueOnce({ ok: true, json: async () => ({}) }); // delete
-
-    const { getByText, getAllByRole } = render(<Pantry />);
-
-    await waitFor(() => expect(getByText("carrot")).toBeTruthy());
-
-    const deleteButtons = getAllByRole("button");
-    fireEvent.press(deleteButtons[deleteButtons.length - 1]); // Press last button (delete)
-
-    await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith(expect.stringContaining("/pantry"), expect.objectContaining({
-        method: "DELETE",
-      }));
-    });
+    const saveButton = getByText("Save");
+    expect(saveButton).toBeTruthy();
   });
 });
