@@ -1,31 +1,42 @@
+// import statements for mocks
 import React from "react";
 import { render, fireEvent, waitFor, act } from "@testing-library/react-native";
 import SearchRecipe from "../SearchRecipe";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Text } from "react-native";
 
-// Mock dependencies
+// mock for AsyncStorage so that there is no initial saved theme
 jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn(() => Promise.resolve(null)),
   setItem: jest.fn(() => Promise.resolve()),
   removeItem: jest.fn(() => Promise.resolve()),
 }));
 
+// mock for router
 jest.mock("expo-router", () => ({
   useRouter: () => ({ push: jest.fn() }),
   Link: jest.fn(({ children }) => children),
 }));
 
+// mock for SafeAreaContext which includes SafeAreaProvider and SafeAreaView
 jest.mock("react-native-safe-area-context", () => ({
   SafeAreaProvider: jest.fn(({ children }) => children),
   SafeAreaView: jest.fn(({ children }) => children),
   useSafeAreaInsets: jest.fn(() => ({ top: 0, right: 0, bottom: 0, left: 0 })),
 }));
 
-jest.mock("@expo/vector-icons", () => ({
-  Ionicons: jest.fn(({ name }) => `Icon-${name}`),
-}));
+// mock for favorite icon, uses testID as a text for testing purposes
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const { Text } = require('react-native');
+  return {
+    Ionicons: ({ name }: { name: string }) => (
+      <Text testID={`icon-${name}`}>{`Icon-${name}`}</Text>
+    ),
+  };
+});
 
+// mock for radiobuttons and checkboxes
 jest.mock("react-native-paper", () => {
   const { Text } = require("react-native");
   return {
@@ -38,6 +49,7 @@ jest.mock("react-native-paper", () => {
   };
 });
 
+// mock for authChecker so that login is not required
 jest.mock("../../utils/authChecker", () => ({
   checkAuth: jest.fn(),
   getToken: jest.fn(() => Promise.resolve("mock-token")),
@@ -58,7 +70,7 @@ describe("SearchRecipe Screen", () => {
       Promise.resolve(
         createMockResponse({
           results: [
-            {
+            { // mocking a result for spaghetti
               id: 1,
               title: "Spaghetti",
               image: "https://example.com/spaghetti.jpg",
@@ -72,7 +84,8 @@ describe("SearchRecipe Screen", () => {
     ) as jest.Mock;
   });
 
-  test("renders the search input and button correctly", () => {
+  // test to check if the search button is working
+  test("renders the search input and button correctly", () => { // search button works
     const { getByPlaceholderText, getByText } = render(
       <SafeAreaProvider>
         <SearchRecipe />
@@ -103,6 +116,7 @@ describe("SearchRecipe Screen", () => {
 //     });
 //   });
 
+// display results in SafeAreaProvider
   test("allows entering search text", () => {
     const { getByPlaceholderText } = render(
       <SafeAreaProvider>
@@ -110,6 +124,7 @@ describe("SearchRecipe Screen", () => {
       </SafeAreaProvider>
     );
 
+    // roleplaying the user entering text "chicken" into the search input
     const input = getByPlaceholderText("Search for a recipe...");
     fireEvent.changeText(input, "chicken");
 
@@ -134,7 +149,7 @@ describe("SearchRecipe Screen", () => {
 //     });
 //   });
 
-
+// test to check if recipe is marked as favourite when star icon is clicked
 });
   test("toggles favourite star icon when pressed", async () => {
       jest.clearAllMocks();
@@ -179,8 +194,8 @@ describe("SearchRecipe Screen", () => {
   
       // perform search
       const input = getByPlaceholderText("Search for a recipe...");
-    fireEvent.changeText(input, "spaghetti");
-    fireEvent(input, "submitEditing");
+      fireEvent.changeText(input, "spaghetti");
+      fireEvent(input, "submitEditing");
   
       // wait for the recipe tile to show up
       await waitFor(() => {
