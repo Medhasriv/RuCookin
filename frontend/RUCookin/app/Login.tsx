@@ -74,9 +74,9 @@ export default function Index() {
   };
 
   // Backend Login via Google Handling (debug)
-  const handleGoogleSubmit = () => {
-    console.log("Google Login");
-  };
+  // const handleGoogleSubmit = () => {
+  //   console.log("Google Login");
+  // };
   
   return (
     <SafeAreaView style={styles.container}>
@@ -142,20 +142,6 @@ export default function Index() {
       {/* Login Button */}
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-  
-      {/* Divider for Alternative Log In Options */}
-      <Divider isDarkMode={isDarkMode} />
-  
-      {/* Google Login Button */}
-      <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSubmit}>
-        <View style={styles.googleButtonContent}>
-          <Image
-            source={require('../assets/icons/google.png')}
-            style={styles.googleIcon}
-          />
-          <Text style={styles.googleButtonText}>Sign in with Google</Text>
-        </View>
       </TouchableOpacity>
       
       {/* Sign Up Page Link */}

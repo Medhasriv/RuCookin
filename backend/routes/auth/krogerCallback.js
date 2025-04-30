@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
     console.log("✅ Got Kroger access token:", accessToken);
     console.log("✅ Statw:", state);
 
-    res.redirect(`http://localhost:8081/KrogerShoppingCart?token=${accessToken}`);
+    res.redirect(`https://backend-service-612145494931.us-east1.run.app/KrogerShoppingCart?token=${accessToken}`);
    
 
   } catch (err) {

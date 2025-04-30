@@ -16,6 +16,7 @@ router.get("/", async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const pref = await UserPref.findOne({ userId: user._id });
+    console.log("👾 [GET favoriteRecipe] pref doc:", pref);
     return res.json(pref?.favoriteRecipes || []);
   } catch (err) {
     console.error("GET favoriteRecipe error:", err);
@@ -34,12 +35,13 @@ router.post("/", async (req, res) => {
     const user = await User.findOne({ username });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    await UserPref.updateOne(
+   const updateResult = await UserPref.updateOne(
       { userId: user._id },
       { $addToSet: { favoriteRecipes: recipeId } },
       { upsert: true }
     );
-
+    
+    console.log("👾 favoriteRecipes updateResult:", updateResult);
     return res.sendStatus(200);
   } catch (err) {
     console.error("POST favoriteRecipe error:", err);

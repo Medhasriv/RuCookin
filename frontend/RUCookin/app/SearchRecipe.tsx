@@ -20,11 +20,10 @@ import BottomNavBar from "../components/BottomNavBar";
 import { checkAuth, getToken, getTokenData } from "../utils/authChecker"; 
 import * as dotenv from 'dotenv';
 import Constants from 'expo-constants';
-
-// Connect to the backend API hosted on Google Cloud Run
-const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 // Connect to the Spoonacular API
 const spoonacularApiKey = Constants.manifest?.extra?.spoonacularApiKey ?? (Constants.expoConfig as any).expo.extra.spoonacularApiKey;
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 const stripHtml = (html?: string) =>
   (html ?? "")
@@ -423,7 +422,6 @@ const toggleFavourite = async (recipeId: number) => {
 
                 {/* star overlay */}
                 <TouchableOpacity
-                  testID={`star-button-${item.id}`}
                   style={styles.star}
                   onPress={() => toggleFavourite(item.id)}
                 >

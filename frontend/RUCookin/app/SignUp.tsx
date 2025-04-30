@@ -74,9 +74,9 @@ export default function SignUp() {
   };
 
   // Backend SignUp via Google Handling - CHANGE LATER
-  const handleGoogleSignUpSubmit = () => {
-    console.log("Google Sign Up"); // debug for now
-  };
+  // const handleGoogleSignUpSubmit = () => {
+  //   console.log("Google Sign Up"); // debug for now
+  // };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -188,20 +188,6 @@ export default function SignUp() {
       {/* Continue Button */} 
       <TouchableOpacity style={styles.button} onPress={handleSignUpSubmit}>
         <Text style={styles.buttonText}>Continue</Text>
-      </TouchableOpacity>
-
-      {/* Divider for Alternative Log In Options */}
-      <Divider isDarkMode={isDarkMode} />
-
-      {/* Google Sign Up Button */}
-      <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignUpSubmit}>
-        <View style={styles.googleButtonContent}>
-          <Image
-            source={require("../assets/icons/google.png")}
-            style={styles.googleIcon}
-          />
-          <Text style={styles.googleButtonText}>Sign Up with Google</Text>
-        </View>
       </TouchableOpacity>
       
       {/* Sign In Page Link */}

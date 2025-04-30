@@ -7,11 +7,10 @@ import { useRouter, useFocusEffect } from "expo-router";
 import { checkAuth, getToken, getTokenData } from "../utils/authChecker";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from 'expo-constants';
-
-// Connect to the backend API hosted on Google Cloud Run
-const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 // Connect to the Spoonacular API
 const spoonacularApiKey = Constants.manifest?.extra?.spoonacularApiKey ?? (Constants.expoConfig as any).expo.extra.spoonacularApiKey;
+// Connect to the backend API hosted on Google Cloud Run
+const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 const stripHtml = (html?: string) =>
     (html ?? "")
@@ -84,7 +83,9 @@ export default function SavedRecipes() {
               },
             }
           );
+          console.log("SavedRecipes GET status:", res.status, "ok?", res.ok);
           const ids: number[] = await res.json();
+          console.log("SavedRecipes fetched favorite IDs:", ids);
           if (!isActive) return;            // screen blurred meanwhile
           if (!ids.length) {
             setRecipes([]);
@@ -97,6 +98,7 @@ export default function SavedRecipes() {
             )}&apiKey=${spoonacularApiKey}`
           );
           const data = await spoon.json();
+          console.log("SavedRecipes fetched recipe data:", data);
           if (isActive) setRecipes(data);
         } catch (err) {
           console.error("❌ Error loading saved recipes", err);
