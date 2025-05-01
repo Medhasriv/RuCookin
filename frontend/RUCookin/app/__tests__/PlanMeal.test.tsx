@@ -1,3 +1,10 @@
+// mock for constants to avoid problems with Jest and our Cloud Deployment
+jest.mock('expo-constants', () => ({
+  manifest: { extra: { apiUrl: 'http://localhost:3001', spoonacularApiKey: 'fake-key' } },
+  // fallback field name in newer Expo SDKs:
+  expoConfig: { extra: { apiUrl: 'http://localhost:3001', spoonacularApiKey: 'fake-key' } },
+}));
+
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import PlanMeal from '../PlanMeal';

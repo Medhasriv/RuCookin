@@ -23,6 +23,13 @@ jest.mock('react-native-gesture-handler', () => {
   };
 });
 
+// mock for constants to avoid problems with Jest and our Cloud Deployment
+jest.mock('expo-constants', () => ({
+  manifest: { extra: { apiUrl: 'http://localhost:3001', spoonacularApiKey: 'fake-key' } },
+  // fallback field name in newer Expo SDKs:
+  expoConfig: { extra: { apiUrl: 'http://localhost:3001', spoonacularApiKey: 'fake-key' } },
+}));
+
 // import statements below above mocks because of rendering issues
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
