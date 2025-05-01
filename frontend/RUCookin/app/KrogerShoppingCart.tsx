@@ -86,7 +86,7 @@ const KrogerShoppingCart = () => {
       console.log(zipcode)
       const userToken = await getToken(); 
       console.log(userToken)
-      const response = await fetch(`http://localhost:3001/routes/api/krogerCart/prices`, {
+      const response = await fetch(`${API_BASE}/routes/api/krogerCart/prices`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -118,7 +118,7 @@ const KrogerShoppingCart = () => {
     try {
       const userToken = await getToken(); // Retrieve user token
       // Send request to add items to Kroger cart
-      const response = await fetch(`http://localhost:3001/routes/api/krogerCart/clear`, {
+      const response = await fetch(`${API_BASE}/routes/api/krogerCart/clear`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${userToken}`,

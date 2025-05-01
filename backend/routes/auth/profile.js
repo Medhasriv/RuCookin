@@ -7,11 +7,12 @@ const User = require('mongoose').model('UserInfo');
 // GET profile
 router.get('/', async (req, res) => {
     try {
-        const id = getUserIdFromToken(req);
-        if (!id) {
+        const tokenData = getUserIdFromToken(req);
+        if (!tokenData || !tokenData.id) {
             return res.status(401).json({ message: 'Unauthorized: Invalid token.' });
         }
-        const user = await User.findById(id).select('-password');
+
+        const user = await User.findById(tokenData.id).select('-password');
         if (!user) {
             return res.status(404).json({ message: 'User not found.' });
         }
@@ -25,15 +26,15 @@ router.get('/', async (req, res) => {
 // PUT update profile
 router.put('/', async (req, res) => {
     try {
-        const id = getUserIdFromToken(req);
-        if (!id) {
+        const tokenData = getUserIdFromToken(req);
+        if (!tokenData || !tokenData.id) {
             return res.status(401).json({ message: 'Unauthorized: Invalid token.' });
         }
 
         const { firstName, lastName, email, location } = req.body;
 
         const updatedUser = await User.findByIdAndUpdate(
-            id,
+            tokenData.id,
             { firstName, lastName, email, location },
             { new: true }
         );
