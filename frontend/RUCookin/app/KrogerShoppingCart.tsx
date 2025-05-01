@@ -86,7 +86,7 @@ const KrogerShoppingCart = () => {
       }
   
       const userToken = await getToken(); 
-      const response = await fetch(`http://localhost:3001/routes/api/krogerCart/prices`, {
+      const response = await fetch(`${API_BASE}/routes/api/krogerCart/prices`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -101,17 +101,19 @@ const KrogerShoppingCart = () => {
         console.log("✅ Kroger Prices Fetched:", data);
         setMatchedItems(data.matched || []);
       } else {
-        console.error("❌ API Error:", data);
+        // console.error("❌ API Error:", data); // DEBUGGING PURPOSES
   
         if (response.status === 404 && data.error === "No Kroger store found nearby") {
-         alert("No Store Found");
+          Alert.alert("No Store Found", "There are no nearby Kroger stores for your ZIP code.");
         } else if (response.status === 404 && data.error === "Cart is empty") {
-          alert("Cart Empty");
+          Alert.alert("Cart Empty", "Your cart is currently empty.");
+        } else {
+          Alert.alert("Error", "An unexpected error occurred.");
         }
       }
     } catch (err) {
       console.error("❌ Fetch error:", err);
-      Alert.alert("Network Error", "Unable to connect to the server.");
+      Alert.alert("Uh oh!", "Please check your zip code and try again!");
     }
   };
 
