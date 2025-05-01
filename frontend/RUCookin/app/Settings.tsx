@@ -112,9 +112,10 @@ const SettingsPage = () => {
         {/* Log Out Button */}
         <TouchableOpacity
           style={styles.button}
-          onPress={() => {
+          onPress={async ()=> {
             AsyncStorage.removeItem("token"); // Remove stored token
             AsyncStorage.removeItem("userTheme"); // Remove stored theme preference
+            await AsyncStorage.clear();
             router.push("/Login"); // Redirect to Login page
           }}
         >

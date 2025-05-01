@@ -1,12 +1,11 @@
 // Importing necessary modules and components
-import { useRouter, useLocalSearchParams } from "expo-router"; // To handle navigation and local search params
-import { View, Text, TextInput, FlatList, StyleSheet, useColorScheme, Platform, TouchableOpacity, Image } from "react-native"; // React Native UI components
+import { useRouter } from "expo-router"; // To handle navigation 
+import { View, Text, TextInput, FlatList, StyleSheet, useColorScheme, TouchableOpacity, Image } from "react-native"; // React Native UI components
 import { SafeAreaView } from "react-native-safe-area-context"; // Safe Area context for proper layout
 import React, { useState, useEffect } from "react"; // React hooks for state and effect
 import { checkAuth, getToken } from "../utils/authChecker"; // Custom utility for authentication and token fetching
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Async storage for persistent data
 import BottomNavBar from "../components/BottomNavBar"; // Custom bottom navigation bar
-import * as WebBrowser from 'expo-web-browser'; // To handle web browser functionality (not used here)
 import Constants from 'expo-constants'; // Access app constants
 
 // Connect to the backend API hosted on Google Cloud Run
@@ -36,31 +35,20 @@ const KrogerShoppingCart = () => {
   // Dynamic styles based on dark or light mode
   const styles = createStyles(isDarkMode);
 
-  // Router and params to handle navigation
+  // Router to handle navigation
   const router = useRouter();
-  const params = useLocalSearchParams();
-  const token = params?.token; // Retrieve token from URL params
+
   
   // Effect to run on component mount
   useEffect(() => {
-    // Store the Kroger token when available
-    if (token) {
-      AsyncStorage.setItem("krogerToken", token.toString())
-        .then(() => console.log("✅ Stored Kroger token"))
-        .catch((err) => console.error("❌ Failed to store Kroger token:", err));
-    }
-    
-    // Retrieve stored user theme preference
-    AsyncStorage.getItem("userTheme")
-      .then((value) => {
-        if (value) setUserTheme(value);
-      })
-      .catch((err) => console.error("❌ Failed to get user theme:", err));
-    
-    // Check if user is authenticated and fetch the shopping cart
+    AsyncStorage.getItem("userTheme").then((value) => {
+      console.log("Stored userTheme:", value);
+      if (value) setUserTheme(value);
+    });
     checkAuth(router);
     fetchCart();
-  }, [token]);
+  }, []);
+  
 
   // Fetch the user's shopping cart from the API
   const fetchCart = async () => {
@@ -91,38 +79,46 @@ const KrogerShoppingCart = () => {
   // Fetch prices from Kroger based on the entered zip code
   const handleFetchKrogerPrices = async () => {
     try {
-      const krogerToken = await AsyncStorage.getItem("krogerToken"); // Retrieve Kroger token
-      if (!krogerToken || !zipcode) {
-        console.error("❌ Missing Kroger token or zip code");
+      if (!zipcode) {
+        console.error("❌ Missing ZIP code");
         return;
       }
-      const userToken = await getToken(); // Retrieve user token
-      // Fetch prices from Kroger API based on zip code
-      const response = await fetch(`${API_BASE}/routes/api/krogerCart?zipcode=${zipcode}`, {
-        method: "GET",
+      console.log(zipcode)
+      const userToken = await getToken(); 
+      console.log(userToken)
+      const response = await fetch(`http://localhost:3001/routes/api/krogerCart/prices`, {
+        method: "POST",
         headers: {
           Authorization: `Bearer ${userToken}`,
-          "x-kroger-token": krogerToken || "",
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({ zipcode }),
       });
+      
       const data = await response.json();
+      
       if (response.ok) {
-        console.log("✅ Kroger Prices Fetched", data);
-        setMatchedItems(data.matched); // Update matched items state with prices
+        console.log("✅ Kroger Prices Fetched:", data);
+        setMatchedItems(data.matched || []);
       } else {
-        console.error("❌ Failed to fetch Kroger data:", data.error);
+        console.error("❌ API Error:", {
+          status: response.status,
+          body: data,
+        });
       }
+      console.log("✅ Kroger Prices Fetched:", data);
+      setMatchedItems(data.matched || []);
     } catch (err) {
-      console.error("❌ Error:", err);
+      console.error("❌ Fetch error:", err);
     }
   };
 
   // Simulate adding items to Kroger cart
-  const handleAddToKrogerCart = async () => {
+  const handleCleanKrogerCart = async () => {
     try {
       const userToken = await getToken(); // Retrieve user token
       // Send request to add items to Kroger cart
-      const response = await fetch(`${API_BASE}/routes/api/krogerCart`, {
+      const response = await fetch(`http://localhost:3001/routes/api/krogerCart/clear`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -148,8 +144,8 @@ const KrogerShoppingCart = () => {
     <View style={styles.container}>
       <SafeAreaView style={styles.contentContainer}>
         {/* Header section */}
-        <Text style={styles.header}>Shopping Cart</Text>
-        <Text style={styles.caption}>Add your items to the Kroger™ Cart</Text>
+        <Text style={styles.header}>Kroger Price Checker</Text>
+        <Text style={styles.caption}>Check the price using Kroger™</Text>
 
         {/* Zip Code Input */}
         <TextInput
@@ -197,9 +193,9 @@ const KrogerShoppingCart = () => {
         {/* Add to Kroger Cart Button */}
         <TouchableOpacity
           style={styles.button}
-          onPress={handleAddToKrogerCart}
+          onPress={handleCleanKrogerCart}
         >
-          <Text style={styles.buttonText}>Add to Kroger Cart</Text>
+          <Text style={styles.buttonText}>Clear the Kroger List</Text>
         </TouchableOpacity>
       </SafeAreaView>
 

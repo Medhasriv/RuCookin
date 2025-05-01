@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 const mongoose = require("mongoose");
 const axios = require("axios");
@@ -9,50 +9,49 @@ require("../../schemas/Cart.js");
 const User = mongoose.model("UserInfo");
 const Cart = mongoose.model("CartInfo");
 
-const { tokenStore } = require("../auth/krogerCallback");
 const { getUserIdFromToken } = require("../../utils/TokenDecoder");
 
-router.get("/", async (req, res) => {
-  try {
-    const zipcode = req.query.zipcode;
-    const krogerToken = req.headers["x-kroger-token"];
-    const userId = getUserIdFromToken(req);
-    console.log("THE USERD IS: ")
-    console.log(userId)
-    console.log("Zipcode is: ", zipcode)
 
-    if (!userId || !zipcode) {
+router.post('/prices', async (req, res) => {
+  try {
+    const { zipcode } = req.body;
+    console.log(zipcode)
+    const user = getUserIdFromToken(req);
+    const  userId= await User.findById(user.id);
+    console.log(userId)
+
+    if (!user || !zipcode) {
       return res.status(400).json({ error: "Missing token or zip code" });
     }
+    if (!userId) return res.status(404).json({ error: "User not found" });
 
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    const userCart = await Cart.findOne({ userId: user._id });
+    const userCart = await Cart.findOne({ userId: userId });
     if (!userCart || userCart.cartItems.length === 0) {
       return res.status(404).json({ error: "Cart is empty" });
     }
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ error: "User not authenticated with Kroger" });
-    }
-    console.log("🧠 Retrieved Kroger token:", krogerToken);
+    const token = await axios.post(
+      "https://api.kroger.com/v1/connect/oauth2/token",
+      "grant_type=client_credentials&scope=product.compact",
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        auth: {
+          username: process.env.KROGER_CLIENT_ID,
+          password: process.env.KROGER_CLIENT_SECRET,
+        },
+      }
+    );
+    const krogerToken = token.data.access_token;
 
-    if (!krogerToken) {
-      return res.status(401).json({ error: "User not authenticated with Kroger" });
-    }
 
-
-    const storeResp = await axios.get("https://api.kroger.com/v1/locations", {
+    const store = await axios.get("https://api.kroger.com/v1/locations", {
       headers: { Authorization: `Bearer ${krogerToken}` },
       params: {
         "filter.zipCode.near": zipcode,
-        "filter.radiusInMiles": 20,
-        "filter.chain": "Kroger",
+        "filter.limit": 1,
       },
     });
 
-    const stores = storeResp.data.data;
+    const stores = store.data.data;
     const closestStore = stores[0];
     const storeId = closestStore?.locationId;
 
@@ -68,7 +67,7 @@ router.get("/", async (req, res) => {
       const itemName = item.itemName;
 
       try {
-        const productResp = await axios.get("https://api.kroger.com/v1/products", {
+        const product = await axios.get("https://api.kroger.com/v1/products", {
           headers: { Authorization: `Bearer ${krogerToken}` },
           params: {
             "filter.term": itemName,
@@ -77,7 +76,7 @@ router.get("/", async (req, res) => {
           },
         });
 
-        const raw = productResp.data?.data?.[0];
+        const raw = product.data?.data?.[0];
         const productId = raw?.productId;
         const krogerItem = raw?.items?.[0];
         const price = krogerItem?.price?.regular;
@@ -109,21 +108,19 @@ router.get("/", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
-router.post("/", async (req, res) => {
+router.post("/clear", async (req, res) => {
   try {
     console.log("🔥 Start the clear");
-    const userId = getUserIdFromToken(req);
+    const user = getUserIdFromToken(req);
+    const  userId= await User.findById(user.id);
     if (!userId) return res.status(401).json({ error: "User not authenticated" });
 
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ error: "User not found" });
-
-    const userCart = await Cart.findOne({ userId: user._id });
+    const userCart = await Cart.findOne({ userId: userId });
     if (!userCart || userCart.cartItems.length === 0) {
       return res.status(404).json({ error: "Cart is empty" });
     }
     await Cart.updateOne(
-      { userId: user._id },
+      { userId: userId },
       { $set: { cartItems: [] } }
     );
 

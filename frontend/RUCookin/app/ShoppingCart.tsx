@@ -1,12 +1,10 @@
 import { useRouter } from "expo-router";
-import { View, Text, TextInput, FlatList, StyleSheet, useColorScheme, Platform, TouchableOpacity, Image } from "react-native";
+import { View, Text, TextInput, FlatList, StyleSheet, useColorScheme, TouchableOpacity, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState, useEffect } from "react";
 import { checkAuth, getToken } from "../utils/authChecker"; 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "../components/BottomNavBar";
-import * as WebBrowser from 'expo-web-browser';
-import * as Linking from 'expo-linking';
 import Constants from 'expo-constants';
 
 // Connect to the backend API hosted on Google Cloud Run
@@ -29,14 +27,15 @@ const ShoppingCart = () => {
   const styles = createStyles(isDarkMode);
   const router = useRouter();
 
-  useEffect(() => {
-    // Retrieve stored theme from AsyncStorage
-    AsyncStorage.getItem("userTheme").then((value) => {
-      if (value) setUserTheme(value);
-    });
-    checkAuth(router);
-    fetchCart();
-  }, []);
+useEffect(() => {
+  // Retrieve stored theme from AsyncStorage
+  AsyncStorage.getItem("userTheme").then((value) => {
+    if (value) setUserTheme(value);
+  });
+
+  checkAuth(router);
+  fetchCart();
+}, []);
   
   const fetchCart = async () => {
     try {
@@ -113,27 +112,7 @@ const ShoppingCart = () => {
       console.error("❌ Error deleting cart item:", error);
     }
   };
-  const handleKrogerLogin = async () => {
-    const redirectUri = Linking.createURL("KrogerShoppingCart"); 
-    const result = await WebBrowser.openAuthSessionAsync(
-      `${API_BASE}/routes/auth/krogerLogin`,
-      redirectUri
-    );
-  
-    if (result.type === "success" && result.url) {
-      const url = new URL(result.url);
-      const token = url.searchParams.get("token");
-  
-      if (token) {
-        await AsyncStorage.setItem("krogerToken", token);
-        router.push("/KrogerShoppingCart");
-      } else {
-        console.error("❌ Token not found in callback URL.");
-      }
-    } else {
-      console.warn("❌ OAuth login failed.");
-    }
-  };
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.contentContainer}>
@@ -184,9 +163,9 @@ const ShoppingCart = () => {
             </View>
           )}
         />
-        {/* Kroger Login Button */}
-        <TouchableOpacity style={styles.button} onPress={handleKrogerLogin}>
-          <Text style={styles.buttonText}>Login with Kroger</Text>
+        {/* Kroger Price Checker Button */}
+        <TouchableOpacity style={styles.button} onPress={() => router.push("/KrogerShoppingCart")}>
+                <Text style={styles.buttonText}>Check Kroger Prices</Text>
         </TouchableOpacity>
       </SafeAreaView>
       {/* Bottom Navigation Bar */}

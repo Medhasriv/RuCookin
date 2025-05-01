@@ -3,9 +3,18 @@ const router = express.Router();
 
   router.get('/', (req, res) => {
     const { KROGER_CLIENT_ID, KROGER_REDIRECT_URI } = process.env;
+    const { state } = req.query;
     const scope = 'product.compact profile.compact cart.basic:write';
-    const authURL = `https://api.kroger.com/v1/connect/oauth2/authorize?client_id=${KROGER_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(KROGER_REDIRECT_URI)}&scope=${encodeURIComponent(scope)}`;
-    res.redirect(authURL);
+    const authURL = `https://api.kroger.com/v1/connect/oauth2/authorize?` +
+    `client_id=${KROGER_CLIENT_ID}` +
+    `&response_type=code` +
+    `&redirect_uri=${encodeURIComponent(KROGER_REDIRECT_URI)}` +
+    `&scope=${encodeURIComponent(scope)}` +
+    (state ? `&state=${encodeURIComponent(state)}` : '');
+
+  console.log("🌍 Redirecting to Kroger Auth URL:", authURL);
+
+  res.redirect(authURL);
   });
   
 
