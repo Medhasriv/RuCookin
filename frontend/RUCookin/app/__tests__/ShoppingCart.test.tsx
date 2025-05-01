@@ -1,120 +1,91 @@
-// mock for constants to avoid problems with Jest and our Cloud Deployment
+// KrogerShoppingCart.test.tsx
 jest.mock('expo-constants', () => ({
   manifest: { extra: { apiUrl: 'http://localhost:3001', spoonacularApiKey: 'fake-key' } },
-  // fallback field name in newer Expo SDKs:
   expoConfig: { extra: { apiUrl: 'http://localhost:3001', spoonacularApiKey: 'fake-key' } },
 }));
 
 import React from "react";
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import ShoppingCart from "../ShoppingCart";
-import * as authChecker from "../../utils/authChecker";
+import KrogerShoppingCart from "../KrogerShoppingCart";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Mock navigation
 jest.mock("expo-router", () => ({
   useRouter: () => ({ push: jest.fn() }),
 }));
 
-// Mock AsyncStorage
 jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn(() => Promise.resolve(null)),
   setItem: jest.fn(),
 }));
 
-// Mock authChecker
 jest.mock("../../utils/authChecker", () => ({
   checkAuth: jest.fn(),
   getToken: jest.fn(() => Promise.resolve("mock-token")),
 }));
 
-// Mock WebBrowser and Linking
-jest.mock("expo-web-browser", () => ({
-  openAuthSessionAsync: jest.fn(() =>
-    Promise.resolve({ type: "success", url: "myapp://KrogerShoppingCart?token=kroger123" })
-  ),
-}));
-jest.mock("expo-linking", () => ({
-  createURL: jest.fn(() => "myapp://KrogerShoppingCart"),
-}));
-
-describe("ShoppingCart", () => {
+describe("KrogerShoppingCart", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (global.fetch as jest.Mock) = jest.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve([
-            {
-              _id: "1",
-              itemName: "Milk",
-              quantity: 1,
-              origin: "Recipe",
-            },
-          ]),
-      })
-    );
-  });
 
-  it('renders shopping cart header and items', async () => {
-    const { getByPlaceholderText, getByText } = render(<ShoppingCart />);
-  
-    // Ensure header is rendered
-    await waitFor(() => expect(getByText("Shopping Cart")).toBeTruthy());
-  
-    // Simulate typing "Milk" into the input
-    const input = getByPlaceholderText("Search for item here...");
-    fireEvent.changeText(input, "Milk");
-  
-    // Simulate clicking "Add To Cart"
-    const addButton = getByText("Add To Cart");
-    fireEvent.press(addButton);
-  
-    // Wait for "Milk" to appear in the cart
-    await waitFor(() => expect(getByText("Milk")).toBeTruthy());
-  });
-
-  it("adds a new item on submit", async () => {
-    const { getByPlaceholderText, getByText } = render(<ShoppingCart />);
-    const input = getByPlaceholderText("Search for item here...");
-    fireEvent.changeText(input, "Eggs");
-
-    (global.fetch as jest.Mock).mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ success: true }),
-      })
-    );
-
-    fireEvent(input, "submitEditing");
-
-    await waitFor(() => {
-      expect(getByText("Eggs")).toBeTruthy();
+    (global.fetch as jest.Mock) = jest.fn((url: string) => {
+      if (url.endsWith("/routes/api/shoppingCart")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve([
+              { _id: "1", itemName: "Apple", quantity: 2, origin: "Recipe" },
+              { _id: "2", itemName: "Milk", quantity: 1, origin: "Recipe" },
+            ]),
+        });
+      } else if (url.endsWith("/routes/api/krogerCart/prices")) {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              matched: [{ name: "Apple", price: 1.99, productId: "0000000003507" }],
+              not_found: ["Milk"],
+              total_cost: "3.98",
+            }),
+        });
+      } else if (url.endsWith("/routes/api/krogerCart/clear")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ success: true }),
+        });
+      }
+      return Promise.reject(new Error("Unhandled URL"));
     });
   });
 
-  it("removes an item from the cart", async () => {
-    const { getByText, getAllByRole } = render(<ShoppingCart />);
+  it('renders Kroger shopping cart header and items correctly', async () => {
+    const { getByText } = render(<KrogerShoppingCart />);
+
+    await waitFor(() => expect(getByText("Kroger Price Checker")).toBeTruthy());
+    await waitFor(() => expect(getByText("Apple")).toBeTruthy());
     await waitFor(() => expect(getByText("Milk")).toBeTruthy());
-
-    (global.fetch as jest.Mock).mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ success: true }),
-      })
-    );
-
-    const removeButtons = getAllByRole("button");
-    fireEvent.press(removeButtons[0]); // Assume first remove button
-
-    await waitFor(() => {
-      expect(() => getByText("Milk")).toThrow(); // Milk should be gone
-    });
   });
 
-  it("shows Kroger login button", async () => {
-    const { getByText } = render(<ShoppingCart />);
-    await waitFor(() => expect(getByText("Login with Kroger")).toBeTruthy());
+  it("fetches and displays Kroger prices correctly", async () => {
+    const { getByPlaceholderText, getByText } = render(<KrogerShoppingCart />);
+
+    const zipcodeInput = getByPlaceholderText("Enter ZIP Code");
+    fireEvent.changeText(zipcodeInput, "45202");
+    fireEvent(zipcodeInput, "submitEditing");
+
+    await waitFor(() => expect(getByText("$1.99")).toBeTruthy());
+  });
+
+  it("clears Kroger cart correctly", async () => {
+    const { getByText, queryByText } = render(<KrogerShoppingCart />);
+
+    await waitFor(() => expect(getByText("Apple")).toBeTruthy());
+
+    const clearButton = getByText("Clear the Kroger List");
+    fireEvent.press(clearButton);
+
+    await waitFor(() => {
+      expect(queryByText("Apple")).toBeNull();
+      expect(queryByText("Milk")).toBeNull();
+    });
   });
 });
