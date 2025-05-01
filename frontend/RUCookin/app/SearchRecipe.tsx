@@ -422,6 +422,7 @@ const toggleFavourite = async (recipeId: number) => {
 
                 {/* star overlay */}
                 <TouchableOpacity
+                  testID={`star-${item.id}`}
                   style={styles.star}
                   onPress={() => toggleFavourite(item.id)}
                 >

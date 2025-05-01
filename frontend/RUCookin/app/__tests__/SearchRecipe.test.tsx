@@ -1,3 +1,10 @@
+// mock for constants to avoid problems with Jest and our Cloud Deployment
+jest.mock('expo-constants', () => ({
+  manifest: { extra: { apiUrl: 'http://localhost:3001', spoonacularApiKey: 'fake-key' } },
+  // fallback field name in newer Expo SDKs:
+  expoConfig: { extra: { apiUrl: 'http://localhost:3001', spoonacularApiKey: 'fake-key' } },
+}));
+
 // import statements for mocks
 import React from "react";
 import { render, fireEvent, waitFor, act } from "@testing-library/react-native";
@@ -191,7 +198,7 @@ describe("SearchRecipe Screen", () => {
           <SearchRecipe />
       </SafeAreaProvider>
       );
-  
+      
       // perform search
       const input = getByPlaceholderText("Search for a recipe...");
       fireEvent.changeText(input, "spaghetti");
@@ -206,7 +213,7 @@ describe("SearchRecipe Screen", () => {
       expect(getByText("Icon-star")).toBeTruthy();
   
       // press the star button
-      fireEvent.press(getByTestId("star-button-1"));
+      fireEvent.press(getByTestId("star-1"));
   
       // now it should render the outline star
       await waitFor(() => {
