@@ -159,6 +159,13 @@ const PlanMeal = () => {
           onSubmitEditing={fetchRecipes} // Fetch recipes when user submits
         />
 
+        {/* Pantry empty error message */}
+        {pantryItems.length === 0 && (
+          <Text style={{ color: isDarkMode ? "#FF6B6B" : "#B00020", textAlign: "center", marginBottom: 20 }}>
+            Your pantry is empty. Please add ingredients before planning a meal.
+          </Text>
+        )}
+
         {/* List of recipes */}
         <FlatList
           data={recipes}
