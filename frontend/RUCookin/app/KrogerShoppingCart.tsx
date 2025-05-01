@@ -7,6 +7,7 @@ import { checkAuth, getToken } from "../utils/authChecker"; // Custom utility fo
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Async storage for persistent data
 import BottomNavBar from "../components/BottomNavBar"; // Custom bottom navigation bar
 import Constants from 'expo-constants'; // Access app constants
+import { Alert } from "react-native";
 
 // Connect to the backend API hosted on Google Cloud Run
 const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
@@ -80,13 +81,12 @@ const KrogerShoppingCart = () => {
   const handleFetchKrogerPrices = async () => {
     try {
       if (!zipcode) {
-        console.error("❌ Missing ZIP code");
+        Alert.alert("Missing ZIP code", "Please enter a valid ZIP code.");
         return;
       }
-      console.log(zipcode)
+  
       const userToken = await getToken(); 
-      console.log(userToken)
-      const response = await fetch(`${API_BASE}/routes/api/krogerCart/prices`, {
+      const response = await fetch(`http://localhost:3001/routes/api/krogerCart/prices`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${userToken}`,
@@ -94,22 +94,24 @@ const KrogerShoppingCart = () => {
         },
         body: JSON.stringify({ zipcode }),
       });
-      
+  
       const data = await response.json();
-      
+  
       if (response.ok) {
         console.log("✅ Kroger Prices Fetched:", data);
         setMatchedItems(data.matched || []);
       } else {
-        console.error("❌ API Error:", {
-          status: response.status,
-          body: data,
-        });
+        console.error("❌ API Error:", data);
+  
+        if (response.status === 404 && data.error === "No Kroger store found nearby") {
+         alert("No Store Found");
+        } else if (response.status === 404 && data.error === "Cart is empty") {
+          alert("Cart Empty");
+        }
       }
-      console.log("✅ Kroger Prices Fetched:", data);
-      setMatchedItems(data.matched || []);
     } catch (err) {
       console.error("❌ Fetch error:", err);
+      Alert.alert("Network Error", "Unable to connect to the server.");
     }
   };
 
