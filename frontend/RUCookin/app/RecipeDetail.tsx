@@ -2,22 +2,27 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useColorScheme } from "react-native";
+import Constants from 'expo-constants';
+// Connect to the Spoonacular API
+const spoonacularApiKey = Constants.manifest?.extra?.spoonacularApiKey ?? (Constants.expoConfig as any).expo.extra.spoonacularApiKey;
 
 const RecipeDetail = () => {
   const { id, title, image } = useLocalSearchParams();
   const [recipeDetails, setRecipeDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // info for the users color scheme and other info
   const scheme = useColorScheme();
   const isDark = scheme === "dark";
   const imageStr = Array.isArray(image) ? image[0] : image;
   const titleStr = Array.isArray(title) ? title[0] : title;
   
+  //getting the info for each recipe by using the "id"  
   useEffect(() => {
     const fetchRecipeInfo = async () => {
       try {
         const res = await fetch(
-          `https://api.spoonacular.com/recipes/${id}/information?includeNutrition=false&apiKey=c11a17bfe0a94b5a95c3f70ddbf663af`
+          `https://api.spoonacular.com/recipes/${id}/information?includeNutrition=false&apiKey=${spoonacularApiKey}`
         );
         const data = await res.json();
         setRecipeDetails(data);
@@ -47,6 +52,7 @@ const RecipeDetail = () => {
     );
   }
 
+  //creating a component which has the recipe
   return (
     <ScrollView style={[styles.container, { backgroundColor: isDark ? "#000" : "#fff" }]}>
       <Image source={{ uri: imageStr }} style={styles.image} />

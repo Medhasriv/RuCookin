@@ -30,7 +30,7 @@ router.put('/', async (req, res) => {
         if (!tokenData || !tokenData.id) {
             return res.status(401).json({ message: 'Unauthorized: Invalid token.' });
         }
-
+        console.log("Request body:", req.body);  // Log the request body
         const { firstName, lastName, email, location } = req.body;
 
         const updatedUser = await User.findByIdAndUpdate(

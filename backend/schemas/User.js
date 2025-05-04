@@ -32,6 +32,11 @@ const userSchema = new mongoose.Schema(
       required: true,
       min: 8,
     },
+    location: {
+      type: String,
+      required: false,
+      max: 200,
+    },
     accountType: {
       type: String,
       enum: ['user', 'admin'],

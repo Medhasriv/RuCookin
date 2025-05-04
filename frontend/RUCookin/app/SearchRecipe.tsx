@@ -25,6 +25,7 @@ const spoonacularApiKey = Constants.manifest?.extra?.spoonacularApiKey ?? (Const
 // Connect to the backend API hosted on Google Cloud Run
 const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
+//stripping the HTML tags from the recipe description to display to the users
 const stripHtml = (html?: string) =>
   (html ?? "")
     .replace(/<[^>]*>/g, "")
@@ -32,6 +33,7 @@ const stripHtml = (html?: string) =>
     .trim();
 
 const SearchRecipe = () => {
+  ///settign up for the search
   const insets = useSafeAreaInsets();
   const deviceScheme = useColorScheme();
   const [userTheme, setUserTheme] = useState<string | null>(null);
@@ -108,6 +110,7 @@ const toggleFavourite = async (recipeId: number) => {
   }
 };
 
+//choosing the themes for the app
   const effectiveTheme = userTheme ? userTheme : deviceScheme;
   const isDarkMode = effectiveTheme === "dark";
   const styles = createStyles(isDarkMode, insets.top);
@@ -170,17 +173,20 @@ const toggleFavourite = async (recipeId: number) => {
     { label: "Whole30", value: "Whole30" },
   ];
 
+  //creating three lists to keep track 
   const cuisines = CuisineList();
   const intolerances = IntoleranceList();
   const diets = DietList();
 
+//function to handle search upon performing a search
   const handleSearch = async () => {
     
     let selectedCuisinesString = selectedCuisine.join(", ") || "";
     let selectedIntolerancesString = selectedIntolerance.join(", ") || "";
     let excludedCusineString = "";
-    let selectedDiet = "";
+    let selectedDietString = selectedDiet;
 
+    //includes user preferences if chickbox is chosem.
     if(includePreferences == true){
       const username = await getTokenData("username");
       if (!username) {
@@ -193,8 +199,7 @@ const toggleFavourite = async (recipeId: number) => {
         return;
       }
 
-      //getting the user preferences (function..?)
-      console.log("dislikes");
+      //getting the user preferences 
       try {
           const response = await fetch(`${API_BASE}/routes/api/cuisineDislike`, {
             method: "GET",
@@ -262,7 +267,7 @@ const toggleFavourite = async (recipeId: number) => {
         const data = await response.json();
         if (response.ok) {
           //add the results to the API strings 
-          selectedDiet+=data.join(", ");
+          selectedDietString+=data.join(", ");
         } else {
           console.error("❌ Failed to load cart items", data.message);
         }
@@ -270,9 +275,10 @@ const toggleFavourite = async (recipeId: number) => {
         console.error("❌ Error fetching diets", error);
       }
     } 
+    //calling on the spoonacular API to search for recipe
     try {    
       const response = await fetch(
-        `https://api.spoonacular.com/recipes/complexSearch?query=${encodeURIComponent(searchRecipe)}&addRecipeInformation=true&excludeCuisine=${encodeURIComponent(excludedCusineString)}&cuisine=${encodeURIComponent(selectedCuisinesString)}&intolerances=${encodeURIComponent(selectedIntolerancesString)}&diet=${encodeURIComponent(selectedDiet)}&apiKey=${spoonacularApiKey}`
+        `https://api.spoonacular.com/recipes/complexSearch?query=${encodeURIComponent(searchRecipe)}&addRecipeInformation=true&excludeCuisine=${encodeURIComponent(excludedCusineString)}&cuisine=${encodeURIComponent(selectedCuisinesString)}&intolerances=${encodeURIComponent(selectedIntolerancesString)}&diet=${encodeURIComponent(selectedDietString)}&apiKey=${spoonacularApiKey}`
       );
       const data = await response.json();
       if (response.ok) {
@@ -285,6 +291,8 @@ const toggleFavourite = async (recipeId: number) => {
       console.error("Error during search!:", error);
     }
   };
+
+  //toggling the modal + filter and adding these results to the search
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
@@ -304,7 +312,6 @@ const toggleFavourite = async (recipeId: number) => {
   const handleFilter = async () => {
     setModalVisible(false);
     await handleSearch();
-    console.log("searching with filters!");
   };
 
   useEffect(() => {

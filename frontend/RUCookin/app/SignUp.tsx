@@ -47,7 +47,7 @@ export default function SignUp() {
   // Backend SignUp Submit Handling
   const handleSignUpSubmit = async () => {
     if (!validateForm()) return;
-  
+    //if the form exists, navigate and fetch for a POST
     try {
       const response = await fetch(`${API_BASE}/routes/auth/signup`, {
         method: "POST",
@@ -56,7 +56,7 @@ export default function SignUp() {
       });
   
       const data = await response.json();
-  
+      //if succcessful account made, send this message
       if (response.ok && data.token) {
         console.log("✅ Signup successful:", data);
         console.log("Received token:", data.token);
@@ -198,6 +198,7 @@ export default function SignUp() {
   );
 }
 
+// stylesheet
 function createStyles(isDarkMode: boolean) {
   return StyleSheet.create({
     container: {

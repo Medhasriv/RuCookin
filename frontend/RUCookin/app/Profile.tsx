@@ -97,6 +97,8 @@ const Profile = () => {
         console.error("No token found");
         return;
       }
+      console.log("the location before");
+      console.log(userData.location);
   
       const response = await fetch(`${API_BASE}/routes/auth/profile`, {
         method: "PUT",
@@ -115,6 +117,8 @@ const Profile = () => {
       const updatedData = await response.json();
       if (response.ok) {
         setUserData(updatedData.user); // Update UI with latest data
+        console.log("after");
+        console.log(updatedData.user);
         await AsyncStorage.setItem("UserInfo", JSON.stringify(updatedData.user)); // Update local cache
         console.log("Profile updated successfully!");
       } else {
