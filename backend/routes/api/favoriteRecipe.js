@@ -6,7 +6,7 @@ const router  = express.Router();
 const User      = require("../../schemas/User");         // or UserInfo schema
 const UserPref  = require("../../schemas/Preference"); // or UserPreferences.js
 
-// GET all favourite IDs for the current user
+// GET all favourite IDs for the current user, requires username and authorization
 router.get("/", async (req, res) => {
   try {
     const username = req.headers.username;            // sent by the client
@@ -24,7 +24,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST – add a recipe ID
+// POST – add a recipe ID, requires username and recipeId
 router.post("/", async (req, res) => {
   try {
     const { username, recipeId } = req.body;
@@ -49,7 +49,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// DELETE – remove a recipe ID
+// DELETE – remove a recipe ID, requires username and recipeId
 router.delete("/", async (req, res) => {
   try {
     const { username, recipeId } = req.body;

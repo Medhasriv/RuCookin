@@ -13,6 +13,12 @@ NavigationContainer: ({ children }: { children: React.ReactNode }) => children,
 useNavigation: () => ({ navigate: jest.fn(), push: jest.fn() }),
 useRoute: () => ({ params: {} }),
 }));
+
+// Constants so API_BASE === 'http://localhost:3001'
+jest.mock('expo-constants', () => ({
+  manifest:   { extra: { apiUrl: 'http://localhost:3001' } },
+  expoConfig: { extra: { apiUrl: 'http://localhost:3001' } },
+}));
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import AdminCreateRecipeCuisine from '../adminCreateRecipeCuisine';

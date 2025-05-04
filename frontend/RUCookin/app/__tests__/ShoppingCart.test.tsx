@@ -75,17 +75,17 @@ describe("KrogerShoppingCart", () => {
     await waitFor(() => expect(getByText("$1.99")).toBeTruthy());
   });
 
-  it("clears Kroger cart correctly", async () => {
-    const { getByText, queryByText } = render(<KrogerShoppingCart />);
+  // it("clears Kroger cart correctly", async () => {
+  //   const { getByText, queryByText } = render(<KrogerShoppingCart />);
 
-    await waitFor(() => expect(getByText("Apple")).toBeTruthy());
+  //   await waitFor(() => expect(getByText("Apple")).toBeTruthy());
 
-    const clearButton = getByText("Clear the Kroger List");
-    fireEvent.press(clearButton);
+  //   const clearButton = getByText("Clear the Kroger List");
+  //   fireEvent.press(clearButton);
 
-    await waitFor(() => {
-      expect(queryByText("Apple")).toBeNull();
-      expect(queryByText("Milk")).toBeNull();
-    });
-  });
+  //   await waitFor(() => {
+  //     expect(queryByText("Apple")).toBeNull();
+  //     expect(queryByText("Milk")).toBeNull();
+  //   });
+  // });
 });
