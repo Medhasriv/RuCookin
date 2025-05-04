@@ -31,7 +31,6 @@ const Profile = () => {
     firstName: "",
     lastName: "",
     email: "",
-    location: "",
     cuisineLike: [],
     cuisineDislike: [],
     diet: [],
@@ -42,7 +41,6 @@ const Profile = () => {
   const [editing, setEditing] = useState({
     firstName: false,
     lastName: false,
-    location: false,
     email: false,
   });
 
@@ -97,8 +95,6 @@ const Profile = () => {
         console.error("No token found");
         return;
       }
-      console.log("the location before");
-      console.log(userData.location);
   
       const response = await fetch(`${API_BASE}/routes/auth/profile`, {
         method: "PUT",
@@ -110,7 +106,6 @@ const Profile = () => {
           firstName: userData.firstName,
           lastName: userData.lastName,
           email: userData.email,
-          location: userData.location,
         }),
       });
   
@@ -232,51 +227,6 @@ const Profile = () => {
               <Text style={styles.value} testID="last-name-display">{userData.lastName || "N/A"}</Text>
             )}
             <TouchableOpacity onPress={() => toggleEditing("lastName")} testID="edit-last-name-icon">
-              <Image
-                source={
-                  isDarkMode
-                    ? require("../assets/icons/edit-dark.png")
-                    : require("../assets/icons/edit-light.png")
-                }
-                style={styles.editIcon}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Location */}
-        <View style={styles.fieldContainer} testID="location-section">
-          <Text style={styles.label} testID="location-label">Location:</Text>
-          <View style={styles.inputRow}>
-            {editing.location ? (
-              <>
-                <TextInput
-                  style={styles.input}
-                  value={userData.location}
-                  onChangeText={(text) => setUserData((prev) => ({ ...prev, location: text }))}
-                  testID="location-input"
-                />
-                <TouchableOpacity
-                  onPress={() => {
-                    toggleEditing("location");
-                    handleSave();
-                  }}
-                  testID="save-location-icon"
-                >
-                  <Image
-                    source={
-                      isDarkMode
-                        ? require("../assets/icons/save-dark.png")
-                        : require("../assets/icons/save-light.png")
-                    }
-                    style={styles.editIcon}
-                  />
-                </TouchableOpacity>
-              </>
-            ) : (
-              <Text style={styles.value} testID="location-display">{userData.location || "N/A"}</Text>
-            )}
-            <TouchableOpacity onPress={() => toggleEditing("location")} testID="edit-location-icon">
               <Image
                 source={
                   isDarkMode

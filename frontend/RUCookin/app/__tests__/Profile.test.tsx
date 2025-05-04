@@ -31,7 +31,6 @@ global.fetch = jest.fn(() =>
           firstName: 'John',
           lastName: 'Doe',
           email: 'john@example.com',
-          location: 'New York',
           cuisineLike: [],
           cuisineDislike: [],
           diet: [],
@@ -60,7 +59,6 @@ describe('Profile screen', () => {
     expect(await screen.findByTestId('first-name-display')).toHaveTextContent('John');
     expect(await screen.findByTestId('last-name-display')).toHaveTextContent('Doe');
     expect(await screen.findByTestId('email-display')).toHaveTextContent('john@example.com');
-    expect(await screen.findByTestId('location-display')).toHaveTextContent('New York');
   });
 
   it('toggles editing state for firstName', async () => {
@@ -107,19 +105,6 @@ describe('Profile screen', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('email-display')).toHaveTextContent('jane@example.com');
-    });
-  });
-
-  it('edits location successfully', async () => {
-    render(<Profile />);
-    await waitFor(() => screen.getByTestId('edit-location-icon'));
-
-    fireEvent.press(screen.getByTestId('edit-location-icon'));
-    fireEvent.changeText(screen.getByTestId('location-input'), 'Los Angeles');
-    fireEvent.press(screen.getByTestId('save-location-icon'));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('location-display')).toHaveTextContent('Los Angeles');
     });
   });
 });
