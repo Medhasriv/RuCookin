@@ -61,7 +61,7 @@ const AdminModifyAccount = () => {
     fetchUsers();
   }, []);
 
-// Fetch the current users from the backend API
+  // Fetch the current users from the backend API
   const fetchUsers = async () => {
     try {
       const res = await fetch(`${API_BASE}/routes/api/adminMaintain`);
@@ -72,23 +72,26 @@ const AdminModifyAccount = () => {
     }
   };
 
-// Handles entering the edit mode for a user
+  // Handles entering the edit mode for a user
   const handleEdit = (user: UserItem) => {
     setEditingId(user._id);
     setEditedUsername(user.username);
   };
-// Sets the new username to the edited username and updates the backend API
+  // Sets the new username to the edited username and updates the backend API
   const handleSave = async () => {
     if (!editingId || !editedUsername.trim()) return;
     try {
+      // Contains token 
       const token = await getToken();
-            if (!token) {
-              console.error("No token found in storage.");
-              return;
-            }
+      // If there is no token, send a fail message
+      if (!token) {
+        console.error("No token found in storage.");
+        return;
+      }
+      // Send a fetch request to the backend to save new username
       await fetch(`${API_BASE}/routes/api/adminMaintain`, {
         method: "PUT",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
@@ -109,17 +112,20 @@ const AdminModifyAccount = () => {
     setEditingId(null);
     setEditedUsername("");
   };
- // Deletes the user from the backend API
+  // Deletes the user from the backend API
   const handleDelete = async (userId: string) => {
     try {
+      // Contains token 
       const token = await getToken();
-            if (!token) {
-              console.error("No token found in storage.");
-              return;
-            }
-      await fetch(`${API_BASE}/routes/api/adminMaintain`, {
+      // If there is no token, send a fail message
+      if (!token) {
+        console.error("No token found in storage.");
+        return;
+      }
+      // Send a fetch request to the backend to delete User
+      await fetch(`http://localhost:3001/routes/api/adminMaintain`, {
         method: "DELETE",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
@@ -134,7 +140,7 @@ const AdminModifyAccount = () => {
   const renderUser = ({ item }: { item: UserItem }) => {
     const isSelf = item._id === currentUserId;
     const isAdmin =
-      Array.isArray(item.AccountType) && item.AccountType.includes("admin"); 
+      Array.isArray(item.AccountType) && item.AccountType.includes("admin");
 
     return (
       <View style={styles.card}>
@@ -144,15 +150,18 @@ const AdminModifyAccount = () => {
 
         {editingId === item._id ? (
           <>
+          {/* Edit Username */}
             <TextInput
               value={editedUsername}
               onChangeText={setEditedUsername}
               style={styles.input}
             />
+            {/* Save New Username */}
             <View style={styles.buttonRow}>
               <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
                 <Text style={styles.saveText}>Save</Text>
               </TouchableOpacity>
+              {/* Cancel New Username */}
               <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
@@ -168,7 +177,7 @@ const AdminModifyAccount = () => {
             <Text style={styles.username}>{item.username}</Text>
           </TouchableOpacity>
         )}
-
+        {/* Delete User */}
         {!isAdmin && !isSelf && editingId !== item._id && (
           <TouchableOpacity
             style={styles.deleteButton}
@@ -186,22 +195,22 @@ const AdminModifyAccount = () => {
     <View style={styles.container}>
       <SafeAreaView style={styles.inner}>
         <ScrollView contentContainerStyle={styles.content}>
-        <FlatList
-          data={users}
-          keyExtractor={(u) => u._id}
-          contentContainerStyle={styles.listContent}
-          ListHeaderComponent={
-            <>
-              {/* Header/Screen Title */}
-              <Text style={styles.title}>Modify Accounts</Text>
-              {/* Description of screen */}
-              <Text style={styles.caption}>
-                Tap a username to edit it. Admin accounts cannot be edited.
-              </Text>
-            </>
-          }
-          renderItem={renderUser}
-        />
+          <FlatList
+            data={users}
+            keyExtractor={(u) => u._id}
+            contentContainerStyle={styles.listContent}
+            ListHeaderComponent={
+              <>
+                {/* Header/Screen Title */}
+                <Text style={styles.title}>Modify Accounts</Text>
+                {/* Description of screen */}
+                <Text style={styles.caption}>
+                  Tap a username to edit it. Admin accounts cannot be edited.
+                </Text>
+              </>
+            }
+            renderItem={renderUser}
+          />
         </ScrollView>
       </SafeAreaView>
 

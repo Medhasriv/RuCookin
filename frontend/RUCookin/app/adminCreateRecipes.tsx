@@ -15,7 +15,7 @@
 
 // Importing React libraries and nexessary React Native components
 import React, { useEffect, useState } from "react";
-import {View,Text,TextInput,TouchableOpacity,ScrollView,StyleSheet,Platform,useColorScheme} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Platform, useColorScheme } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { checkAuth, checkAdmin } from "../utils/authChecker";
@@ -54,9 +54,9 @@ const AdminCreateRecipe = () => {
   // Handle form submission, which is triggered when the user clicks the "Continue Making the Recipe" button
   const handleSubmit = async () => {
     if (!title.trim() || !instructions.trim() || !ingredients.trim()) {
-      return alert("Please fill in Title, Instructions, and Ingredients."); 
+      return alert("Please fill in Title, Instructions, and Ingredients.");
     }
-
+    //Make a payload for the recipe submission
     const payload = {
       title: title.trim(),
       summary: summary.trim(),
@@ -66,6 +66,7 @@ const AdminCreateRecipe = () => {
     };
 
     try {
+      //Send a request to the backend sending the payload
       const res = await fetch(
         `${API_BASE}/routes/api/adminCreateRecipe`,
         {
@@ -74,18 +75,21 @@ const AdminCreateRecipe = () => {
           body: JSON.stringify(payload),
         }
       );
+      //Get response back from the request
       const data = await res.json();
       if (res.ok) {
         router.push({
+          //Send to next page (/adminCreateRecipeCuisine) with recipeTitle
           pathname: "/adminCreateRecipeCuisine",
           params: { recipeTitle: title.trim() }
         });
       } else {
+        //Send to a alert if recipe fails to create 
         alert(data.message || "Failed to create recipe.");
       }
     } catch (err) {
       console.error(err);
-      alert("Something went wrong. Check console for details.");
+      alert("Something went wrong when making an Admin Recipe.");
     }
   };
 
@@ -96,7 +100,7 @@ const AdminCreateRecipe = () => {
         <ScrollView contentContainerStyle={styles.content}>
           {/* Heading text */}
           <Text style={styles.title}>Create New Recipe</Text>
-          
+
           {/* Input fields for recipe details */}
 
           {/* Title */}

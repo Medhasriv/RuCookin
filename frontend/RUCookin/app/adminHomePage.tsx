@@ -15,7 +15,7 @@
 // Import React libraries and necessary React Native components
 import React, { useEffect } from "react";
 import { useRouter } from "expo-router";
-import {Platform,StyleSheet,Text,useColorScheme,View,ScrollView,TouchableOpacity} from "react-native"; // React Native UI components
+import { Platform, StyleSheet, Text, useColorScheme, View, ScrollView, TouchableOpacity } from "react-native"; // React Native UI components
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { checkAuth, checkAdmin } from "../utils/authChecker";
@@ -31,10 +31,10 @@ const AdminHomePage = () => {
 
   // Check admin authentication on component mount
   useEffect(() => {
-        checkAuth(router);
-        checkAdmin(router);
-      }, []);
-  
+    checkAuth(router);
+    checkAdmin(router);
+  }, []);
+
   // Render component
   return (
     <View style={styles.container}>
@@ -58,16 +58,16 @@ const AdminHomePage = () => {
           </Text>
 
           {/* Log Out Button */}
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            AsyncStorage.removeItem("token");
-            AsyncStorage.removeItem("userTheme");
-            router.push("/Login");
-          }}
-        >
-          <Text style={styles.buttonText}>Log Out</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => {
+              AsyncStorage.removeItem("token");
+              AsyncStorage.removeItem("userTheme");
+              router.push("/Login");
+            }}
+          >
+            <Text style={styles.buttonText}>Log Out</Text>
+          </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
       {/* Bottom Navigation Bar */}
