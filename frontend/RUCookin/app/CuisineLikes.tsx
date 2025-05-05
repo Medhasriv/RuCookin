@@ -5,7 +5,7 @@ import { useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
 
 // Import authentication-related utilities
-import { checkAuth, getTokenData } from "../utils/authChecker"; 
+import { checkAuth, getTokenData } from "../utils/authChecker";
 import Constants from 'expo-constants';
 
 // Connect to the backend API hosted on Google Cloud Run
@@ -54,7 +54,7 @@ const CuisineLikes = () => {
       }
 
       // Prepare payload to send
-      const payload = { 
+      const payload = {
         username: username.trim(),
         cuisineLike: Array.isArray(selectedCuisines) ? [...selectedCuisines] : [],
       };

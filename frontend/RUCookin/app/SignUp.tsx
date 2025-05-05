@@ -18,7 +18,7 @@ export default function SignUp() {
   const [firstName, setFirstName] = useState(""); // Handling first name input
   const [lastName, setLastName] = useState(""); // Handling last name input
   const [isPasswordVisible, setIsPasswordVisible] = useState(false); // Password visibility toggle
-  const [errors, setErrors] = useState<{ 
+  const [errors, setErrors] = useState<{
     firstName?: string;
     lastName?: string;
     username?: string;
@@ -36,7 +36,7 @@ export default function SignUp() {
   const validateForm = () => {
     let errors: { firstName?: string; lastName?: string; username?: string; password?: string; email?: string } = {};
     if (!firstName) { errors.firstName = "First name is required."; }
-    if (!lastName) { errors.lastName = "Last name is required."; } 
+    if (!lastName) { errors.lastName = "Last name is required."; }
     if (!username) { errors.username = "Username is required."; }
     if (!password) { errors.password = "Password is required."; }
     if (!email) { errors.email = "Email is required."; }
@@ -52,9 +52,9 @@ export default function SignUp() {
       const response = await fetch(`${API_BASE}/routes/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, username, password, email }), 
+        body: JSON.stringify({ firstName, lastName, username, password, email }),
       });
-  
+
       const data = await response.json();
       //if succcessful account made, send this message
       if (response.ok && data.token) {
@@ -92,10 +92,10 @@ export default function SignUp() {
       >
         RUCookin'
       </Text>
-      
+
       {/* Create an Account Text */}
       <Text style={styles.headingText}>Create an Account</Text>
-      
+
       {/* Error Messages */}
       {errors.firstName && <Text style={styles.errorStyle}>{errors.firstName}</Text>}
       {errors.lastName && <Text style={styles.errorStyle}>{errors.lastName}</Text>}
@@ -103,12 +103,12 @@ export default function SignUp() {
       {errors.password && <Text style={styles.errorStyle}>{errors.password}</Text>}
       {errors.email && <Text style={styles.errorStyle}>{errors.email}</Text>}
       {errors.general && <Text style={styles.errorStyle}>{errors.general}</Text>}
-      
+
       {/* First Name Input */}
-      <TextInput 
-        style={styles.inputBoxes} 
+      <TextInput
+        style={styles.inputBoxes}
         value={firstName}
-        onChangeText={setFirstName} 
+        onChangeText={setFirstName}
         placeholder="First Name"
         placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
         keyboardAppearance="default"
@@ -119,10 +119,10 @@ export default function SignUp() {
       />
 
       {/* Last Name Input */}
-      <TextInput 
-        style={styles.inputBoxes} 
+      <TextInput
+        style={styles.inputBoxes}
         value={lastName}
-        onChangeText={setLastName} 
+        onChangeText={setLastName}
         placeholder="Last Name"
         placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
         keyboardAppearance="default"
@@ -133,10 +133,10 @@ export default function SignUp() {
       />
 
       {/* Email Input */}
-      <TextInput 
-        style={styles.inputBoxes} 
+      <TextInput
+        style={styles.inputBoxes}
         value={email}
-        onChangeText={setEmail} 
+        onChangeText={setEmail}
         placeholder="Email"
         placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
         keyboardAppearance="default"
@@ -148,10 +148,10 @@ export default function SignUp() {
       />
 
       {/* Username Input */}
-      <TextInput 
-        style={styles.inputBoxes} 
+      <TextInput
+        style={styles.inputBoxes}
         value={username}
-        onChangeText={setUsername} 
+        onChangeText={setUsername}
         placeholder="Username"
         placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
         keyboardAppearance="default"
@@ -162,13 +162,13 @@ export default function SignUp() {
         ref={usernameRef}
         onSubmitEditing={() => passwordRef.current?.focus()}
       />
-      
+
       {/* Password Input */}
       <View style={styles.passwordContainer}>
-        <TextInput 
-          style={styles.passwordInput} 
-          value={password} 
-          onChangeText={setPassword} 
+        <TextInput
+          style={styles.passwordInput}
+          value={password}
+          onChangeText={setPassword}
           placeholder="Password"
           placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
           secureTextEntry={!isPasswordVisible}
@@ -185,11 +185,11 @@ export default function SignUp() {
         </TouchableOpacity>
       </View>
 
-      {/* Continue Button */} 
+      {/* Continue Button */}
       <TouchableOpacity style={styles.button} onPress={handleSignUpSubmit}>
         <Text style={styles.buttonText}>Continue</Text>
       </TouchableOpacity>
-      
+
       {/* Sign In Page Link */}
       <Link href="/Login" style={styles.SignInText}>
         Already have an account? Log in here

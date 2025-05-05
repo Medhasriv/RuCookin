@@ -70,7 +70,7 @@ const SettingsPage = () => {
 
   // Generate styles based on dark mode preference
   const styles = createStyles(isDarkMode);
-  
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.contentContainer}>
@@ -103,7 +103,7 @@ const SettingsPage = () => {
         <TouchableOpacity style={styles.button} onPress={() => router.push("/Profile")}>
           <Text style={styles.buttonText}>Profile</Text>
         </TouchableOpacity>
-        
+
         {/* Privacy Button, navigates to the Privacy & Credits page */}
         <TouchableOpacity style={styles.button} onPress={() => router.push("/Privacy")}>
           <Text style={styles.buttonText}>Privacy & Credits</Text>
@@ -112,7 +112,7 @@ const SettingsPage = () => {
         {/* Log Out Button */}
         <TouchableOpacity
           style={styles.button}
-          onPress={async ()=> {
+          onPress={async () => {
             AsyncStorage.removeItem("token"); // Remove stored token
             AsyncStorage.removeItem("userTheme"); // Remove stored theme preference
             await AsyncStorage.clear();
@@ -122,7 +122,7 @@ const SettingsPage = () => {
           <Text style={styles.buttonText}>Log Out</Text>
         </TouchableOpacity>
       </SafeAreaView>
-      
+
       {/* Bottom navigation bar */}
       <BottomNavBar activeTab="settings" isDarkMode={isDarkMode} />
     </View>

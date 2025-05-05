@@ -115,9 +115,9 @@ const createStyles = (dark: boolean) =>
       flex: 1,
       backgroundColor: dark ? "#721121" : "#FFCF99", // Background color changes with theme
     },
-    content: { 
-      flex: 1, 
-      padding: 20 
+    content: {
+      flex: 1,
+      padding: 20
     },
     heading: {
       fontFamily: "Inter-SemiBold",
@@ -127,12 +127,12 @@ const createStyles = (dark: boolean) =>
       marginBottom: 12,
     },
     /* Styling the grid list */
-    listContent: { 
-      flexGrow: 1, 
-      justifyContent: "flex-start" 
+    listContent: {
+      flexGrow: 1,
+      justifyContent: "flex-start"
     },
-    row: { 
-      justifyContent: "space-evenly" 
+    row: {
+      justifyContent: "space-evenly"
     },
 
     /* Style for each pill */
@@ -153,7 +153,7 @@ const createStyles = (dark: boolean) =>
       color: dark ? "#721121" : "#FFCF99",
       textAlign: "center",
     },
-    pillTextSel: { 
+    pillTextSel: {
       fontWeight: "600" // Bolder font for selected item
     },
 

@@ -27,19 +27,19 @@ const KrogerShoppingCart = () => {
   const [userTheme, setUserTheme] = useState<string | null>(null); // To store user theme preference (dark or light)
   const [zipcode, setZipcode] = useState(""); // To store zip code input by the user
   const [matchedItems, setMatchedItems] = useState<any[]>([]); // To store items matched with Kroger prices
-  
+
   // Determine the current theme based on the user's preference or device setting
   const deviceScheme = useColorScheme(); // Get the device's color scheme (dark or light mode)
   const effectiveTheme = userTheme ? userTheme : deviceScheme; // Use user theme if set, else fall back to device scheme
   const isDarkMode = effectiveTheme === "dark"; // Boolean to check if the current theme is dark
-  
+
   // Dynamic styles based on dark or light mode
   const styles = createStyles(isDarkMode);
 
   // Router to handle navigation
   const router = useRouter();
 
-  
+
   // Effect to run on component mount
   useEffect(() => {
     AsyncStorage.getItem("userTheme").then((value) => {
@@ -49,7 +49,7 @@ const KrogerShoppingCart = () => {
     checkAuth(router);
     fetchCart();
   }, []);
-  
+
 
   // Fetch the user's shopping cart from the API
   const fetchCart = async () => {
@@ -84,8 +84,8 @@ const KrogerShoppingCart = () => {
         Alert.alert("Missing ZIP code", "Please enter a valid ZIP code.");
         return;
       }
-  
-      const userToken = await getToken(); 
+
+      const userToken = await getToken();
       const response = await fetch(`${API_BASE}/routes/api/krogerCart/prices`, {
         method: "POST",
         headers: {
@@ -94,15 +94,15 @@ const KrogerShoppingCart = () => {
         },
         body: JSON.stringify({ zipcode }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         console.log("✅ Kroger Prices Fetched:", data);
         setMatchedItems(data.matched || []);
       } else {
         // console.error("❌ API Error:", data); // DEBUGGING PURPOSES
-  
+
         if (response.status === 404 && data.error === "No Kroger store found nearby") {
           Alert.alert("No Store Found", "There are no nearby Kroger stores for your ZIP code.");
         } else if (response.status === 404 && data.error === "Cart is empty") {

@@ -1,10 +1,10 @@
 // backend/routes/api/favoriteRecipe.js
 const express = require("express");
-const router  = express.Router();
+const router = express.Router();
 
 // Adjust these paths to match your project structure:
-const User      = require("../../schemas/User");         // or UserInfo schema
-const UserPref  = require("../../schemas/Preference"); // or UserPreferences.js
+const User = require("../../schemas/User");         // or UserInfo schema
+const UserPref = require("../../schemas/Preference"); // or UserPreferences.js
 
 // GET all favourite IDs for the current user, requires username and authorization
 router.get("/", async (req, res) => {
@@ -35,12 +35,12 @@ router.post("/", async (req, res) => {
     const user = await User.findOne({ username });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-   const updateResult = await UserPref.updateOne(
+    const updateResult = await UserPref.updateOne(
       { userId: user._id },
       { $addToSet: { favoriteRecipes: recipeId } },
       { upsert: true }
     );
-    
+
     console.log("👾 favoriteRecipes updateResult:", updateResult);
     return res.sendStatus(200);
   } catch (err) {

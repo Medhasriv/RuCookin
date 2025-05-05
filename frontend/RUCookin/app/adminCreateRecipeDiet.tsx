@@ -38,7 +38,7 @@ export default function adminCreateRecipeDiet() {
   const dark = useColorScheme() === "dark"; // Detect dark mode
   const styles = createStyles(dark); // Generate styles based on theme
   const router = useRouter(); // Router instance for page navigation
- const { recipeTitle } = useLocalSearchParams(); //pull recipe Title from previous page
+  const { recipeTitle } = useLocalSearchParams(); //pull recipe Title from previous page
   // Check authentication on component mount
   useEffect(() => {
     checkAuth(router);
@@ -56,10 +56,10 @@ export default function adminCreateRecipeDiet() {
     console.log('Selected Diet:', selected);
 
     try {
-        if (!recipeTitle) {
-            console.error("Missing recipeTitle from previous screen.");
-            return;
-          }
+      if (!recipeTitle) {
+        console.error("Missing recipeTitle from previous screen.");
+        return;
+      }
 
       // Prepare payload to send
       const payload = { recipeTitle: String(recipeTitle).trim(), diets: selected };
@@ -133,9 +133,9 @@ const createStyles = (dark: boolean) =>
       flex: 1,
       backgroundColor: dark ? "#721121" : "#FFCF99", // Background color changes with theme
     },
-    content: { 
-      flex: 1, 
-      padding: 20 
+    content: {
+      flex: 1,
+      padding: 20
     },
     heading: {
       fontFamily: "Inter-SemiBold",
@@ -145,12 +145,12 @@ const createStyles = (dark: boolean) =>
       marginBottom: 12,
     },
     /* Styling the grid list */
-    listContent: { 
-      flexGrow: 1, 
-      justifyContent: "flex-start" 
+    listContent: {
+      flexGrow: 1,
+      justifyContent: "flex-start"
     },
-    row: { 
-      justifyContent: "space-evenly" 
+    row: {
+      justifyContent: "space-evenly"
     },
 
     /* Style for each pill */
@@ -171,7 +171,7 @@ const createStyles = (dark: boolean) =>
       color: dark ? "#721121" : "#FFCF99",
       textAlign: "center",
     },
-    pillTextSel: { 
+    pillTextSel: {
       fontWeight: "600" // Bolder font for selected item
     },
 

@@ -9,13 +9,13 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
   const styles = createStyles(isDarkMode);
-  
+
   // 1. Load your custom fonts
   const [fontsLoaded] = useFonts({
     "InknutAntiqua-SemiBold": require("@/assets/fonts/InknutAntiqua-SemiBold.ttf"),
-    "Inter-Regular":         require("@/assets/fonts/Inter-Regular.ttf"),
-    "Inter-SemiBold":        require("@/assets/fonts/Inter-SemiBold.ttf"),
-    "SpaceMono-Regular":     require("@/assets/fonts/SpaceMono-Regular.ttf"),
+    "Inter-Regular": require("@/assets/fonts/Inter-Regular.ttf"),
+    "Inter-SemiBold": require("@/assets/fonts/Inter-SemiBold.ttf"),
+    "SpaceMono-Regular": require("@/assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   // 2. Track whether we’ve preloaded the GIF asset

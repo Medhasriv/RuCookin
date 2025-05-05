@@ -68,7 +68,7 @@ const Pantry = () => {
 
         // Pre-fill expiration date inputs if available
         const newInputs: { [key: number]: string } = {};
-        
+
 
         if (Array.isArray(data)) {
           data.forEach((item) => {
@@ -79,7 +79,7 @@ const Pantry = () => {
         } else {
           console.error("Unexpected data format:", data);
         }
-        
+
         setExpirationInputs(newInputs);
       } else {
         console.error("Error fetching pantry items:", data);
@@ -113,19 +113,19 @@ const Pantry = () => {
       console.warn("Item already exists in pantry");
       return; // Skip adding if duplicate
     }
-  
+
     try {
       const token = await getToken();
       const newItem = { id: ingredient.id, name: ingredient.name, image: ingredient.image };
-  
+
       const response = await fetch(`${API_BASE}/routes/api/pantry`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ item: newItem }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         setSearchText(""); // Clear search bar
         setSearchResults([]); // Clear search results
@@ -136,7 +136,7 @@ const Pantry = () => {
     } catch (error) {
       console.error("❌ Error adding to pantry:", error);
     }
-  };  
+  };
 
   // Remove an item from the pantry
   const handleRemoveFromPantry = async (id: number) => {

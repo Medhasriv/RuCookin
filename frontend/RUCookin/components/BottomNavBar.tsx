@@ -21,40 +21,40 @@ const BottomNavBar = ({ activeTab, isDarkMode }: BottomNavBarProps) => {
             ? require("../assets/icons/pantry_dark_active.png")
             : require("../assets/icons/pantry_dark_inactive.png")
           : isActive
-          ? require("../assets/icons/pantry_light_active.png")
-          : require("../assets/icons/pantry_light_inactive.png");
+            ? require("../assets/icons/pantry_light_active.png")
+            : require("../assets/icons/pantry_light_inactive.png");
       case "search":
         return isDarkMode
           ? isActive
             ? require("../assets/icons/search_dark_active.png")
             : require("../assets/icons/search_dark_inactive.png")
           : isActive
-          ? require("../assets/icons/search_light_active.png")
-          : require("../assets/icons/search_light_inactive.png");
+            ? require("../assets/icons/search_light_active.png")
+            : require("../assets/icons/search_light_inactive.png");
       case "home":
         return isDarkMode
           ? isActive
             ? require("../assets/icons/home_dark_active.png")
             : require("../assets/icons/home_dark_inactive.png")
           : isActive
-          ? require("../assets/icons/home_light_active.png")
-          : require("../assets/icons/home_light_inactive.png");
+            ? require("../assets/icons/home_light_active.png")
+            : require("../assets/icons/home_light_inactive.png");
       case "cart":
         return isDarkMode
           ? isActive
             ? require("../assets/icons/cart_dark_active.png")
             : require("../assets/icons/cart_dark_inactive.png")
           : isActive
-          ? require("../assets/icons/cart_light_active.png")
-          : require("../assets/icons/cart_light_inactive.png");
+            ? require("../assets/icons/cart_light_active.png")
+            : require("../assets/icons/cart_light_inactive.png");
       case "settings":
         return isDarkMode
           ? isActive
             ? require("../assets/icons/settings_dark_active.png")
             : require("../assets/icons/settings_dark_inactive.png")
           : isActive
-          ? require("../assets/icons/settings_light_active.png")
-          : require("../assets/icons/settings_light_inactive.png");
+            ? require("../assets/icons/settings_light_active.png")
+            : require("../assets/icons/settings_light_inactive.png");
       default:
         return null;
     }

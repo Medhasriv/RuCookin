@@ -17,7 +17,7 @@ router.post('/prices', async (req, res) => {
     const { zipcode } = req.body;
     console.log(zipcode)
     const user = getUserIdFromToken(req);
-    const  userId= await User.findById(user.id);
+    const userId = await User.findById(user.id);
     console.log(userId)
 
     if (!user || !zipcode) {
@@ -112,7 +112,7 @@ router.post("/clear", async (req, res) => {
   try {
     console.log("🔥 Start the clear");
     const user = getUserIdFromToken(req);
-    const  userId= await User.findById(user.id);
+    const userId = await User.findById(user.id);
     if (!userId) return res.status(401).json({ error: "User not authenticated" });
 
     const userCart = await Cart.findOne({ userId: userId });
@@ -125,7 +125,7 @@ router.post("/clear", async (req, res) => {
     );
 
     res.json({
-  message: "🧹 Cart successfully cleared"
+      message: "🧹 Cart successfully cleared"
     });
 
 

@@ -59,37 +59,37 @@ const AdminStats = () => {
       //TALK ABOUT REDOING PREFERENCE
       const favs: StatItem[] = Array.isArray(favData)
         ? favData.map((item: any) => ({
-            _id: `${item._id}`,
-            count: item.count,
-          }))
+          _id: `${item._id}`,
+          count: item.count,
+        }))
         : [];
 
       const diets: StatItem[] = Array.isArray(prefData.topDiets)
         ? prefData.topDiets.map((item: any) => ({
-            _id: `${item._id}`,
-            count: item.count,
-          }))
+          _id: `${item._id}`,
+          count: item.count,
+        }))
         : [];
 
       const intolerances: StatItem[] = Array.isArray(prefData.topIntolerances)
         ? prefData.topIntolerances.map((item: any) => ({
-            _id: `${item._id}`,
-            count: item.count,
-          }))
+          _id: `${item._id}`,
+          count: item.count,
+        }))
         : [];
 
       const liked: StatItem[] = Array.isArray(prefData.topLikedCuisines)
         ? prefData.topLikedCuisines.map((item: any) => ({
-            _id: `${item._id}`,
-            count: item.count,
-          }))
+          _id: `${item._id}`,
+          count: item.count,
+        }))
         : [];
 
       const disliked: StatItem[] = Array.isArray(prefData.topDislikedCuisines)
         ? prefData.topDislikedCuisines.map((item: any) => ({
-            _id: `${item._id}`,
-            count: item.count,
-          }))
+          _id: `${item._id}`,
+          count: item.count,
+        }))
         : [];
 
       setSections([

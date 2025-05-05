@@ -54,7 +54,7 @@ const PlanMeal = () => {
   }, []);
 
   // setting effective theme based on user preference or device setting
-  const effectiveTheme = userTheme ? userTheme : deviceScheme; 
+  const effectiveTheme = userTheme ? userTheme : deviceScheme;
   const isDarkMode = effectiveTheme === "dark";
   const styles = createStyles(isDarkMode, insets.top);
 

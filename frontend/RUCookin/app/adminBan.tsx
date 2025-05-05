@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"; //
-import {View,Text,FlatList,TextInput,TouchableOpacity,StyleSheet,Platform,useColorScheme,ScrollView} from "react-native"; // React Native UI components
+import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Platform, useColorScheme, ScrollView } from "react-native"; // React Native UI components
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router"; // To handle navigation
 import { checkAuth, checkAdmin, getToken } from "../utils/authChecker"; // Custom utility for authentication and token fetching
@@ -24,15 +24,14 @@ type BanWordItem = {
   addedBy?: string;
 };
 
-
 // Main component for the Admin Ban
 const AdminBan = () => {
-   // Determine the current theme based on the user's preference or device setting
+  // Determine the current theme based on the user's preference or device setting
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const isDarkMode = useColorScheme() === "dark";
   const styles = createStyles(isDarkMode, insets.top);
-// States for managing ban words and violators
+  // States for managing ban words and violators
   const [banWords, setBanWords] = useState<BanWordItem[]>([]);
   const [newWord, setNewWord] = useState("");
   const [violations, setViolations] = useState<ViolationItem[]>([]);
@@ -67,7 +66,7 @@ const AdminBan = () => {
 
   const handleAddBanWord = async () => {
     if (!newWord.trim()) return;
-    
+
     try {
       const token = await getToken();
       if (!token) {
@@ -76,7 +75,7 @@ const AdminBan = () => {
       }
       const res = await fetch(`${API_BASE}/routes/api/adminBan/add`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
@@ -118,65 +117,65 @@ const AdminBan = () => {
     <View style={styles.container}>
       <SafeAreaView style={styles.inner}>
         <ScrollView contentContainerStyle={styles.content}>
-        <FlatList
-          data={violations}
-          keyExtractor={(_, i) => i.toString()}
-          contentContainerStyle={styles.listContent}
-          ListHeaderComponent={
-            <>
-              <Text style={styles.title}> Manage Ban Words</Text>
+          <FlatList
+            data={violations}
+            keyExtractor={(_, i) => i.toString()}
+            contentContainerStyle={styles.listContent}
+            ListHeaderComponent={
+              <>
+                <Text style={styles.title}> Manage Ban Words</Text>
 
-              {/* Add New Word */}
-              <View style={styles.inputRow}>
-                <TextInput
-                  value={newWord}
-                  onChangeText={setNewWord}
-                  placeholder="Add new ban word"
-                  placeholderTextColor={isDarkMode ? "#aaa" : "#999"}
-                  style={styles.input}
-                />
-                <TouchableOpacity style={styles.addButton} onPress={handleAddBanWord}>
-                  <Text style={styles.addButtonText}>Add</Text>
-                </TouchableOpacity>
-              </View>
+                {/* Add New Word */}
+                <View style={styles.inputRow}>
+                  <TextInput
+                    value={newWord}
+                    onChangeText={setNewWord}
+                    placeholder="Add new ban word"
+                    placeholderTextColor={isDarkMode ? "#aaa" : "#999"}
+                    style={styles.input}
+                  />
+                  <TouchableOpacity style={styles.addButton} onPress={handleAddBanWord}>
+                    <Text style={styles.addButtonText}>Add</Text>
+                  </TouchableOpacity>
+                </View>
 
-              {/* Ban Word List */}
-              <Text style={styles.subHeader}>Current Banned Words</Text>
-              {banWords.length === 0 ? (
-                <Text style={styles.none}>No ban words yet.</Text>
-              ) : (
-                banWords.map((w, i) => (
-                  <View key={i} style={styles.banWordRow}>
-                    <Text style={styles.banWord}>• {w.word}</Text>
-                    <TouchableOpacity
-                      style={styles.removeButton}
-                      onPress={() => handleRemoveBanWord(w.word)}
-                    >
-                      <Text style={styles.removeButtonText}>Remove</Text>
-                    </TouchableOpacity>
-                  </View>
-                ))
-              )}
+                {/* Ban Word List */}
+                <Text style={styles.subHeader}>Current Banned Words</Text>
+                {banWords.length === 0 ? (
+                  <Text style={styles.none}>No ban words yet.</Text>
+                ) : (
+                  banWords.map((w, i) => (
+                    <View key={i} style={styles.banWordRow}>
+                      <Text style={styles.banWord}>• {w.word}</Text>
+                      <TouchableOpacity
+                        style={styles.removeButton}
+                        onPress={() => handleRemoveBanWord(w.word)}
+                      >
+                        <Text style={styles.removeButtonText}>Remove</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))
+                )}
 
-              <Text style={styles.subHeader}>Violations</Text>
-              {violations.length === 0 && <Text style={styles.none}>No violations found.</Text>}
-            </>
-          }
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <Text style={styles.username}>{item.username}</Text>
-              <Text style={styles.name}>
-                {item.firstName} {item.lastName}
-              </Text>
-              <Text style={styles.fieldHeader}>Matched Fields:</Text>
-              {item.matchedFields.map((f, idx) => (
-                <Text key={idx} style={styles.matchedField}>
-                  • {f}
+                <Text style={styles.subHeader}>Violations</Text>
+                {violations.length === 0 && <Text style={styles.none}>No violations found.</Text>}
+              </>
+            }
+            renderItem={({ item }) => (
+              <View style={styles.card}>
+                <Text style={styles.username}>{item.username}</Text>
+                <Text style={styles.name}>
+                  {item.firstName} {item.lastName}
                 </Text>
-              ))}
-            </View>
-          )}
-        />
+                <Text style={styles.fieldHeader}>Matched Fields:</Text>
+                {item.matchedFields.map((f, idx) => (
+                  <Text key={idx} style={styles.matchedField}>
+                    • {f}
+                  </Text>
+                ))}
+              </View>
+            )}
+          />
         </ScrollView>
       </SafeAreaView>
 

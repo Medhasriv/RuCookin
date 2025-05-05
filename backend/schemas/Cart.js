@@ -26,7 +26,6 @@ const cartSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("CartInfo", cartSchema);
-
 
 //recipeUrl: { type: String } might use this later as a linked to recipeName 
+module.exports = mongoose.model("CartInfo", cartSchema);

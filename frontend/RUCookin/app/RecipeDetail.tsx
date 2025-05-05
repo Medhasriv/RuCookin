@@ -16,7 +16,7 @@ const RecipeDetail = () => {
   const isDark = scheme === "dark";
   const imageStr = Array.isArray(image) ? image[0] : image;
   const titleStr = Array.isArray(title) ? title[0] : title;
-  
+
   //getting the info for each recipe by using the "id"  
   useEffect(() => {
     const fetchRecipeInfo = async () => {
@@ -63,18 +63,18 @@ const RecipeDetail = () => {
         {recipeDetails.summary.replace(/<[^>]+>/g, "")}
       </Text>
       <Text style={[styles.sectionTitle, { color: isDark ? "#FFCF99" : "#721121" }]}>Ingredients</Text>
-        {recipeDetails.extendedIngredients.map((ing: any, index: number) => (
+      {recipeDetails.extendedIngredients.map((ing: any, index: number) => (
         <Text key={index} style={[styles.summary, { color: isDark ? "#ccc" : "#444" }]}>
-            • {ing.original}
+          • {ing.original}
         </Text>
-        ))}
+      ))}
 
-        <Text style={[styles.sectionTitle, { color: isDark ? "#FFCF99" : "#721121" }]}>Instructions</Text>
-        <Text style={[styles.instructions, { color: isDark ? "#ccc" : "#444" }]}>
+      <Text style={[styles.sectionTitle, { color: isDark ? "#FFCF99" : "#721121" }]}>Instructions</Text>
+      <Text style={[styles.instructions, { color: isDark ? "#ccc" : "#444" }]}>
         {recipeDetails.instructions
-            ? recipeDetails.instructions.replace(/<[^>]+>/g, "")
-            : "No instructions available."}
-        </Text>
+          ? recipeDetails.instructions.replace(/<[^>]+>/g, "")
+          : "No instructions available."}
+      </Text>
     </ScrollView>
   );
 };

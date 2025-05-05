@@ -10,7 +10,7 @@ import Constants from 'expo-constants';
 const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 // Import authentication-related utilities
-import { checkAuth, getTokenData, checkAdmin } from "../utils/authChecker"; 
+import { checkAuth, getTokenData, checkAdmin } from "../utils/authChecker";
 
 // Define static list of available cuisine types
 const CUISINE_TYPES = [
@@ -21,7 +21,7 @@ const CUISINE_TYPES = [
 ];
 
 // Main component for selecting liked cuisines
-const AdminCreateRecipeCuisine  = () => {
+const AdminCreateRecipeCuisine = () => {
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]); // State to track selected cuisines
   const colorScheme = useColorScheme(); // Detect device color scheme (dark/light)
   const [userId, setUserId] = useState<string | null>(null); // User ID (currently unused)
@@ -50,13 +50,13 @@ const AdminCreateRecipeCuisine  = () => {
     console.log('Selected Cuisines:', selectedCuisines);
 
     try {
-        if (!recipeTitle) {
-            console.error("Missing recipeTitle from previous screen.");
-            return;
-          }
+      if (!recipeTitle) {
+        console.error("Missing recipeTitle from previous screen.");
+        return;
+      }
 
       // Prepare payload to send
-      const payload = { 
+      const payload = {
         recipeTitle: String(recipeTitle).trim(),
         cuisines: Array.isArray(selectedCuisines) ? [...selectedCuisines] : [],
       };
@@ -76,10 +76,10 @@ const AdminCreateRecipeCuisine  = () => {
       if (response.ok) {
         // Navigate to next page (Diets page) on success
         router.push({
-            pathname: '/adminCreateRecipeDiet',
-            params: { recipeTitle: String(recipeTitle).trim() }
-          });
-        } else {
+          pathname: '/adminCreateRecipeDiet',
+          params: { recipeTitle: String(recipeTitle).trim() }
+        });
+      } else {
         console.error('Data error: ', data);
       }
     } catch (error) {
@@ -193,4 +193,4 @@ const createStyles = (dark: boolean) =>
   });
 
 // Export the CuisineLikes component as default
-export default AdminCreateRecipeCuisine ;
+export default AdminCreateRecipeCuisine;

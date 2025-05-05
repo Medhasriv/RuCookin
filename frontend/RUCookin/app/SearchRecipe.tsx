@@ -17,7 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RadioButton, Checkbox } from "react-native-paper";
 import BottomNavBar from "../components/BottomNavBar";
-import { checkAuth, getToken, getTokenData } from "../utils/authChecker"; 
+import { checkAuth, getToken, getTokenData } from "../utils/authChecker";
 import * as dotenv from 'dotenv';
 import Constants from 'expo-constants';
 // Connect to the Spoonacular API
@@ -56,61 +56,61 @@ const SearchRecipe = () => {
   useEffect(() => {
     (async () => {
       const username = await getTokenData("username");
-      const token    = await getToken();
+      const token = await getToken();
       if (!username || !token) return;
       try {
-        const res  = await fetch(`${API_BASE}/routes/api/favoriteRecipe`,
-          { method: "GET", headers: { Authorization:`Bearer ${token}`, Username:username }});
+        const res = await fetch(`${API_BASE}/routes/api/favoriteRecipe`,
+          { method: "GET", headers: { Authorization: `Bearer ${token}`, Username: username } });
         const data = await res.json();
         if (res.ok) setFavourites(data);           // [12345, 9876, …]
       } catch (err) { console.error(err); }
     })();
   }, []);
   /** Toggle star */
-const toggleFavourite = async (recipeId: number) => {
-  const username = await getTokenData("username");
-  const token    = await getToken();
-  if (!username || !token) {
-    console.log("❌ toggleFavourite: missing auth", { username, token });
-    return;
-  }
-
-  const already = favourites.includes(recipeId);
-  console.log(
-    `⭐️ ${already ? "Removing" : "Adding"} favourite:`,
-    recipeId,
-    "for user",
-    username
-  );
-
-  // optimistically update UI
-  setFavourites((prev) =>
-    already ? prev.filter((id) => id !== recipeId) : [...prev, recipeId]
-  );
-
-  try {
-    const res = await fetch(
-      `${API_BASE}/routes/api/favoriteRecipe`,
-      {
-        method: already ? "DELETE" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, recipeId }),
-      }
-    );
-    const text = await res.text();  // capture whatever the server sent
-    console.log(
-      `✅ toggleFavourite response (${res.status}):`,
-      text
-    );
-    if (!res.ok) {
-      console.warn("⚠️ toggleFavourite reported error", res.status);
+  const toggleFavourite = async (recipeId: number) => {
+    const username = await getTokenData("username");
+    const token = await getToken();
+    if (!username || !token) {
+      console.log("❌ toggleFavourite: missing auth", { username, token });
+      return;
     }
-  } catch (err) {
-    console.error("❌ toggleFavourite network error:", err);
-  }
-};
 
-//choosing the themes for the app
+    const already = favourites.includes(recipeId);
+    console.log(
+      `⭐️ ${already ? "Removing" : "Adding"} favourite:`,
+      recipeId,
+      "for user",
+      username
+    );
+
+    // optimistically update UI
+    setFavourites((prev) =>
+      already ? prev.filter((id) => id !== recipeId) : [...prev, recipeId]
+    );
+
+    try {
+      const res = await fetch(
+        `${API_BASE}/routes/api/favoriteRecipe`,
+        {
+          method: already ? "DELETE" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, recipeId }),
+        }
+      );
+      const text = await res.text();  // capture whatever the server sent
+      console.log(
+        `✅ toggleFavourite response (${res.status}):`,
+        text
+      );
+      if (!res.ok) {
+        console.warn("⚠️ toggleFavourite reported error", res.status);
+      }
+    } catch (err) {
+      console.error("❌ toggleFavourite network error:", err);
+    }
+  };
+
+  //choosing the themes for the app
   const effectiveTheme = userTheme ? userTheme : deviceScheme;
   const isDarkMode = effectiveTheme === "dark";
   const styles = createStyles(isDarkMode, insets.top);
@@ -178,16 +178,16 @@ const toggleFavourite = async (recipeId: number) => {
   const intolerances = IntoleranceList();
   const diets = DietList();
 
-//function to handle search upon performing a search
+  //function to handle search upon performing a search
   const handleSearch = async () => {
-    
+
     let selectedCuisinesString = selectedCuisine.join(", ") || "";
     let selectedIntolerancesString = selectedIntolerance.join(", ") || "";
     let excludedCusineString = "";
     let selectedDietString = selectedDiet;
 
     //includes user preferences if chickbox is chosem.
-    if(includePreferences == true){
+    if (includePreferences == true) {
       const username = await getTokenData("username");
       if (!username) {
         console.error("Username not found in token.");
@@ -201,43 +201,43 @@ const toggleFavourite = async (recipeId: number) => {
 
       //getting the user preferences 
       try {
-          const response = await fetch(`${API_BASE}/routes/api/cuisineDislike`, {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Username: `${username}`,
-            },
-          });
-          const data = await response.json();
-          if (response.ok) {
-            //add the results to the API strings 
-            excludedCusineString+=data.join(", ");
-          } else {
-            console.error("❌ Failed to load cart items", data.message);
-          }
-        } catch (error) {
-          console.error("❌ Error fetching dislikes", error);
+        const response = await fetch(`${API_BASE}/routes/api/cuisineDislike`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Username: `${username}`,
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          //add the results to the API strings 
+          excludedCusineString += data.join(", ");
+        } else {
+          console.error("❌ Failed to load cart items", data.message);
         }
+      } catch (error) {
+        console.error("❌ Error fetching dislikes", error);
+      }
 
       try {
-          const response = await fetch(`${API_BASE}/routes/api/cuisineLike`, {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Username: `${username}`,
-            },
-          });
-          const data = await response.json();
-          if (response.ok) {
-            //add the results to the API strings 
-            selectedCuisinesString+=data.join(", ");
+        const response = await fetch(`${API_BASE}/routes/api/cuisineLike`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Username: `${username}`,
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          //add the results to the API strings 
+          selectedCuisinesString += data.join(", ");
 
-          } else {
-            console.error("❌ Failed to load cart items", data.message);
-          }
-        } catch (error) {
-          console.error("❌ Error fetching likes", error);
+        } else {
+          console.error("❌ Failed to load cart items", data.message);
         }
+      } catch (error) {
+        console.error("❌ Error fetching likes", error);
+      }
       try {
         const response = await fetch(`${API_BASE}/routes/api/intolerance`, {
           method: "GET",
@@ -249,7 +249,7 @@ const toggleFavourite = async (recipeId: number) => {
         const data = await response.json();
         if (response.ok) {
           //add the results to the API strings 
-          selectedIntolerancesString+=data.join(", ");
+          selectedIntolerancesString += data.join(", ");
         } else {
           console.error("❌ Failed to load cart items", data.message);
         }
@@ -267,16 +267,16 @@ const toggleFavourite = async (recipeId: number) => {
         const data = await response.json();
         if (response.ok) {
           //add the results to the API strings 
-          selectedDietString+=data.join(", ");
+          selectedDietString += data.join(", ");
         } else {
           console.error("❌ Failed to load cart items", data.message);
         }
       } catch (error) {
         console.error("❌ Error fetching diets", error);
       }
-    } 
+    }
     //calling on the spoonacular API to search for recipe
-    try {    
+    try {
       const response = await fetch(
         `https://api.spoonacular.com/recipes/complexSearch?query=${encodeURIComponent(searchRecipe)}&addRecipeInformation=true&excludeCuisine=${encodeURIComponent(excludedCusineString)}&cuisine=${encodeURIComponent(selectedCuisinesString)}&intolerances=${encodeURIComponent(selectedIntolerancesString)}&diet=${encodeURIComponent(selectedDietString)}&apiKey=${spoonacularApiKey}`
       );
@@ -325,7 +325,7 @@ const toggleFavourite = async (recipeId: number) => {
         <Text style={styles.header}>
           Recipe Search
         </Text>
-        
+
         {/* Search Bar */}
         <TextInput
           value={searchRecipe}
@@ -379,7 +379,7 @@ const toggleFavourite = async (recipeId: number) => {
                 <View key={item.value} style={styles.radioButtonContainer}>
                   <Checkbox
                     status={selectedIntolerance.includes(item.value) ? "checked" : "unchecked"}
-                    onPress={() =>toggleFilter(selectedIntolerance, setSelectedIntolerance, item.value)}
+                    onPress={() => toggleFilter(selectedIntolerance, setSelectedIntolerance, item.value)}
                   />
                   <Text style={styles.radioLabel}>{item.label}</Text>
                 </View>
@@ -389,7 +389,7 @@ const toggleFavourite = async (recipeId: number) => {
             {/*User preferences checkbox*/}
             <View style={styles.preferenceBox}>
               <Checkbox status={includePreferences ? 'checked' : 'unchecked'}
-              onPress={() => setincludePreferences(!includePreferences)}/>
+                onPress={() => setincludePreferences(!includePreferences)} />
               <Text style={styles.filterButtonText}>Use Preferences</Text>
             </View>
 
@@ -441,7 +441,7 @@ const toggleFavourite = async (recipeId: number) => {
                 </TouchableOpacity>
               </View>
             ))}
-            
+
           </View>
         </ScrollView>
       </SafeAreaView>

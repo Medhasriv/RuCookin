@@ -6,11 +6,11 @@ import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 
 // Import authentication checking utilities
-import { checkAuth, getTokenData } from "../utils/authChecker";  
+import { checkAuth, getTokenData } from "../utils/authChecker";
 
 // Define constant list of known food intolerances
 const INTOLERANCES = [
-  'Dairy', 'Egg', 'Gluten', 'Grain', 'Peanut', 'Seafood', 
+  'Dairy', 'Egg', 'Gluten', 'Grain', 'Peanut', 'Seafood',
   'Sesame', 'Shellfish', 'Soy', 'Sulfite', 'Tree Nut', 'Wheat'
 ];
 
@@ -51,7 +51,7 @@ const IntolerancePreferences = () => {
         return;
       }
       // Prepare payload to send to server
-      const payload = { 
+      const payload = {
         username: username.trim(),
         intolerance: Array.isArray(selectedIntolerances) ? [...selectedIntolerances] : [],
       };
@@ -63,12 +63,12 @@ const IntolerancePreferences = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload), 
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
-      
-      if(response.ok) {
+
+      if (response.ok) {
         // Navigate to HomePage on success
         router.push('/HomePage');
       }
@@ -134,16 +134,16 @@ const createStyles = (dark: boolean) =>
       marginTop: 25,
       marginBottom: 4,
     },
-    body: { 
-      flex: 1, 
-      justifyContent: "flex-start", 
+    body: {
+      flex: 1,
+      justifyContent: "flex-start",
       marginTop: 50,
     },
-    listContent: { 
-      flexGrow: 1, 
+    listContent: {
+      flexGrow: 1,
       justifyContent: "flex-start",
     },
-    row: { 
+    row: {
       justifyContent: "space-evenly" // Even spacing between pills
     },
     pill: {
@@ -164,7 +164,7 @@ const createStyles = (dark: boolean) =>
       color: dark ? "#721121" : "#FFCF99",
       textAlign: "center",
     },
-    pillTextSel: { 
+    pillTextSel: {
       fontWeight: "600" // Bold text when selected
     },
     continue: {

@@ -66,14 +66,14 @@ const Profile = () => {
         console.error("No token found");
         return;
       }
-  
+
       const response = await fetch(`${API_BASE}/routes/auth/profile`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
         },
       });
-  
+
       const data = await response.json();
       if (response.ok) {
         setUserData(data.user); // Update state with server data
@@ -95,7 +95,7 @@ const Profile = () => {
         console.error("No token found");
         return;
       }
-  
+
       const response = await fetch(`${API_BASE}/routes/auth/profile`, {
         method: "PUT",
         headers: {
@@ -108,7 +108,7 @@ const Profile = () => {
           email: userData.email,
         }),
       });
-  
+
       const updatedData = await response.json();
       if (response.ok) {
         setUserData(updatedData.user); // Update UI with latest data

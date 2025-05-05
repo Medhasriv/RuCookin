@@ -33,7 +33,7 @@ export default function Index() {
   // Backend Login Submit Handling
   const handleSubmit = async () => {
     if (!validateForm()) return;
-  
+
     try {
       const response = await fetch(`${API_BASE}/routes/auth/login`, {
         method: 'POST',
@@ -42,9 +42,9 @@ export default function Index() {
         },
         body: JSON.stringify({ username, password }),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok && data.token) {
         console.log('Login successful:', data);
         await AsyncStorage.setItem("token", data.token);
@@ -57,10 +57,10 @@ export default function Index() {
         // Store the decoded user details in AsyncStorage under "UserInfo"
         await AsyncStorage.setItem("UserInfo", JSON.stringify(decoded));
         setErrors({});
-        if(!isAdmin) {
-        router.push('/HomePage'); // Navigate to HomePage after login
+        if (!isAdmin) {
+          router.push('/HomePage'); // Navigate to HomePage after login
         }
-        else if(isAdmin) {
+        else if (isAdmin) {
           router.push('/adminHomePage'); // Navigate to AdminHomePage after login
         }
       } else {
@@ -77,7 +77,7 @@ export default function Index() {
   // const handleGoogleSubmit = () => {
   //   console.log("Google Login");
   // };
-  
+
   return (
     <SafeAreaView style={styles.container}>
       {/* RUCookin Logo/Name */}
@@ -92,20 +92,20 @@ export default function Index() {
       >
         RUCookin'
       </Text>
-      
+
       {/* Login Text */}
       <Text style={styles.headingText}>Log In</Text>
-      
+
       {/* Error Messages */}
-      { errors.general && <Text style={styles.errorStyle}>{errors.general}</Text> }
-      { errors.username && <Text style={styles.errorStyle}>{errors.username}</Text> }
-      { errors.password && <Text style={styles.errorStyle}>{errors.password}</Text> }
-      
+      {errors.general && <Text style={styles.errorStyle}>{errors.general}</Text>}
+      {errors.username && <Text style={styles.errorStyle}>{errors.username}</Text>}
+      {errors.password && <Text style={styles.errorStyle}>{errors.password}</Text>}
+
       {/* Username Input */}
-      <TextInput 
-        style={styles.inputBoxes} 
+      <TextInput
+        style={styles.inputBoxes}
         value={username}
-        onChangeText={setUsername} 
+        onChangeText={setUsername}
         placeholder="Username"
         placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
         keyboardAppearance="default"
@@ -115,13 +115,13 @@ export default function Index() {
         returnKeyType="next"
         onSubmitEditing={() => passwordRef.current?.focus()}
       />
-      
+
       {/* Password Input with Show/Hide Button */}
       <View style={styles.passwordContainer}>
-        <TextInput 
-          style={styles.passwordInput} 
+        <TextInput
+          style={styles.passwordInput}
           value={password}
-          onChangeText={setPassword} 
+          onChangeText={setPassword}
           placeholder="Password"
           placeholderTextColor={isDarkMode ? "#7211219A" : "#FFCF999A"}
           secureTextEntry={!isPasswordVisible}
@@ -138,12 +138,12 @@ export default function Index() {
           <Text>{isPasswordVisible ? "Hide" : "Show"}</Text>
         </TouchableOpacity>
       </View>
-  
+
       {/* Login Button */}
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
-      
+
       {/* Sign Up Page Link */}
       <Link href="/SignUp" style={styles.SignInText}>
         Don't have an account? Sign up here

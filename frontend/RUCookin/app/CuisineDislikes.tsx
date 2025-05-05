@@ -50,7 +50,7 @@ export default function CuisineDislikes() {
       if (!username) return; // Exit if no username found
 
       const payload = { username: username.trim(), cuisineDislike: disliked };
-      
+
       // Send POST request to save disliked cuisines
       const res = await fetch(`${API_BASE}/routes/api/cuisineDislike`, {
         method: "POST",
@@ -123,17 +123,17 @@ const createStyles = (dark: boolean) =>
       marginBottom: 4,
     },
     /* Centre the list vertically */
-    body: { 
-      flex: 1, 
-      justifyContent: "flex-start", 
+    body: {
+      flex: 1,
+      justifyContent: "flex-start",
       marginTop: 50,
     },
-    listContent: { 
-      flexGrow: 1, 
+    listContent: {
+      flexGrow: 1,
       justifyContent: "flex-start",
     },
-    row: { 
-      justifyContent: "space-evenly" 
+    row: {
+      justifyContent: "space-evenly"
     },
     pill: {
       flex: 1,
@@ -153,7 +153,7 @@ const createStyles = (dark: boolean) =>
       color: dark ? "#721121" : "#FFCF99",
       textAlign: "center",
     },
-    pillTextSel: { 
+    pillTextSel: {
       fontWeight: "600" // Bold text for selected pill
     },
     continue: {

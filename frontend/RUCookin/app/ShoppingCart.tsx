@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import { View, Text, TextInput, FlatList, StyleSheet, useColorScheme, TouchableOpacity, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState, useEffect } from "react";
-import { checkAuth, getToken } from "../utils/authChecker"; 
+import { checkAuth, getToken } from "../utils/authChecker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "../components/BottomNavBar";
 import Constants from 'expo-constants';
@@ -27,16 +27,16 @@ const ShoppingCart = () => {
   const styles = createStyles(isDarkMode);
   const router = useRouter();
 
-useEffect(() => {
-  // Retrieve stored theme from AsyncStorage
-  AsyncStorage.getItem("userTheme").then((value) => {
-    if (value) setUserTheme(value);
-  });
+  useEffect(() => {
+    // Retrieve stored theme from AsyncStorage
+    AsyncStorage.getItem("userTheme").then((value) => {
+      if (value) setUserTheme(value);
+    });
 
-  checkAuth(router);
-  fetchCart();
-}, []);
-  
+    checkAuth(router);
+    fetchCart();
+  }, []);
+
   const fetchCart = async () => {
     try {
       const token = await getToken();
@@ -60,7 +60,7 @@ useEffect(() => {
       console.error("❌ Error fetching cart:", error);
     }
   };
-  
+
   const handleAddItem = async () => {
     try {
       const token = await getToken();
@@ -137,7 +137,7 @@ useEffect(() => {
         <TouchableOpacity style={styles.addToCartButton} onPress={handleAddItem}>
           <Text style={styles.addToCartButtonText}>Add To Cart</Text>
         </TouchableOpacity>
-        
+
         {/* FlatList Container with horizontal padding */}
         <FlatList style={styles.flatListContainer}
           data={cartItems}
@@ -165,7 +165,7 @@ useEffect(() => {
         />
         {/* Kroger Price Checker Button */}
         <TouchableOpacity style={styles.button} onPress={() => router.push("/KrogerShoppingCart")}>
-                <Text style={styles.buttonText}>Check Kroger Prices</Text>
+          <Text style={styles.buttonText}>Check Kroger Prices</Text>
         </TouchableOpacity>
       </SafeAreaView>
       {/* Bottom Navigation Bar */}

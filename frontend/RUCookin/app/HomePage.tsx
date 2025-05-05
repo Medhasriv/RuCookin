@@ -30,7 +30,7 @@ const HomePage = () => {
     console.log("Device color scheme:", deviceScheme);
     checkAuth(router);
   }, []);
-  
+
 
   const effectiveTheme = userTheme ? userTheme : deviceScheme;
   const isDarkMode = effectiveTheme === "dark";
@@ -45,10 +45,10 @@ const HomePage = () => {
 
   const getMealType = () => {
     const hour = new Date().getHours();
-    if (hour < 6   ) return "midnightSnack";
-    if (hour < 12  ) return "breakfast";
-    if (hour < 17  ) return "lunch";
-    if (hour < 21  ) return "dinner";
+    if (hour < 6) return "midnightSnack";
+    if (hour < 12) return "breakfast";
+    if (hour < 17) return "lunch";
+    if (hour < 21) return "dinner";
     return "midnightSnack";
   };
 
@@ -72,48 +72,48 @@ const HomePage = () => {
       <SafeAreaView style={styles.contentContainer}>
         <Text style={styles.greeting}>{getGreeting()}</Text>
         <Text style={styles.subHeader}>
-        Your Recipe Picks for the{ getGreeting().replace("Good", "") }
-      </Text>
-      <GestureHandlerRootView>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.timeTileRow}
-          centerContent
-        >
-          {timeRecipes.map((r) => (
-            <View key={r.id} style={styles.timeTile}>
-              {/* tappable image */}
-              <TouchableOpacity
-                style={styles.timeTileImage}
-                onPress={() =>
-                  router.push({
-                    pathname: "/recipes/[id]",
-                    params: { id: r.id.toString() },
-                  })
-                }
-              >
-                <Image
-                  source={{ uri: r.image }}
-                  style={styles.imageStyle}
-                />
-              </TouchableOpacity>
-              {/* info below the image */}
-              <View style={styles.info}>
-                <Text style={styles.tileTitle} numberOfLines={2}>
-                  {r.title}
-                </Text>
-                <Text style={styles.infoText}>
-                  ⏱ {r.readyInMinutes ?? "–"} min · 🍽 {r.servings ?? "–"}
-                </Text>
-                <Text style={styles.summaryText} numberOfLines={2}>
-                  {stripHtml(r.summary)}
-                </Text>
+          Your Recipe Picks for the{getGreeting().replace("Good", "")}
+        </Text>
+        <GestureHandlerRootView>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.timeTileRow}
+            centerContent
+          >
+            {timeRecipes.map((r) => (
+              <View key={r.id} style={styles.timeTile}>
+                {/* tappable image */}
+                <TouchableOpacity
+                  style={styles.timeTileImage}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/recipes/[id]",
+                      params: { id: r.id.toString() },
+                    })
+                  }
+                >
+                  <Image
+                    source={{ uri: r.image }}
+                    style={styles.imageStyle}
+                  />
+                </TouchableOpacity>
+                {/* info below the image */}
+                <View style={styles.info}>
+                  <Text style={styles.tileTitle} numberOfLines={2}>
+                    {r.title}
+                  </Text>
+                  <Text style={styles.infoText}>
+                    ⏱ {r.readyInMinutes ?? "–"} min · 🍽 {r.servings ?? "–"}
+                  </Text>
+                  <Text style={styles.summaryText} numberOfLines={2}>
+                    {stripHtml(r.summary)}
+                  </Text>
+                </View>
               </View>
-            </View>
-          ))}
-        </ScrollView>
-      </GestureHandlerRootView>
+            ))}
+          </ScrollView>
+        </GestureHandlerRootView>
         <View style={styles.tileGrid}>
           {/* Find a Recipe Tile */}
           <TouchableOpacity style={styles.tile} onPress={() => router.push("/SearchRecipe")}>
@@ -126,7 +126,7 @@ const HomePage = () => {
               <Text style={styles.tileText}>Find a Recipe</Text>
             </ImageBackground>
           </TouchableOpacity>
-          
+
           {/* Plan a Meal Tile */}
           <TouchableOpacity style={styles.tile} onPress={() => router.push("/PlanMeal")}>
             <ImageBackground
@@ -138,7 +138,7 @@ const HomePage = () => {
               <Text style={styles.tileText}>Meal Plan</Text>
             </ImageBackground>
           </TouchableOpacity>
-          
+
           {/* Saved Recipes Tile */}
           <TouchableOpacity style={styles.tile} onPress={() => router.push("/SavedRecipes")}>
             <ImageBackground
@@ -150,7 +150,7 @@ const HomePage = () => {
               <Text style={styles.tileText}>Saved Recipes</Text>
             </ImageBackground>
           </TouchableOpacity>
-          
+
           {/* Order Ingredients Tile */}
           <TouchableOpacity style={styles.tile} onPress={() => router.push("/ShoppingCart")}>
             <ImageBackground

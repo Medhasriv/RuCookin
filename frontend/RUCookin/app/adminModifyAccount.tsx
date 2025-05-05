@@ -50,7 +50,7 @@ const AdminModifyAccount = () => {
     fetchUsers();
   }, []);
 
-//WORKS
+  //WORKS
   const fetchUsers = async () => {
     try {
       const res = await fetch(`${API_BASE}/routes/api/adminMaintain`);
@@ -60,23 +60,23 @@ const AdminModifyAccount = () => {
       console.error("Error fetching users:", err);
     }
   };
-//it works
+  //it works
   const handleEdit = (user: UserItem) => {
     setEditingId(user._id);
     setEditedUsername(user.username);
   };
-//Work
+  //Work
   const handleSave = async () => {
     if (!editingId || !editedUsername.trim()) return;
     try {
       const token = await getToken();
-            if (!token) {
-              console.error("No token found in storage.");
-              return;
-            }
+      if (!token) {
+        console.error("No token found in storage.");
+        return;
+      }
       await fetch(`${API_BASE}/routes/api/adminMaintain`, {
         method: "PUT",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
@@ -92,22 +92,22 @@ const AdminModifyAccount = () => {
       console.error("Error updating user:", err);
     }
   };
-// WORK
+  // WORK
   const handleCancel = () => {
     setEditingId(null);
     setEditedUsername("");
   };
-//DOESN't WORK
+  //DOESN't WORK
   const handleDelete = async (userId: string) => {
     try {
       const token = await getToken();
-            if (!token) {
-              console.error("No token found in storage.");
-              return;
-            }
+      if (!token) {
+        console.error("No token found in storage.");
+        return;
+      }
       await fetch(`${API_BASE}/routes/api/adminMaintain`, {
         method: "DELETE",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
@@ -122,7 +122,7 @@ const AdminModifyAccount = () => {
   const renderUser = ({ item }: { item: UserItem }) => {
     const isSelf = item._id === currentUserId;
     const isAdmin =
-      Array.isArray(item.AccountType) && item.AccountType.includes("admin"); 
+      Array.isArray(item.AccountType) && item.AccountType.includes("admin");
 
     return (
       <View style={styles.card}>
@@ -173,20 +173,20 @@ const AdminModifyAccount = () => {
     <View style={styles.container}>
       <SafeAreaView style={styles.inner}>
         <ScrollView contentContainerStyle={styles.content}>
-        <FlatList
-          data={users}
-          keyExtractor={(u) => u._id}
-          contentContainerStyle={styles.listContent}
-          ListHeaderComponent={
-            <>
-              <Text style={styles.title}>Modify Accounts</Text>
-              <Text style={styles.caption}>
-                Tap a username to edit it. Admin accounts cannot be edited.
-              </Text>
-            </>
-          }
-          renderItem={renderUser}
-        />
+          <FlatList
+            data={users}
+            keyExtractor={(u) => u._id}
+            contentContainerStyle={styles.listContent}
+            ListHeaderComponent={
+              <>
+                <Text style={styles.title}>Modify Accounts</Text>
+                <Text style={styles.caption}>
+                  Tap a username to edit it. Admin accounts cannot be edited.
+                </Text>
+              </>
+            }
+            renderItem={renderUser}
+          />
         </ScrollView>
       </SafeAreaView>
 

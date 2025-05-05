@@ -7,7 +7,7 @@ import list_selected from "@/assets/icons/selected-list.png";
 import pantry_selected from "@/assets/icons/selected-pantry.png";
 import vids_selected from "@/assets/icons/selected-vids.png";
 
-export default{
+export default {
     home,
     list,
     pantry,

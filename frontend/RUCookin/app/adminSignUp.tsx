@@ -37,21 +37,21 @@ export default function AdminSignUp() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [errors, setErrors] = useState<Record<string,string>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   // --- ADD THESE REFS ---
   const lastNameRef = useRef<TextInput>(null);
-  const emailRef    = useRef<TextInput>(null);
+  const emailRef = useRef<TextInput>(null);
   const usernameRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
 
   const validateForm = () => {
-    const errs: Record<string,string> = {};
+    const errs: Record<string, string> = {};
     if (!firstName.trim()) errs.firstName = "First name is required.";
-    if (!lastName.trim())  errs.lastName  = "Last name is required.";
-    if (!email.trim())     errs.email     = "Email is required.";
-    if (!username.trim())  errs.username  = "Username is required.";
-    if (!password)         errs.password  = "Password is required.";
+    if (!lastName.trim()) errs.lastName = "Last name is required.";
+    if (!email.trim()) errs.email = "Email is required.";
+    if (!username.trim()) errs.username = "Username is required.";
+    if (!password) errs.password = "Password is required.";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -87,10 +87,10 @@ export default function AdminSignUp() {
 
           {errors.general && <Text style={styles.error}>{errors.general}</Text>}
           {errors.firstName && <Text style={styles.error}>{errors.firstName}</Text>}
-          {errors.lastName &&  <Text style={styles.error}>{errors.lastName}</Text>}
-          {errors.email &&     <Text style={styles.error}>{errors.email}</Text>}
-          {errors.username &&  <Text style={styles.error}>{errors.username}</Text>}
-          {errors.password &&  <Text style={styles.error}>{errors.password}</Text>}
+          {errors.lastName && <Text style={styles.error}>{errors.lastName}</Text>}
+          {errors.email && <Text style={styles.error}>{errors.email}</Text>}
+          {errors.username && <Text style={styles.error}>{errors.username}</Text>}
+          {errors.password && <Text style={styles.error}>{errors.password}</Text>}
 
           <TextInput
             style={styles.input}

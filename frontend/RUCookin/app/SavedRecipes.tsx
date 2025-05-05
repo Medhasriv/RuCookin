@@ -13,10 +13,10 @@ const spoonacularApiKey = Constants.manifest?.extra?.spoonacularApiKey ?? (Const
 const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 const stripHtml = (html?: string) =>
-    (html ?? "")
-      .replace(/<[^>]*>/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
+  (html ?? "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 
 export default function SavedRecipes() {
   /* ------------- theme ------------- */
@@ -38,28 +38,28 @@ export default function SavedRecipes() {
   // DELETE favorite on backend and remove from UI
   const removeFavorite = async (recipeId: number) => {
     const username = await getTokenData("username");
-    const token    = await getToken();
+    const token = await getToken();
     if (!username || !token) return;
     try {
-        const res = await fetch(
-            `${API_BASE}/routes/api/favoriteRecipe`,
-            {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ username, recipeId }),
-            }
-        );
-        if (res.ok) {
-            // remove from local state
-            setRecipes((prev) => prev.filter((r) => r.id !== recipeId)); 
-        } else {
-            console.warn("Failed to delete favorite:", await res.text());
+      const res = await fetch(
+        `${API_BASE}/routes/api/favoriteRecipe`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ username, recipeId }),
         }
+      );
+      if (res.ok) {
+        // remove from local state
+        setRecipes((prev) => prev.filter((r) => r.id !== recipeId));
+      } else {
+        console.warn("Failed to delete favorite:", await res.text());
+      }
     } catch (err) {
-        console.error("Error deleting favorite:", err);
+      console.error("Error deleting favorite:", err);
     }
   };
   /* fetch favourites each time page is focused */
@@ -127,43 +127,43 @@ export default function SavedRecipes() {
               </Text>
             )}
             {recipes.map((r) => (
-                <View key={r.id} style={styles.tile}>
-                    <TouchableOpacity
-                    style={styles.tileBackground}
-                    onPress={() =>
-                        router.push({
-                        pathname: "/recipes/[id]",
-                        params: { id: r.id.toString() },
-                        })
-                    }
-                    >
-                    <Image source={{ uri: r.image }} style={styles.imageStyle} />
-                    </TouchableOpacity>
-
-                    <View style={styles.info}>
-                    <Text style={styles.tileTitle} numberOfLines={2}>
-                        {r.title}
-                    </Text>
-                    <Text style={styles.infoText}>
-                        ⏱ {r.readyInMinutes ?? "–"} min · 🍽 {r.servings ?? "–"}
-                    </Text>
-                    <Text style={styles.summaryText} numberOfLines={2}>
-                        {stripHtml(r.summary)}
-                    </Text>
-                    </View>
+              <View key={r.id} style={styles.tile}>
                 <TouchableOpacity
-                    style={styles.trash}
-                    onPress={() => removeFavorite(r.id)}
+                  style={styles.tileBackground}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/recipes/[id]",
+                      params: { id: r.id.toString() },
+                    })
+                  }
                 >
-                    <Ionicons
+                  <Image source={{ uri: r.image }} style={styles.imageStyle} />
+                </TouchableOpacity>
+
+                <View style={styles.info}>
+                  <Text style={styles.tileTitle} numberOfLines={2}>
+                    {r.title}
+                  </Text>
+                  <Text style={styles.infoText}>
+                    ⏱ {r.readyInMinutes ?? "–"} min · 🍽 {r.servings ?? "–"}
+                  </Text>
+                  <Text style={styles.summaryText} numberOfLines={2}>
+                    {stripHtml(r.summary)}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.trash}
+                  onPress={() => removeFavorite(r.id)}
+                >
+                  <Ionicons
                     name="trash-outline"
                     size={24}
                     color={isDark ? "#FFCF99" : "#721121"}
-                    />
+                  />
                 </TouchableOpacity>
-                </View>
-          ))}
-        </View>
+              </View>
+            ))}
+          </View>
         </ScrollView>
       </SafeAreaView>
       <BottomNavBar activeTab="home" isDarkMode={isDark} />
@@ -208,57 +208,57 @@ const createStyles = (dark: boolean) =>
       textAlign: "center",
     },
     tile: {
-        width: Platform.OS === "web" ? "30%" : "48%",
-        aspectRatio: 1,
-        marginVertical: Platform.OS === "web" ? 15 : 10,
+      width: Platform.OS === "web" ? "30%" : "48%",
+      aspectRatio: 1,
+      marginVertical: Platform.OS === "web" ? 15 : 10,
     },
     tileBackground: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        borderRadius: 10,
-        overflow: "hidden",
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: 10,
+      overflow: "hidden",
     },
     imageStyle: {
-        width: "100%",
-        height: "100%",
-        resizeMode: "cover",
+      width: "100%",
+      height: "100%",
+      resizeMode: "cover",
     },
     overlay: {
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.4)",
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0, 0, 0, 0.4)",
     },
     info: {
-        padding: 8,
+      padding: 8,
     },
     tileTitle: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: dark ? "#FFF" : "#000",
-        marginBottom: 4,
+      fontSize: 16,
+      fontWeight: "600",
+      color: dark ? "#FFF" : "#000",
+      marginBottom: 4,
     },
     infoText: {
-        fontSize: 14,
-        color: dark ? "#CCC" : "#555", 
-        marginBottom: 4,
+      fontSize: 14,
+      color: dark ? "#CCC" : "#555",
+      marginBottom: 4,
     },
     summaryText: {
-        fontSize: 13,
-        color: dark ? "#AAA" : "#666",
+      fontSize: 13,
+      color: dark ? "#AAA" : "#666",
     },
     trash: {
-        position: "absolute",
-        top: 6,
-        left: 6,
-        zIndex: 2,
-        padding: 4,
-        borderRadius: 6,
-        backgroundColor: dark
-          ? "rgba(255,255,255,0.1)"
-          : "rgba(0,0,0,0.1)",
+      position: "absolute",
+      top: 6,
+      left: 6,
+      zIndex: 2,
+      padding: 4,
+      borderRadius: 6,
+      backgroundColor: dark
+        ? "rgba(255,255,255,0.1)"
+        : "rgba(0,0,0,0.1)",
     },
   });
