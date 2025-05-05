@@ -103,25 +103,6 @@ describe("SearchRecipe Screen", () => {
     expect(getByText("FILTER")).toBeTruthy();
   });
 
-//   test("opens and closes the filter modal", async () => {
-//     const { getByText, queryByText } = render(
-//       <SafeAreaProvider>
-//         <SearchRecipe />
-//       </SafeAreaProvider>
-//     );
-
-//     fireEvent.press(getByText("FILTER"));
-
-//     await waitFor(() => {
-//       expect(getByText("Cuisine")).toBeTruthy();
-//     });
-
-//     fireEvent.press(getByText("close"));
-
-//     await waitFor(() => {
-//       expect(queryByText("Cuisine")).toBeNull();
-//     });
-//   });
 
 // display results in SafeAreaProvider
   test("allows entering search text", () => {
@@ -138,23 +119,6 @@ describe("SearchRecipe Screen", () => {
     expect(input.props.value).toBe("chicken");
   });
 
-//   test("toggles preferences checkbox in modal", async () => {
-//     const { getByText } = render(
-//       <SafeAreaProvider>
-//         <SearchRecipe />
-//       </SafeAreaProvider>
-//     );
-
-//     fireEvent.press(getByText("FILTER"));
-
-//     const checkbox = getByText("Checkbox-Unchecked");  // Assuming initial state is "Unchecked"
-//     fireEvent.press(checkbox);
-
-//     // After press, the checkbox status should change to "Checked"
-//     await waitFor(() => {
-//       expect(getByText("Checkbox-Checked")).toBeTruthy();
-//     });
-//   });
 
 // test to check if recipe is marked as favourite when star icon is clicked
 });
