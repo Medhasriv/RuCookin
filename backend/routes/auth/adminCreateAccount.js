@@ -80,7 +80,7 @@ router.post('/', async (req, res) => {
     const saltRounds = 11;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Create new user
+    // Create new user and sets accountType as admin
     const newAdmin = new User({
       username: username,
       password: hashedPassword,
