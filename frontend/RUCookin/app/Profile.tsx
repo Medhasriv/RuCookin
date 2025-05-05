@@ -299,6 +299,10 @@ const Profile = () => {
             </TouchableOpacity>
           </View>
         </View>
+        {/* Edit Preferences Button, navigates to the Cuisine Likes page */}
+          <TouchableOpacity style={styles.button} onPress={() => router.push("/CuisineLikes")}>
+            <Text style={styles.buttonText}>Edit User Preferences</Text>
+          </TouchableOpacity>
       </SafeAreaView>
 
       {/* Bottom navigation bar */}
@@ -358,6 +362,19 @@ const createStyles = (isDarkMode: boolean) =>
       fontSize: 16,
       color: isDarkMode ? "#cccccc" : "#333333",
     },
+    button: {
+      backgroundColor: isDarkMode ? "#FFCF99" : "#721121", // Button background color changes with theme
+      padding: 15,
+      borderRadius: 8,
+      marginVertical: 10,
+      width: "100%",
+      alignItems: "center",
+    },
+    buttonText: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: isDarkMode ? "#721121" : "#FFCF99", // Button text color changes with theme
+    }
   });
 
 // Export the component
