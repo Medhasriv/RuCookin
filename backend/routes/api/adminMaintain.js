@@ -1,4 +1,4 @@
-// Check if all fields are provided
+// Importing modules
 const express = require("express");
 const db = require("../../dbSetup.js");
 const mongoose = require("mongoose");
@@ -13,6 +13,7 @@ require("../../schemas/Cart.js");
 const Cart = mongoose.model("CartInfo");
 require("../../schemas/Pantry.js");
 const Pantry = mongoose.model("PantryInfo");
+// Decode the UserId from Token
 const { getUserIdFromToken } = require('../../utils/TokenDecoder');
 
 // Grab all usernames
