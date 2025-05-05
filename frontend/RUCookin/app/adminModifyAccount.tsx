@@ -123,7 +123,7 @@ const AdminModifyAccount = () => {
         return;
       }
       // Send a fetch request to the backend to delete User
-      await fetch(`http://localhost:3001/routes/api/adminMaintain`, {
+      await fetch(`${API_BASE}/routes/api/adminMaintain`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
