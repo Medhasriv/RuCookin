@@ -1,3 +1,17 @@
+// app/adminCreateRecipeCuisine.tsx
+/**
+ * @summary: adminCreateRecipeCuisine.tsx
+ * This is the screen where once an admin creates their own recipe, they can select what kind of cuisine it falls under.
+ * This file is part of the set of screens that are only accessible to admin users once they are logged in.
+ * 
+ * @requirement: A013 - Admin Add Recipes: The system shall allow administrators to add recipes to the list of existing recipes
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The Admin Create Recipes Cuisine screen, where admins can select what kind of cuisine is applicable to their added recipe.
+ */
+
 // Import React libraries and necessary React Native components
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList, View } from 'react-native';
@@ -6,7 +20,7 @@ import { useRouter } from 'expo-router';
 import { useLocalSearchParams } from 'expo-router';
 import Constants from 'expo-constants';
 
-// Connect to the backend API hosted on Google Cloud Run
+// Connect to the backend API hosted on Google Cloud Run. This is part of requirement U018 - Database Connectivity w/ Google Cloud Run
 const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 // Import authentication-related utilities
@@ -128,7 +142,8 @@ const AdminCreateRecipeCuisine = () => {
   );
 };
 
-// Create dynamic styles depending on dark or light mode
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 const createStyles = (dark: boolean) =>
   StyleSheet.create({
     container: {

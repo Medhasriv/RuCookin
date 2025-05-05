@@ -1,4 +1,20 @@
 // app/SavedRecipes.tsx
+/**
+ * @summary: SavedRecipes.tsx
+ * 
+ * This page displays the user's favorited recipes in one place. Each recipe is displayed as a card with an image, title, and summary including the time it takes to prepare and the number of servings.
+ * This page can be accessed from the home page by clicking on the "Saved Recipes" button.
+ * Users can remove recipes from their favorites by clicking on the trash icon on the upper left corner of each recipe's card.
+ * 
+ * @requirement: R007 - Favorite Recipe: The system shall record the user's saved/favorite recipes so that they can be retrieved later. 
+ * @requirement: U017 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The template page for recipes. 
+ */
+
 import React, { useCallback, useState } from "react";
 import { Platform, SafeAreaView, StyleSheet, Text, ScrollView, View, Image, TouchableOpacity, useColorScheme, } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -172,6 +188,7 @@ export default function SavedRecipes() {
 }
 
 /* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 const createStyles = (dark: boolean) =>
   StyleSheet.create({
     container: {

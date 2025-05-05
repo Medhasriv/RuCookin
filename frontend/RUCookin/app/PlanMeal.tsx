@@ -1,3 +1,21 @@
+// app/PlanMeal.tsx
+/**
+ * @summary: PlanMeal.tsx
+ * 
+ * This page allows the user to plan a meal based on their budget and pantry items.
+ * This page can be accessed by clicking on the "Meal Plan" button on the home page.
+ * The page will ask the user to unput their max budget and then fetch recipes from the Spoonacular API based on the user's pantry items and budget.
+ * Recipe suggestions will show how many ingredients the user has in the pantry are used in the recipe and how many ingredients are missing.
+ * Recipe suggestions will also show the estimated cost of the missing ingredients.
+ * 
+ * @requirement: R006 - Budget-Based Recipe Suggestion: The system shall allow users to input a budget and return recipes that can be made within that budget, using the Kroger API to estimate grocery/ingredient costs and available pantry ingredients.
+ * @requirement: UO17 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @returns: The budget meal planning page for the RUCookin' app. This page serves as the "business logic" for our app, allowing users to plan meals based on their budget and pantry items.
+ */
+
 // Import necessary libraries and components
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, Image, KeyboardAvoidingView, Platform, } from "react-native";
@@ -207,7 +225,8 @@ const PlanMeal = () => {
   );
 };
 
-// Dynamic styling based on dark mode or light mode
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 const createStyles = (isDarkMode: boolean, topInset: number) =>
   StyleSheet.create({
     container: {

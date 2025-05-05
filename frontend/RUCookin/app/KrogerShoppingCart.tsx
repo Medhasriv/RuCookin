@@ -1,3 +1,21 @@
+// app/KrogerShoppingCart.tsx
+/**
+ * @summary: KrogerShoppingCart.tsx
+ * This the page that opens when a user clicks on the "Check Kroger Prices" button in the Shopping Cart page.
+ * This screen's main feature is to price match ingredients added to the shopping cart in the previous screen against what is stored in the Kroger API. 
+ * We take in the user's zip code and fetch the prices of the ingredients in the user's cart using the Kroger API.
+ * Users can also clear their cart from this page.
+ * This file is part of the set of screens that are only accessible when a user is logged in.
+ * 
+ * @requirement: S005 - Shopping Cart: The system shall allow users to create and manage a shopping list that connects to the Kroger API to check ingredient availability, estimate costs, and suggest purchase locations.
+ * @requirement: UO17 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The Kroger Shopping Cart page, which is a screen where users can select the cuisines that they dislike.
+ */
+
 // Importing necessary modules and components
 import { useRouter } from "expo-router"; // To handle navigation 
 import { View, Text, TextInput, FlatList, StyleSheet, useColorScheme, TouchableOpacity, Image } from "react-native"; // React Native UI components
@@ -9,7 +27,7 @@ import BottomNavBar from "../components/BottomNavBar"; // Custom bottom navigati
 import Constants from 'expo-constants'; // Access app constants
 import { Alert } from "react-native";
 
-// Connect to the backend API hosted on Google Cloud Run
+// Connect to the backend API hosted on Google Cloud Run. This is part of requirement U018 - Database Connectivity w/ Google Cloud Run
 const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 // Type definition for CartItem
@@ -208,8 +226,8 @@ const KrogerShoppingCart = () => {
     </View>
   );
 };
-
-// Function to create styles dynamically based on dark mode
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 const createStyles = (isDarkMode: boolean) =>
   StyleSheet.create({
     contentContainer: {

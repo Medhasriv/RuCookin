@@ -1,3 +1,19 @@
+// app/SignUp.tsx
+/**
+ * @summary: SignUp.tsx
+ * This is the sign up page for the RUCookin' app. Users can create an account using their first and last name, username, password, and email.
+ * If the user already has an account, they can get redirected to the Login page.
+ * Password visibility toggle is also available, so users can "hide" or "show" your password as you type it in.
+ * 
+ * All information is stored in the backend database. 
+ * Passwords are stored in the backend database using bcrypt hashing, and the user is authenticated using JWT tokens.
+ * This page handles the first stage of the account creation process and redirects the user to the CuisineLikes page after successful creation.
+ * 
+ * @requirement: U001 - Account Creation: The system shall allow users to create an account with their first and last name, username, password, and email. 
+ * @requirement: U017 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @returns: The sign up page for the RUCookin' app.
+ */
+
 import { Link, useRouter } from "expo-router";
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, useColorScheme, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -198,7 +214,8 @@ export default function SignUp() {
   );
 }
 
-// stylesheet
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 function createStyles(isDarkMode: boolean) {
   return StyleSheet.create({
     container: {

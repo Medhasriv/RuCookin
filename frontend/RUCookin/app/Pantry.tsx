@@ -1,3 +1,25 @@
+// app/Pantry.tsx
+/**
+ * @summary: Pantry.tsx
+ * 
+ * Users can store ingredients that they have in their pantry. 
+ * Users can search for ingredients and add them to their pantry.
+ * Users can remove ingredients from their pantry.
+ * Users can update the expiration date of the ingredients in their pantry.
+ * Users can view the ingredients in their pantry.
+ * The ingredients added to the pantry will be used for recipe suggestions and budget meal planning.
+ * The pantry page can be accessed from the bottom navigation bar.
+ * 
+ * @requirement: S008 - Expiration Date Reminder: The system shall allow users to input expiration dates for their ingredients and notify them when ingredients are nearing expiration.
+ * @requirement: S009 - MyPantry: The system shall allow users to save the ingredients to Mypantry, which will be used later when deciding on recipes
+ * @requirement: UO17 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The pantry page for the RUCookin' app.
+ */
+
 // Importing necessary libraries and components
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, Image } from "react-native";
@@ -9,7 +31,7 @@ import { checkAuth, getToken } from "../utils/authChecker";
 import BottomNavBar from "../components/BottomNavBar";
 import Constants from 'expo-constants';
 
-// Connect to the backend API hosted on Google Cloud Run
+// Connect to the backend API hosted on Google Cloud Run.
 const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 // Connect to the Spoonacular API
 const spoonacularApiKey = Constants.manifest?.extra?.spoonacularApiKey ?? (Constants.expoConfig as any).expo.extra.spoonacularApiKey;
@@ -263,7 +285,8 @@ const Pantry = () => {
   );
 };
 
-// Styling based on dark/light mode
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 const createStyles = (isDarkMode: boolean) =>
   StyleSheet.create({
     container: { flex: 1, paddingTop: 20, backgroundColor: isDarkMode ? "#000000" : "#ffffff" },

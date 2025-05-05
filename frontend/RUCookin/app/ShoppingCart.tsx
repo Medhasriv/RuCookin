@@ -1,3 +1,14 @@
+// app/ShoppingCart.tsx
+/**
+ * @summary: ShoppingCart.tsx
+ * Users can add items to their shopping cart, which is then stored in the backend database. The user can also remove items from their cart.
+ * The user can then navigate to the Kroger Shopping Cart page, which is a screen where users can estimate the cost of their shopping cart, and clear it.
+ * This file is part of the set of screens that are only accessible when a user is logged in.
+ * 
+ * @requirement: S005 - Shopping Cart: The system shall allow users to create and manage a shopping list that connects to the Kroger API to check ingredient availability, estimate costs, and suggest purchase locations.
+ * @requirement: U017 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @returns: The Kroger Shopping Cart page, which is a screen where users can select the cuisines that they dislike.
+ */
 import { useRouter } from "expo-router";
 import { View, Text, TextInput, FlatList, StyleSheet, useColorScheme, TouchableOpacity, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,7 +18,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "../components/BottomNavBar";
 import Constants from 'expo-constants';
 
-// Connect to the backend API hosted on Google Cloud Run
+// Connect to the backend API hosted on Google Cloud Run. This is part of requirement U018 - Database Connectivity w/ Google Cloud Run
 const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 type CartItem = {
@@ -173,6 +184,8 @@ const ShoppingCart = () => {
     </View>
   );
 };
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 const createStyles = (isDarkMode: boolean) =>
   StyleSheet.create({
     contentContainer: {
