@@ -1,16 +1,24 @@
+// app/SearchRecipe.tsx
+/**
+ * @summary: SearchRecipe.tsx
+ * 
+ * This page allows users to search for recipes based on their preferences. Users can filter recipes by cuisine, diet, and intolerances.
+ * The search results are displayed as a grid of recipe cards, each showing an image, title, and summary of the recipe.
+ * The user can also save recipes to their favorites by clicking on the star icon on the upper right corner of each recipe's card.
+ * The page can be accessed from the home page by clicking on the "Find a Recipe" button, as well as from the bottom navigation bar.
+ * 
+ * @requirement: R004 - Recipe Search: The system shall provide a recipe search screen that allows users to look up recipes based on available ingredients, cuisine type, and dietary restrictions.
+ * @requirement: R007 - Favorite Recipe: The system shall record the user's saved/favorite recipes so that they can be retrieved later. 
+ * @requirement: U017 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The template page for recipes. 
+ */
+
 import { Link, useRouter } from "expo-router";
-import {
-  Platform,
-  StyleSheet,
-  Modal,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  useColorScheme,
-  View,
-  Image,
-  ScrollView,
-} from "react-native";
+import { Platform, StyleSheet, Modal, Text, TextInput, TouchableOpacity, useColorScheme, View, Image, ScrollView, } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import React, { useState, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
@@ -452,6 +460,8 @@ const SearchRecipe = () => {
   );
 };
 
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 function createStyles(isDarkMode: boolean, topInset: number) {
   return StyleSheet.create({
     container: {

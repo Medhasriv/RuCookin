@@ -1,3 +1,24 @@
+// app/Login.tsx
+/**
+ * @summary: Login.tsx
+ * This is the login page for the RUCookin' app. Users can log in to their account using their username and password.
+ * If the user does not have an account, they can get redirected to the Sign Up page.
+ * 
+ * It's your standard login page with our text logo, username and password input fields, and a login button.
+ * Password visibility toggle is also available, so users can "hide" or "show" your password as you type it in.
+ * 
+ * Passwords are stored in the backend database using bcrypt hashing, and the user is authenticated using JWT tokens.
+ * This page handles the login process and redirects the user to the HomePage after successful login.
+ * 
+ * @requirement: U001 - Account Creation: The system shall allow users to create an account with their first and last name, username, password, and email. 
+ * @requirement: UO17 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The login page for the RUCookin' app.
+ */
+
 import { Link, useRouter } from "expo-router";
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, TextInput, useColorScheme, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,7 +27,7 @@ import { Divider } from "../components/Divider";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 
-// Connect to the backend API hosted on Google Cloud Run
+// Connect to the backend API hosted on Google Cloud Run. This is part of requirement U018 - Database Connectivity w/ Google Cloud Run
 const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 export default function Index() {
@@ -151,7 +172,8 @@ export default function Index() {
     </SafeAreaView>
   );
 }
-
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 function createStyles(isDarkMode: boolean) {
   return StyleSheet.create({
     container: {

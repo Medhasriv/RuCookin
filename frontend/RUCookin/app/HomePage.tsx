@@ -1,3 +1,21 @@
+// app/HomePage.tsx
+/**
+ * @summary: HomePage.tsx
+ * This the home page for user accounts. Once a user logs in/ finishes setting up their account, this is the screen that they will be taken to.
+ * This screen has three main features:
+ *    1. A greeting that changes based on the time of day.
+ *    2. A list of recipes that are recommended based on the time of day.
+ *    3. A grid of tiles that link to other screens in the app.
+ * This file is part of the set of screens that are only accessible when a user is logged in.
+ * 
+ * @requirement: S010 - Time-based Recipes: The system shall suggest different recipes depending on the time of the day (e.g. breakfast recipes from 5 AM to 12 PM, lunch recipes from 12 PM to 5 PM, etc.)
+ * @requirement: UO17 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The Cuisine Dislikes page, which is a screen where users can select the cuisines that they dislike.
+ */
 import { useRouter } from "expo-router";
 import { Platform, StyleSheet, Text, useColorScheme, View, Image, ImageBackground, TouchableOpacity } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -7,6 +25,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import BottomNavBar from "../components/BottomNavBar";
 import { ScrollView, GestureHandlerRootView, Gesture } from "react-native-gesture-handler";
 import Constants from 'expo-constants';
+
 // Connect to the Spoonacular API
 const spoonacularApiKey = Constants.manifest?.extra?.spoonacularApiKey ?? (Constants.expoConfig as any).expo.extra.spoonacularApiKey;
 
@@ -30,12 +49,14 @@ const HomePage = () => {
     console.log("Device color scheme:", deviceScheme);
     checkAuth(router);
   }, []);
-
-
+  
+  // color scheme decided based on user preference, then device color scheme if there is no user preference set
   const effectiveTheme = userTheme ? userTheme : deviceScheme;
   const isDarkMode = effectiveTheme === "dark";
   const styles = createStyles(isDarkMode, insets.top);
 
+
+  // Good morning/afternoon/evening greeting based on the time of day
   const getGreeting = () => {
     const currentHour = new Date().getHours();
     if (currentHour < 12) return "Good Morning!";
@@ -43,15 +64,18 @@ const HomePage = () => {
     return "Good Evening!";
   };
 
+
+  // time based recipe
   const getMealType = () => {
     const hour = new Date().getHours();
-    if (hour < 6) return "midnightSnack";
-    if (hour < 12) return "breakfast";
-    if (hour < 17) return "lunch";
-    if (hour < 21) return "dinner";
+    if (hour < 6   ) return "midnightSnack"; // 12 AM - 6 AM
+    if (hour < 12  ) return "breakfast"; // 6 AM - 12 PM
+    if (hour < 17  ) return "lunch"; // 12 PM - 5 PM
+    if (hour < 21  ) return "dinner"; // 5 PM - 9 PM
     return "midnightSnack";
   };
 
+  // Fetch recipes based on the time of day
   const [timeRecipes, setTimeRecipes] = useState<any[]>([]);
   useEffect(() => {
     const mealType = getMealType();
@@ -72,48 +96,48 @@ const HomePage = () => {
       <SafeAreaView style={styles.contentContainer}>
         <Text style={styles.greeting}>{getGreeting()}</Text>
         <Text style={styles.subHeader}>
-          Your Recipe Picks for the{getGreeting().replace("Good", "")}
-        </Text>
-        <GestureHandlerRootView>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.timeTileRow}
-            centerContent
-          >
-            {timeRecipes.map((r) => (
-              <View key={r.id} style={styles.timeTile}>
-                {/* tappable image */}
-                <TouchableOpacity
-                  style={styles.timeTileImage}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/recipes/[id]",
-                      params: { id: r.id.toString() },
-                    })
-                  }
-                >
-                  <Image
-                    source={{ uri: r.image }}
-                    style={styles.imageStyle}
-                  />
-                </TouchableOpacity>
-                {/* info below the image */}
-                <View style={styles.info}>
-                  <Text style={styles.tileTitle} numberOfLines={2}>
-                    {r.title}
-                  </Text>
-                  <Text style={styles.infoText}>
-                    ⏱ {r.readyInMinutes ?? "–"} min · 🍽 {r.servings ?? "–"}
-                  </Text>
-                  <Text style={styles.summaryText} numberOfLines={2}>
-                    {stripHtml(r.summary)}
-                  </Text>
-                </View>
+        Your Recipe Picks for the{ getGreeting().replace("Good", "") }
+      </Text>
+      <GestureHandlerRootView>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.timeTileRow}
+          centerContent
+        >
+          {timeRecipes.map((r) => (
+            <View key={r.id} style={styles.timeTile}>
+              {/* tappable image */}
+              <TouchableOpacity
+                style={styles.timeTileImage}
+                onPress={() =>
+                  router.push({
+                    pathname: "/recipes/[id]",
+                    params: { id: r.id.toString() },
+                  })
+                }
+              >
+                <Image
+                  source={{ uri: r.image }}
+                  style={styles.imageStyle}
+                />
+              </TouchableOpacity>
+              {/* info below the image */}
+              <View style={styles.info}>
+                <Text style={styles.tileTitle} numberOfLines={2}>
+                  {r.title}
+                </Text>
+                <Text style={styles.infoText}>
+                  ⏱ {r.readyInMinutes ?? "–"} min · 🍽 {r.servings ?? "–"}
+                </Text>
+                <Text style={styles.summaryText} numberOfLines={2}>
+                  {stripHtml(r.summary)}
+                </Text>
               </View>
-            ))}
-          </ScrollView>
-        </GestureHandlerRootView>
+            </View>
+          ))}
+        </ScrollView>
+      </GestureHandlerRootView>
         <View style={styles.tileGrid}>
           {/* Find a Recipe Tile */}
           <TouchableOpacity style={styles.tile} onPress={() => router.push("/SearchRecipe")}>
@@ -126,7 +150,7 @@ const HomePage = () => {
               <Text style={styles.tileText}>Find a Recipe</Text>
             </ImageBackground>
           </TouchableOpacity>
-
+          
           {/* Plan a Meal Tile */}
           <TouchableOpacity style={styles.tile} onPress={() => router.push("/PlanMeal")}>
             <ImageBackground
@@ -138,7 +162,7 @@ const HomePage = () => {
               <Text style={styles.tileText}>Meal Plan</Text>
             </ImageBackground>
           </TouchableOpacity>
-
+          
           {/* Saved Recipes Tile */}
           <TouchableOpacity style={styles.tile} onPress={() => router.push("/SavedRecipes")}>
             <ImageBackground
@@ -150,7 +174,7 @@ const HomePage = () => {
               <Text style={styles.tileText}>Saved Recipes</Text>
             </ImageBackground>
           </TouchableOpacity>
-
+          
           {/* Order Ingredients Tile */}
           <TouchableOpacity style={styles.tile} onPress={() => router.push("/ShoppingCart")}>
             <ImageBackground
@@ -170,6 +194,8 @@ const HomePage = () => {
   );
 };
 
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 function createStyles(isDarkMode: boolean, topInset: number) {
   return StyleSheet.create({
     container: {
@@ -194,7 +220,6 @@ function createStyles(isDarkMode: boolean, topInset: number) {
       flexWrap: "wrap",
       justifyContent: "space-between",
     },
-    // Use aspectRatio to maintain a square tile.
     tile: {
       width: Platform.OS === "web" ? "24%" : "27%",
       aspectRatio: 1, // maintain square shape on all platforms
@@ -207,7 +232,6 @@ function createStyles(isDarkMode: boolean, topInset: number) {
       borderRadius: 10,
       overflow: "hidden",
     },
-    // Ensure the image fills its container.
     imageStyle: {
       width: "100%",
       height: "100%",
@@ -251,10 +275,10 @@ function createStyles(isDarkMode: boolean, topInset: number) {
     },
     timeTileImage: {
       width: "100%",
-      aspectRatio: 1,      // keep it a square
+      aspectRatio: 1,
       borderRadius: 10,
       overflow: "hidden",
-      marginBottom: 8,     // space before the info block
+      marginBottom: 8,
     },
     info: {
       padding: 8,

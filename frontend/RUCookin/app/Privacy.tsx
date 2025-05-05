@@ -1,11 +1,19 @@
+// app/Privacy.tsx
+/**
+ * @summary: Privacy.tsx
+ * 
+ * This page lists out the credits for the icons and photos used in the app.
+ * The purpose of this page is solely for legal credit. Creditting in the app was required by the icon providers.
+ * 
+ * @requirement: U017 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The privacy and credits page. 
+ */
+
 import React, { useEffect, useState } from "react";
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { SafeAreaView, ScrollView, StyleSheet, Text, View, } from "react-native";
 import { useColorScheme } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
@@ -58,7 +66,8 @@ export default function Privacy() {
   );
 }
 
-/* ----------------- STYLES ----------------- */
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 function createStyles(isDark: boolean) {
   return StyleSheet.create({
     container: {

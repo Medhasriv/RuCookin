@@ -1,48 +1,62 @@
+// app/adminStats.tsx
+/**
+ * @summary: adminStats.tsx
+ * This is the screen where admins can view data analytics related to different users.
+ * Data analytics include the most popular recipes, the most popular diets, the most popular intolerances, and the most liked and disliked cuisines.
+ * This file is part of the set of screens that are only accessible to admin users once they are logged in.
+ * 
+ * @requirement: A015 - Admin Most Favorite Recipes: The system shall allow administrators to view a list of the most favorite recipes.
+ * @requirement: A016 - Admin Most-used Information: The system shall allow administrators to view the most frequently used ingredients, cuisine types, diet preferences, and other user preferences.
+ * @requirement: UO17 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The Admin Stats Page, where data analytics from user's favorites and preferences can viewed.
+ */
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  SectionList,
-  StyleSheet,
-  Platform,
-  useColorScheme,
-} from "react-native";
+import { View, Text, SectionList, StyleSheet, Platform, useColorScheme } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { getToken, checkAuth, checkAdmin } from "../utils/authChecker";
 import AdminBottomNavBar from "../components/adminBottomNavBar";
 import Constants from 'expo-constants';
 
-// Connect to the backend API hosted on Google Cloud Run
+// Connect to the backend API hosted on Google Cloud Run. This is part of requirement U018 - Database Connectivity w/ Google Cloud Run
 const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
+// Define the type for each statistic item
 type StatItem = {
   _id: string | number;
   count: number;
 };
 
+// Define the type for each section of statistics
 type SectionData = {
   title: string;
   data: StatItem[];
 };
 
+// Main component for admin statistics
 const AdminStats = () => {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const isDarkMode = useColorScheme() === "dark";
-  const styles = createStyles(isDarkMode, insets.top);
+  const router = useRouter(); // Navigation router
+  const insets = useSafeAreaInsets(); // Safe area insets for padding
+  const isDarkMode = useColorScheme() === "dark"; // Boolean for dark mode
+  const styles = createStyles(isDarkMode, insets.top); // Dynamic styles based on theme and safe area insets
 
-  const [sections, setSections] = useState<SectionData[]>([]);
+  const [sections, setSections] = useState<SectionData[]>([]); // State to hold sections of statistics
 
+  // Check admin authentication on component mount and fetch analytics data from backend API
   useEffect(() => {
     checkAuth(router);
     checkAdmin(router);
     fetchAnalytics();
   }, []);
 
+  // Fetch analytics data from backend API
   const fetchAnalytics = async () => {
     try {
-      const token = await getToken();
+      const token = await getToken(); // Get the authentication token
       if (!token) return;
 
       const [favRes, prefRes] = await Promise.all([
@@ -53,45 +67,46 @@ const AdminStats = () => {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
-
+      
       const favData = await favRes.json();
       const prefData = await prefRes.json();
-      //TALK ABOUT REDOING PREFERENCE
+      
+      // Array for top favorite recipes
       const favs: StatItem[] = Array.isArray(favData)
         ? favData.map((item: any) => ({
           _id: `${item._id}`,
           count: item.count,
         }))
         : [];
-
+      // Array for top diets
       const diets: StatItem[] = Array.isArray(prefData.topDiets)
         ? prefData.topDiets.map((item: any) => ({
           _id: `${item._id}`,
           count: item.count,
         }))
         : [];
-
+      // Array for top intolerances
       const intolerances: StatItem[] = Array.isArray(prefData.topIntolerances)
         ? prefData.topIntolerances.map((item: any) => ({
           _id: `${item._id}`,
           count: item.count,
         }))
         : [];
-
+      // Array for top liked cuisines
       const liked: StatItem[] = Array.isArray(prefData.topLikedCuisines)
         ? prefData.topLikedCuisines.map((item: any) => ({
           _id: `${item._id}`,
           count: item.count,
         }))
         : [];
-
+      // Array for top disliked cuisines
       const disliked: StatItem[] = Array.isArray(prefData.topDislikedCuisines)
         ? prefData.topDislikedCuisines.map((item: any) => ({
           _id: `${item._id}`,
           count: item.count,
         }))
         : [];
-
+      // Set the sections state with the fetched data
       setSections([
         { title: "Favorite Recipes", data: favs },
         { title: "Top Diets", data: diets },
@@ -118,7 +133,9 @@ const AdminStats = () => {
           contentContainerStyle={styles.listContent}
           ListHeaderComponent={
             <>
+              {/* Header/Screen Title */}
               <Text style={styles.header}>Admin Analytics</Text>
+              {/* Description of admin features */}
               <Text style={styles.caption}>
                 Top trends across users dietary preferences
               </Text>
@@ -149,6 +166,8 @@ const AdminStats = () => {
   );
 };
 
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 const createStyles = (isDarkMode: boolean, topInset: number) =>
   StyleSheet.create({
     container: {

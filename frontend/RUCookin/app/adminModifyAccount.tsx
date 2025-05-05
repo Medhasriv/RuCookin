@@ -1,15 +1,21 @@
+// app/adminModifyAccount.tsx
+/**
+ * @summary: adminModifyAccount.tsx
+ * This is the screen where admins can view all accounts in the system, and modify the usernames of non-admin accounts.
+ * Admins can also delete non-admin accounts from this screen.
+ * This file is part of the set of screens that are only accessible to admin users once they are logged in.
+ * 
+ * @requirement: A011 - Admin Account Deletion: The system shall allow administrators to delete accounts with inappropriate names or inappropriate ingredients.
+ * @requirement: A012 - Admin Account Modification: The system shall allow administrators to modify usernames.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The Admin Modify Accounts screen, where admins can view, modify, and delete users in the system.
+ */
+
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  FlatList,
-  StyleSheet,
-  Platform,
-  useColorScheme,
-  ScrollView
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, Platform, useColorScheme, ScrollView } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -18,13 +24,15 @@ import AdminBottomNavBar from "../components/adminBottomNavBar";
 import { LogBox } from "react-native";
 import Constants from 'expo-constants';
 
-// Connect to the backend API hosted on Google Cloud Run
+// Connect to the backend API hosted on Google Cloud Run. This is part of requirement U018 - Database Connectivity w/ Google Cloud Run
 const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
+// ignore warning about nested scroll views. this is an intentional design choice, not a bug.
 LogBox.ignoreLogs([
   "VirtualizedLists should never be nested inside plain ScrollViews"
 ]);
 
+// Define the type for user items
 type UserItem = {
   _id: string;
   username: string;
@@ -33,24 +41,26 @@ type UserItem = {
   AccountType?: string[];
 };
 
+// Main component for modifying user accounts
 const AdminModifyAccount = () => {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const isDarkMode = useColorScheme() === "dark";
-  const styles = createStyles(isDarkMode, insets.top);
+  const router = useRouter(); // Navigation router
+  const insets = useSafeAreaInsets(); // Safe area insets for padding
+  const isDarkMode = useColorScheme() === "dark"; // Boolean for dark mode
+  const styles = createStyles(isDarkMode, insets.top); // Dynamic styles based on theme and safe area insets
 
-  const [users, setUsers] = useState<UserItem[]>([]);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editedUsername, setEditedUsername] = useState<string>("");
-  const [currentUserId, setCurrentUserId] = useState<string>("");
+  const [users, setUsers] = useState<UserItem[]>([]);  // State to hold user data
+  const [editingId, setEditingId] = useState<string | null>(null); // State to track currently editing user ID
+  const [editedUsername, setEditedUsername] = useState<string>(""); // State to hold edited username
+  const [currentUserId, setCurrentUserId] = useState<string>(""); // State to hold current user ID
 
+  // Fetching users and checking authentication on component mount
   useEffect(() => {
     checkAuth(router);
     checkAdmin(router);
     fetchUsers();
   }, []);
 
-  //WORKS
+// Fetch the current users from the backend API
   const fetchUsers = async () => {
     try {
       const res = await fetch(`${API_BASE}/routes/api/adminMaintain`);
@@ -60,23 +70,24 @@ const AdminModifyAccount = () => {
       console.error("Error fetching users:", err);
     }
   };
-  //it works
+
+// Handles entering the edit mode for a user
   const handleEdit = (user: UserItem) => {
     setEditingId(user._id);
     setEditedUsername(user.username);
   };
-  //Work
+// Sets the new username to the edited username and updates the backend API
   const handleSave = async () => {
     if (!editingId || !editedUsername.trim()) return;
     try {
       const token = await getToken();
-      if (!token) {
-        console.error("No token found in storage.");
-        return;
-      }
+            if (!token) {
+              console.error("No token found in storage.");
+              return;
+            }
       await fetch(`${API_BASE}/routes/api/adminMaintain`, {
         method: "PUT",
-        headers: {
+        headers: { 
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
@@ -92,22 +103,22 @@ const AdminModifyAccount = () => {
       console.error("Error updating user:", err);
     }
   };
-  // WORK
+  // Cancels the editing of the username and resets the state
   const handleCancel = () => {
     setEditingId(null);
     setEditedUsername("");
   };
-  //DOESN't WORK
+ // Deletes the user from the backend API
   const handleDelete = async (userId: string) => {
     try {
       const token = await getToken();
-      if (!token) {
-        console.error("No token found in storage.");
-        return;
-      }
+            if (!token) {
+              console.error("No token found in storage.");
+              return;
+            }
       await fetch(`${API_BASE}/routes/api/adminMaintain`, {
         method: "DELETE",
-        headers: {
+        headers: { 
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
@@ -118,11 +129,11 @@ const AdminModifyAccount = () => {
       console.error("Error deleting user:", err);
     }
   };
-
+  // Renders a list of all users in the system
   const renderUser = ({ item }: { item: UserItem }) => {
     const isSelf = item._id === currentUserId;
     const isAdmin =
-      Array.isArray(item.AccountType) && item.AccountType.includes("admin");
+      Array.isArray(item.AccountType) && item.AccountType.includes("admin"); 
 
     return (
       <View style={styles.card}>
@@ -169,24 +180,27 @@ const AdminModifyAccount = () => {
     );
   };
 
+  // Render component for the entire screen
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.inner}>
         <ScrollView contentContainerStyle={styles.content}>
-          <FlatList
-            data={users}
-            keyExtractor={(u) => u._id}
-            contentContainerStyle={styles.listContent}
-            ListHeaderComponent={
-              <>
-                <Text style={styles.title}>Modify Accounts</Text>
-                <Text style={styles.caption}>
-                  Tap a username to edit it. Admin accounts cannot be edited.
-                </Text>
-              </>
-            }
-            renderItem={renderUser}
-          />
+        <FlatList
+          data={users}
+          keyExtractor={(u) => u._id}
+          contentContainerStyle={styles.listContent}
+          ListHeaderComponent={
+            <>
+              {/* Header/Screen Title */}
+              <Text style={styles.title}>Modify Accounts</Text>
+              {/* Description of screen */}
+              <Text style={styles.caption}>
+                Tap a username to edit it. Admin accounts cannot be edited.
+              </Text>
+            </>
+          }
+          renderItem={renderUser}
+        />
         </ScrollView>
       </SafeAreaView>
 
@@ -195,6 +209,8 @@ const AdminModifyAccount = () => {
   );
 };
 
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 const createStyles = (isDarkMode: boolean, topInset: number) =>
   StyleSheet.create({
     container: {

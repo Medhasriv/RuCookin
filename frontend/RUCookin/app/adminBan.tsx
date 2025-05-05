@@ -1,41 +1,57 @@
+// app/adminBan.tsx
+/**
+ * @summary: adminBan.tsx
+ * This is the screen where admins can monitor and manage content i.e. ban words that are used by users in their usernames that may violate rules.
+ * This file is part of the set of screens that are only accessible to admin users once they are logged in.
+ * 
+ * @requirement: A014 - Admin Add Ban Words: The system shall allow administrators to ban words.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The Admin Ban screen, where admins can view, ban, and manage words .
+ */
+
 import React, { useEffect, useState } from "react"; //
-import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Platform, useColorScheme, ScrollView } from "react-native"; // React Native UI components
+import {View,Text,FlatList,TextInput,TouchableOpacity,StyleSheet,Platform,useColorScheme,ScrollView} from "react-native"; // React Native UI components
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router"; // To handle navigation
 import { checkAuth, checkAdmin, getToken } from "../utils/authChecker"; // Custom utility for authentication and token fetching
 import AdminBottomNavBar from "../components/adminBottomNavBar";
 import Constants from 'expo-constants';
 
-// Connect to the backend API hosted on Google Cloud Run
+// Connect to the backend API hosted on Google Cloud Run. This is part of requirement U018 - Database Connectivity w/ Google Cloud Run
 const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
-// debugging to make sure 
+// This is a debugging statement to ensure that the API_BASE is set correctly
 console.log("👉 API_BASE is now:", API_BASE);
 
-// Type definition for ViolationItem
+// creating an object called ViolationItem which keeps track of items that violate the rules
 type ViolationItem = {
   username: string;
   firstName: string;
   lastName: string;
   matchedFields: string[];
 };
-// Type definition for BanWordItem
+// creating an object called BanWordItem which keeps track of words that are banned
 type BanWordItem = {
   word: string;
   addedBy?: string;
 };
 
-// Main component for the Admin Ban
+// These are the main components of the Admin Ban screen
 const AdminBan = () => {
-  // Determine the current theme based on the user's preference or device setting
+  // Setting the current color theme based on user's preference or device setting
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const isDarkMode = useColorScheme() === "dark";
   const styles = createStyles(isDarkMode, insets.top);
+  
   // States for managing ban words and violators
   const [banWords, setBanWords] = useState<BanWordItem[]>([]);
   const [newWord, setNewWord] = useState("");
   const [violations, setViolations] = useState<ViolationItem[]>([]);
 
+  // Fetching ban words and violations when the component mounts and checking authentication
   useEffect(() => {
     checkAuth(router);
     checkAdmin(router);
@@ -43,6 +59,9 @@ const AdminBan = () => {
     fetchViolations();
   }, []);
 
+  // Below are the functions that handle fetching, adding, and removing ban words and violations from the backend API
+
+  // Fetching the list of ban words from the backend API
   const fetchBanWords = async () => {
     try {
       const res = await fetch(`${API_BASE}/routes/api/adminBan/list`);
@@ -53,6 +72,7 @@ const AdminBan = () => {
     }
   };
 
+  // Fetching the list of violations from the backend API
   const fetchViolations = async () => {
     try {
       const res = await fetch(`${API_BASE}/routes/api/adminBan/violations`);
@@ -64,9 +84,10 @@ const AdminBan = () => {
     }
   };
 
+  // Adding a new ban word to the backend API
   const handleAddBanWord = async () => {
     if (!newWord.trim()) return;
-
+    
     try {
       const token = await getToken();
       if (!token) {
@@ -75,7 +96,7 @@ const AdminBan = () => {
       }
       const res = await fetch(`${API_BASE}/routes/api/adminBan/add`, {
         method: "POST",
-        headers: {
+        headers: { 
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
@@ -94,6 +115,7 @@ const AdminBan = () => {
     }
   };
 
+  // Removing a ban word from the backend API
   const handleRemoveBanWord = async (word: string) => {
     try {
       const res = await fetch(`${API_BASE}/routes/api/adminBan/remove`, {
@@ -113,77 +135,81 @@ const AdminBan = () => {
     }
   };
 
+  // Rendering the Admin Ban screen
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.inner}>
         <ScrollView contentContainerStyle={styles.content}>
-          <FlatList
-            data={violations}
-            keyExtractor={(_, i) => i.toString()}
-            contentContainerStyle={styles.listContent}
-            ListHeaderComponent={
-              <>
-                <Text style={styles.title}> Manage Ban Words</Text>
+        <FlatList
+          data={violations}
+          keyExtractor={(_, i) => i.toString()}
+          contentContainerStyle={styles.listContent}
+          ListHeaderComponent={
+            <>
+              {/* Header/Screen Title */}
+              <Text style={styles.title}> Manage Ban Words</Text>
 
-                {/* Add New Word */}
-                <View style={styles.inputRow}>
-                  <TextInput
-                    value={newWord}
-                    onChangeText={setNewWord}
-                    placeholder="Add new ban word"
-                    placeholderTextColor={isDarkMode ? "#aaa" : "#999"}
-                    style={styles.input}
-                  />
-                  <TouchableOpacity style={styles.addButton} onPress={handleAddBanWord}>
-                    <Text style={styles.addButtonText}>Add</Text>
-                  </TouchableOpacity>
-                </View>
-
-                {/* Ban Word List */}
-                <Text style={styles.subHeader}>Current Banned Words</Text>
-                {banWords.length === 0 ? (
-                  <Text style={styles.none}>No ban words yet.</Text>
-                ) : (
-                  banWords.map((w, i) => (
-                    <View key={i} style={styles.banWordRow}>
-                      <Text style={styles.banWord}>• {w.word}</Text>
-                      <TouchableOpacity
-                        style={styles.removeButton}
-                        onPress={() => handleRemoveBanWord(w.word)}
-                      >
-                        <Text style={styles.removeButtonText}>Remove</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))
-                )}
-
-                <Text style={styles.subHeader}>Violations</Text>
-                {violations.length === 0 && <Text style={styles.none}>No violations found.</Text>}
-              </>
-            }
-            renderItem={({ item }) => (
-              <View style={styles.card}>
-                <Text style={styles.username}>{item.username}</Text>
-                <Text style={styles.name}>
-                  {item.firstName} {item.lastName}
-                </Text>
-                <Text style={styles.fieldHeader}>Matched Fields:</Text>
-                {item.matchedFields.map((f, idx) => (
-                  <Text key={idx} style={styles.matchedField}>
-                    • {f}
-                  </Text>
-                ))}
+              {/* Add New Word */}
+              <View style={styles.inputRow}>
+                <TextInput
+                  value={newWord}
+                  onChangeText={setNewWord}
+                  placeholder="Add new ban word"
+                  placeholderTextColor={isDarkMode ? "#aaa" : "#999"}
+                  style={styles.input}
+                />
+                <TouchableOpacity style={styles.addButton} onPress={handleAddBanWord}>
+                  <Text style={styles.addButtonText}>Add</Text>
+                </TouchableOpacity>
               </View>
-            )}
-          />
+
+              {/* Ban Word List */}
+              <Text style={styles.subHeader}>Current Banned Words</Text>
+              {banWords.length === 0 ? (
+                <Text style={styles.none}>No ban words yet.</Text>
+              ) : (
+                banWords.map((w, i) => (
+                  <View key={i} style={styles.banWordRow}>
+                    <Text style={styles.banWord}>• {w.word}</Text>
+                    <TouchableOpacity
+                      style={styles.removeButton}
+                      onPress={() => handleRemoveBanWord(w.word)}
+                    >
+                      <Text style={styles.removeButtonText}>Remove</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))
+              )}
+
+              <Text style={styles.subHeader}>Violations</Text>
+              {violations.length === 0 && <Text style={styles.none}>No violations found.</Text>}
+            </>
+          }
+          // Rendering each violation item
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <Text style={styles.username}>{item.username}</Text>
+              <Text style={styles.name}>
+                {item.firstName} {item.lastName}
+              </Text>
+              <Text style={styles.fieldHeader}>Matched Fields:</Text>
+              {item.matchedFields.map((f, idx) => (
+                <Text key={idx} style={styles.matchedField}>
+                  • {f}
+                </Text>
+              ))}
+            </View>
+          )}
+        />
         </ScrollView>
       </SafeAreaView>
-
       <AdminBottomNavBar activeTab="ban" isDarkMode={isDarkMode} />
     </View>
   );
 };
 
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 const createStyles = (isDarkMode: boolean, topInset: number) =>
   StyleSheet.create({
     container: {

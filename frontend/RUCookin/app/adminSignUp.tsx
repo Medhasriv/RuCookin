@@ -1,16 +1,21 @@
+// app/adminSignUp.tsx
+/**
+ * @summary: adminSignUp.tsx
+ * This is the screen where admins can create other admin accounts.
+ * This file is part of the set of screens that are only accessible to admin users once they are logged in.
+ * 
+ * @requirement: U001 - Account Creation: The system shall allow users to create an account with their first and last name, username, password, and email.
+ * @requirement: UO17 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The Admin Sign Up screen, where admins can create other admin accounts.
+ */
+
 import React, { useRef, useState } from "react";
 import { Link, useRouter } from "expo-router";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  Platform,
-  StyleSheet,
-  useColorScheme,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, Platform, StyleSheet, useColorScheme } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Divider } from "../components/Divider";
@@ -18,45 +23,45 @@ import AdminBottomNavBar from "../components/adminBottomNavBar";
 import { LogBox } from "react-native";
 import Constants from 'expo-constants';
 
-// Connect to the backend API hosted on Google Cloud Run
+// Connect to the backend API hosted on Google Cloud Run. This is part of requirement U018 - Database Connectivity w/ Google Cloud Run
 const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
+// ignore warning about nested scroll views. this is an intentional design choice, not a bug.
 LogBox.ignoreLogs([
   "VirtualizedLists should never be nested inside plain ScrollViews"
 ]);
 
 export default function AdminSignUp() {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const isDarkMode = useColorScheme() === "dark";
-  const styles = createStyles(isDarkMode, insets.top);
+  const router = useRouter(); // Navigation router
+  const insets = useSafeAreaInsets(); // Safe area insets for padding
+  const isDarkMode = useColorScheme() === "dark"; // Boolean for dark mode
+  const styles = createStyles(isDarkMode, insets.top); // Dynamic styles based on theme and safe area insets
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [firstName, setFirstName] = useState(""); // State to hold first name
+  const [lastName, setLastName] = useState(""); // State to hold last name
+  const [email, setEmail] = useState(""); // State to hold email
+  const [username, setUsername] = useState(""); // State to hold username
+  const [password, setPassword] = useState(""); // State to hold password
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false); // State to toggle password visibility
+  const [errors, setErrors] = useState<Record<string,string>>({});  // State to hold validation errors
 
-  // --- ADD THESE REFS ---
-  const lastNameRef = useRef<TextInput>(null);
-  const emailRef = useRef<TextInput>(null);
-  const usernameRef = useRef<TextInput>(null);
-  const passwordRef = useRef<TextInput>(null);
+  const lastNameRef = useRef<TextInput>(null); // Ref for last name input
+  const emailRef    = useRef<TextInput>(null); // Ref for email input
+  const usernameRef = useRef<TextInput>(null); // Ref for username input
+  const passwordRef = useRef<TextInput>(null); // Ref for password input
 
   const validateForm = () => {
-    const errs: Record<string, string> = {};
-    if (!firstName.trim()) errs.firstName = "First name is required.";
-    if (!lastName.trim()) errs.lastName = "Last name is required.";
-    if (!email.trim()) errs.email = "Email is required.";
-    if (!username.trim()) errs.username = "Username is required.";
-    if (!password) errs.password = "Password is required.";
+    const errs: Record<string,string> = {};
+    if (!firstName.trim()) errs.firstName = "First name is required."; // Validate first name is in the form
+    if (!lastName.trim())  errs.lastName  = "Last name is required."; // Validate last name is in the form
+    if (!email.trim())     errs.email     = "Email is required."; // Validate email is in the form
+    if (!username.trim())  errs.username  = "Username is required."; // Validate username is in the form
+    if (!password)         errs.password  = "Password is required."; // Validate password is in the form
     setErrors(errs);
-    return Object.keys(errs).length === 0;
+    return Object.keys(errs).length === 0; // Return true if no errors
   };
 
-  const handleSignUpSubmit = async () => {
+  const handleSignUpSubmit = async () => { // Handle form submission
     if (!validateForm()) return;
     try {
       const res = await fetch(`${API_BASE}/routes/auth/adminCreateAccount`, {
@@ -77,21 +82,24 @@ export default function AdminSignUp() {
     }
   };
 
-  const handleGoogleSignUp = () => console.log("Google signup");
-
+  // Render component
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.inner}>
         <ScrollView contentContainerStyle={styles.content}>
+          {/* Header/Screen Title */}
           <Text style={styles.title}>Make Admin Account</Text>
 
           {errors.general && <Text style={styles.error}>{errors.general}</Text>}
           {errors.firstName && <Text style={styles.error}>{errors.firstName}</Text>}
-          {errors.lastName && <Text style={styles.error}>{errors.lastName}</Text>}
-          {errors.email && <Text style={styles.error}>{errors.email}</Text>}
-          {errors.username && <Text style={styles.error}>{errors.username}</Text>}
-          {errors.password && <Text style={styles.error}>{errors.password}</Text>}
+          {errors.lastName &&  <Text style={styles.error}>{errors.lastName}</Text>}
+          {errors.email &&     <Text style={styles.error}>{errors.email}</Text>}
+          {errors.username &&  <Text style={styles.error}>{errors.username}</Text>}
+          {errors.password &&  <Text style={styles.error}>{errors.password}</Text>}
 
+          {/* Form Inputs */}
+
+          {/* First Name */}
           <TextInput
             style={styles.input}
             placeholder="First Name"
@@ -101,7 +109,7 @@ export default function AdminSignUp() {
             returnKeyType="next"
             onSubmitEditing={() => lastNameRef.current?.focus()}
           />
-
+          {/* Last Name */}
           <TextInput
             ref={lastNameRef}
             style={styles.input}
@@ -112,7 +120,7 @@ export default function AdminSignUp() {
             returnKeyType="next"
             onSubmitEditing={() => emailRef.current?.focus()}
           />
-
+          {/* Email */}
           <TextInput
             ref={emailRef}
             style={styles.input}
@@ -125,7 +133,7 @@ export default function AdminSignUp() {
             returnKeyType="next"
             onSubmitEditing={() => usernameRef.current?.focus()}
           />
-
+          {/* Username */}
           <TextInput
             ref={usernameRef}
             style={styles.input}
@@ -137,7 +145,7 @@ export default function AdminSignUp() {
             returnKeyType="next"
             onSubmitEditing={() => passwordRef.current?.focus()}
           />
-
+          {/* Password */}
           <View style={styles.passwordContainer}>
             <TextInput
               ref={passwordRef}
@@ -150,6 +158,7 @@ export default function AdminSignUp() {
               returnKeyType="done"
               onSubmitEditing={handleSignUpSubmit}
             />
+            {/* Toggle Password Visibility */}
             <TouchableOpacity
               onPress={() => setIsPasswordVisible((v) => !v)}
               style={styles.toggle}
@@ -159,7 +168,7 @@ export default function AdminSignUp() {
               </Text>
             </TouchableOpacity>
           </View>
-
+          {/* Submit Button */}
           <TouchableOpacity style={styles.button} onPress={handleSignUpSubmit}>
             <Text style={styles.buttonText}>Continue</Text>
           </TouchableOpacity>
@@ -171,8 +180,8 @@ export default function AdminSignUp() {
   );
 }
 
-// …rest of imports and component above remain the same…
-
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 const createStyles = (isDarkMode: boolean, topInset: number) =>
   StyleSheet.create({
     container: {

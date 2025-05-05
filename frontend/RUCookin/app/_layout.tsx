@@ -1,3 +1,17 @@
+// app/_layout.tsx
+/**
+ * @summary: _layout.tsx
+ * This file represents the root layout of the app. In layman terms, this is the initial boot up/loading screen.
+ * This is where we load in fonts and images.
+ * We show a custom splash screen while the app is loading.  
+ * 
+ * @requirement: U017 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The root layout of the app, which includes the loading screen and preloads the login and sign up screens for smoother transitions.
+ */
+
 import React, { useState, useEffect } from "react";
 import { Platform, useColorScheme, View, Image, ActivityIndicator, StyleSheet } from "react-native";
 import { SplashScreen, Stack } from "expo-router";
@@ -9,19 +23,19 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
   const styles = createStyles(isDarkMode);
-
-  // 1. Load your custom fonts
+  
+  // Loading fonts
   const [fontsLoaded] = useFonts({
     "InknutAntiqua-SemiBold": require("@/assets/fonts/InknutAntiqua-SemiBold.ttf"),
-    "Inter-Regular": require("@/assets/fonts/Inter-Regular.ttf"),
-    "Inter-SemiBold": require("@/assets/fonts/Inter-SemiBold.ttf"),
-    "SpaceMono-Regular": require("@/assets/fonts/SpaceMono-Regular.ttf"),
+    "Inter-Regular":         require("@/assets/fonts/Inter-Regular.ttf"),
+    "Inter-SemiBold":        require("@/assets/fonts/Inter-SemiBold.ttf"),
+    "SpaceMono-Regular":     require("@/assets/fonts/SpaceMono-Regular.ttf"),
   });
 
-  // 2. Track whether we’ve preloaded the GIF asset
+  // Loading our loading GIF
   const [gifLoaded, setGifLoaded] = useState(false);
 
-  // 3. Prevent the native splash from auto-hiding, and load the GIF
+  // Establish that the app's loadng screen is our GIF and a spinner
   useEffect(() => {
     async function prepare() {
       try {
@@ -36,14 +50,14 @@ export default function RootLayout() {
     prepare();
   }, []);
 
-  // 4. Once both fonts & GIF are ready, hide the native splash
+  // hiding the default splash screen that Expo provides because let's honestly, it's mid
   useEffect(() => {
     if (fontsLoaded && gifLoaded) {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, gifLoaded]);
 
-  // 5. While loading, show your custom JS splash (GIF + spinner)
+  // Displaying our loading screen while the app is loading
   if (!fontsLoaded || !gifLoaded) {
     return (
       <View style={styles.container}>
@@ -57,7 +71,7 @@ export default function RootLayout() {
     );
   }
 
-  // 6. Everything’s loaded—render your normal app stack
+  // pre-loading login and sign up for smoother transitions
   return (
     <Stack
       screenOptions={({ route }) => ({
@@ -68,6 +82,7 @@ export default function RootLayout() {
   );
 }
 
+// Styling for the loading screen
 function createStyles(isDarkMode: boolean) {
   return StyleSheet.create({
     container: {

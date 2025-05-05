@@ -1,3 +1,17 @@
+// app/Profile.tsx
+/**
+ * @summary: Profile.tsx
+ * 
+ * This page allows users to view and edit their profile information.
+ * Users can update their first name, last name, and email address.
+ * 
+ * @requirement: U002 - Account Modification: The system shall allow users to edit information such as first name, last name, location, and email. 
+ * @requirement: U017 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * 
+ * @author: Team SWEG
+ * @returns: The basic profile page for users to view and edit their profile information. 
+ */
 // Import necessary React and React Native libraries
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, ScrollView, Image } from "react-native";
@@ -292,7 +306,8 @@ const Profile = () => {
   );
 };
 
-// Create dynamic styles based on dark or light mode
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 const createStyles = (isDarkMode: boolean) =>
   StyleSheet.create({
     container: {

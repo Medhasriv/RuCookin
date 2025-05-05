@@ -1,3 +1,19 @@
+// app/CuisineLikes.tsx
+/**
+ * @summary: CuisineLikes.tsx
+ * This is the screen where users can select what cuisines they like.
+ * For example, if Mario likes Italian food, he can select it here.
+ * This file is part of the set of screens that are only accessible when a user is creating their account.
+ * 
+ * @requirement: U001 - Account Creation: The system shall allow users to create an account with their first and last name, username, password, and email.
+ * @requirement: U003 - User Preference: The system shall allow users to edit information such as cuisine likes, dislikes, diet-types, and intolerances.
+ * @requirement: UO17 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The Cuisine Likes page, which is a screen where users can select the cuisines that they like.
+ */
 // Import React libraries and necessary React Native components
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, FlatList, View } from 'react-native';
@@ -8,7 +24,7 @@ import { useRouter } from 'expo-router';
 import { checkAuth, getTokenData } from "../utils/authChecker";
 import Constants from 'expo-constants';
 
-// Connect to the backend API hosted on Google Cloud Run
+// Connect to the backend API hosted on Google Cloud Run. This is part of requirement U018 - Database Connectivity w/ Google Cloud Run.
 const API_BASE = Constants.manifest?.extra?.apiUrl ?? (Constants.expoConfig as any).expo.extra.apiUrl;
 
 // Define static list of available cuisine types
@@ -123,7 +139,8 @@ const CuisineLikes = () => {
   );
 };
 
-// Create dynamic styles depending on dark or light mode
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 const createStyles = (dark: boolean) =>
   StyleSheet.create({
     container: {

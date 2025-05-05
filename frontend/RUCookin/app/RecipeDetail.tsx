@@ -1,3 +1,16 @@
+// app/Profile.tsx
+/**
+ * @summary: RecipeDetail.tsx
+ * 
+ * This page serves as the template for the recipe page. It displays the recipe's image, title, summary (time to make + servings), ingredients, and instructions.
+ * 
+ * @requirement: R004 - Recipe Search: The system shall provide a recipe search screen that allows users to look up recipes based on available ingredients, cuisine type, and dietary restrictions.
+ * @requirement: U017 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * 
+ * @author: Team SWEG
+ * @returns: The template page for recipes. 
+ */
+
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { useLocalSearchParams } from "expo-router";
@@ -52,7 +65,7 @@ const RecipeDetail = () => {
     );
   }
 
-  //creating a component which has the recipe
+  // creating a component which has the recipe
   return (
     <ScrollView style={[styles.container, { backgroundColor: isDark ? "#000" : "#fff" }]}>
       <Image source={{ uri: imageStr }} style={styles.image} />
@@ -79,6 +92,8 @@ const RecipeDetail = () => {
   );
 };
 
+/* ---------- styles ---------- */
+// Function to generate styles based on theme (dark or light)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
