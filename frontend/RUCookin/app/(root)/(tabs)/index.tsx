@@ -1,3 +1,21 @@
+// app/(root)/(tabs)/index.tsx
+/**
+ * @summary: index.tsx
+ * This file represents the landing page of the app.
+ * It is the first screen that users see when they open the app.
+ * It contains the app's logo and two buttons: one for logging in and one for signing up.
+ * The buttons are styled to match the app's color scheme and are accessible for users with different color vision deficiencies.
+ * The app's logo is displayed in the center of the screen.
+ * The buttons are displayed below the logo.
+ * Nothing too fancy or complicated, just a simple and clean design. 
+ * 
+ * @requirement: U017 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The landing page of the app.
+ */
+
 import { Redirect, Link, useRouter } from "expo-router";
 import { Platform, StyleSheet, Text, TouchableOpacity, useColorScheme } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
