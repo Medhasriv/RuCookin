@@ -33,20 +33,24 @@ const stripHtml = (html?: string) =>
     .trim();
 
 const SearchRecipe = () => {
-  ///settign up for the search
+  ///setting up the page for the search
   const insets = useSafeAreaInsets();
   const deviceScheme = useColorScheme();
   const [userTheme, setUserTheme] = useState<string | null>(null);
+  //variables to hold the values for user filtering
   const [selectedCuisine, setSelectedCuisine] = useState<string[]>([]);
   const [selectedDiet, setSelectedDiet] = useState("");
   const [selectedIntolerance, setSelectedIntolerance] = useState<string[]>([]);
   const [searchRecipe, setSearchRecipe] = useState("");
   const [result, setResult] = useState<any[]>([]);
+  //setting up for the filtering
   const [favourites, setFavourites] = useState<number[]>([]);
+  //to show the filtering modal
   const [isModalVisible, setModalVisible] = useState(false);
   const [includePreferences, setincludePreferences] = useState(false);
   const router = useRouter();
 
+  //getting the theme for light/darkmode
   useEffect(() => {
     AsyncStorage.getItem("userTheme").then((value) => {
       if (value) setUserTheme(value);
@@ -115,7 +119,7 @@ const SearchRecipe = () => {
   const isDarkMode = effectiveTheme === "dark";
   const styles = createStyles(isDarkMode, insets.top);
 
-  // List generators for filters
+  // List generators for filters for cuisines, intolerances, and diets
   const CuisineList = () => [
     { label: "African", value: "African" },
     { label: "Asian", value: "Asian" },
@@ -186,7 +190,7 @@ const SearchRecipe = () => {
     let excludedCusineString = "";
     let selectedDietString = selectedDiet;
 
-    //includes user preferences if chickbox is chosem.
+    //first checking to see if the user wants to include preferences, if true then retreiving them using the username
     if (includePreferences == true) {
       const username = await getTokenData("username");
       if (!username) {
@@ -199,7 +203,7 @@ const SearchRecipe = () => {
         return;
       }
 
-      //getting the user preferences 
+      //getting the user preferences through a GET request for disliked cuisines
       try {
         const response = await fetch(`${API_BASE}/routes/api/cuisineDislike`, {
           method: "GET",
@@ -219,6 +223,7 @@ const SearchRecipe = () => {
         console.error("❌ Error fetching dislikes", error);
       }
 
+      //getting the user preferences through a GET request for liked cuisines
       try {
         const response = await fetch(`${API_BASE}/routes/api/cuisineLike`, {
           method: "GET",
@@ -238,6 +243,7 @@ const SearchRecipe = () => {
       } catch (error) {
         console.error("❌ Error fetching likes", error);
       }
+      //getting the user preferences through a GET request for intolerances
       try {
         const response = await fetch(`${API_BASE}/routes/api/intolerance`, {
           method: "GET",
@@ -256,6 +262,7 @@ const SearchRecipe = () => {
       } catch (error) {
         console.error("❌ Error fetching intolerances", error);
       }
+      //getting the user preferences through a GET request for diets
       try {
         const response = await fetch(`${API_BASE}/routes/api/diet`, {
           method: "GET",
@@ -275,7 +282,9 @@ const SearchRecipe = () => {
         console.error("❌ Error fetching diets", error);
       }
     }
+
     //calling on the spoonacular API to search for recipe
+    //using filtering of there is anything in the strings for Cuisine likes & dislikes, intolerances, and diets
     try {
       const response = await fetch(
         `https://api.spoonacular.com/recipes/complexSearch?query=${encodeURIComponent(searchRecipe)}&addRecipeInformation=true&excludeCuisine=${encodeURIComponent(excludedCusineString)}&cuisine=${encodeURIComponent(selectedCuisinesString)}&intolerances=${encodeURIComponent(selectedIntolerancesString)}&diet=${encodeURIComponent(selectedDietString)}&apiKey=${spoonacularApiKey}`
@@ -292,7 +301,7 @@ const SearchRecipe = () => {
     }
   };
 
-  //toggling the modal + filter and adding these results to the search
+  //toggling the modal + filter and adding these results to the search to make them appear/disappear
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
@@ -309,6 +318,7 @@ const SearchRecipe = () => {
     );
   };
 
+  //after filtering is closed, it removes the modal and then calls on handlesearch to search again using the filters
   const handleFilter = async () => {
     setModalVisible(false);
     await handleSearch();
@@ -341,7 +351,7 @@ const SearchRecipe = () => {
           style={styles.searchInput}
         />
 
-        {/* Filter Button */}
+        {/* Filter Button, opens the modal */}
         <TouchableOpacity style={styles.filterButton} onPress={toggleModal}>
           <Text style={styles.filterButtonText}>FILTER</Text>
         </TouchableOpacity>
@@ -355,8 +365,9 @@ const SearchRecipe = () => {
               {cuisines.map((item) => (
                 <View key={item.value} style={styles.radioButtonContainer}>
                   <Checkbox
-                    status={selectedCuisine.includes(item.value) ? "checked" : "unchecked"}
-                    onPress={() => toggleFilter(selectedCuisine, setSelectedCuisine, item.value)}
+                    //when user checks or unchecks a cuisine it is added or removed from a string of cuisines that will be called on for the search
+                    status={selectedCuisine.includes(item.value) ? "checked" : "unchecked"} 
+                    onPress={() => toggleFilter(selectedCuisine, setSelectedCuisine, item.value)} 
                   />
                   <Text style={styles.radioLabel}>{item.label}</Text>
                 </View>
@@ -366,6 +377,7 @@ const SearchRecipe = () => {
               {diets.map((diet) => (
                 <View key={diet.value} style={styles.radioButtonContainer}>
                   <RadioButton
+                    //when user checks a diet, it is added to the selectedDiet variable to be used for the search
                     value={diet.value}
                     status={selectedDiet === diet.value ? "checked" : "unchecked"}
                     onPress={() => setSelectedDiet(diet.value)}
@@ -378,6 +390,7 @@ const SearchRecipe = () => {
               {intolerances.map((item) => (
                 <View key={item.value} style={styles.radioButtonContainer}>
                   <Checkbox
+                    //when user checks or unchecks an intolerance it is added or removed from a string of intolerances that will be called on for the search
                     status={selectedIntolerance.includes(item.value) ? "checked" : "unchecked"}
                     onPress={() => toggleFilter(selectedIntolerance, setSelectedIntolerance, item.value)}
                   />
@@ -389,10 +402,12 @@ const SearchRecipe = () => {
             {/*User preferences checkbox*/}
             <View style={styles.preferenceBox}>
               <Checkbox status={includePreferences ? 'checked' : 'unchecked'}
-                onPress={() => setincludePreferences(!includePreferences)} />
+              //when toggled, it turns on the user preferences which are then appended to the search when it is performed
+                onPress={() => setincludePreferences(!includePreferences)} /> 
               <Text style={styles.filterButtonText}>Use Preferences</Text>
             </View>
 
+            {/*Upon closing the modal, it performs the search with filtering*/}
             <TouchableOpacity style={styles.modalCloseButton} onPress={handleFilter}>
               <Text style={styles.modalCloseButtonText}>close</Text>
             </TouchableOpacity>
@@ -412,6 +427,7 @@ const SearchRecipe = () => {
                   })
                   }
                 >
+                  {/* Styling the recipe with an image, title summary, number of servings */}
                   <Image source={{ uri: item.image }} style={styles.imageStyle} />
                 </TouchableOpacity>
 
@@ -427,7 +443,7 @@ const SearchRecipe = () => {
                   </Text>
                 </View>
 
-                {/* star overlay */}
+                {/* star overlay so user can favorite a recipe */}
                 <TouchableOpacity
                   testID={`star-${item.id}`}
                   style={styles.star}
