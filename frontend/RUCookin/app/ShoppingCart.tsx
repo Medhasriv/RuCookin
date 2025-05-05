@@ -7,7 +7,10 @@
  * 
  * @requirement: S005 - Shopping Cart: The system shall allow users to create and manage a shopping list that connects to the Kroger API to check ingredient availability, estimate costs, and suggest purchase locations.
  * @requirement: U017 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
- * @returns: The Kroger Shopping Cart page, which is a screen where users can select the cuisines that they dislike.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @returns: The Kroger Shopping Cart page, where users can add items to their shopping cart, and view the items in their cart.
  */
 import { useRouter } from "expo-router";
 import { View, Text, TextInput, FlatList, StyleSheet, useColorScheme, TouchableOpacity, Image } from "react-native";

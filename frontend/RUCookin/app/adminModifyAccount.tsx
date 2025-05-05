@@ -7,6 +7,7 @@
  * 
  * @requirement: A011 - Admin Account Deletion: The system shall allow administrators to delete accounts with inappropriate names or inappropriate ingredients.
  * @requirement: A012 - Admin Account Modification: The system shall allow administrators to modify usernames.
+ * @requirement: U017 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
  * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
  * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
  * 

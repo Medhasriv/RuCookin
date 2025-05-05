@@ -1,3 +1,16 @@
+// app/Settings.tsx
+/**
+ * @summary: Settings.tsx
+ * 
+ * This page allows users to control their settings, including toggling dark mode and notifications, and navigating to their profile or privacy settings.
+ * It also includes a log out button that clears the user's session and redirects them to the login page.
+ * 
+ * @requirement: U017 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
+ * @returns: The template page for recipes. 
+ */
 // Import necessary libraries and components
 import React, { useEffect, useState } from "react";
 import { Platform, StyleSheet, Text, Switch, TouchableOpacity, View } from "react-native";

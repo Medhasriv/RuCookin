@@ -11,6 +11,10 @@
  * 
  * @requirement: U001 - Account Creation: The system shall allow users to create an account with their first and last name, username, password, and email. 
  * @requirement: U017 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U018 - Database Connectivity w/ Google Cloud Run: The system shall connect to the database using Google Cloud Run, ensuring that calls are returned promptly.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
+ * 
+ * @author: Team SWEG
  * @returns: The sign up page for the RUCookin' app.
  */
 

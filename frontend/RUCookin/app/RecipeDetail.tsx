@@ -6,6 +6,7 @@
  * 
  * @requirement: R004 - Recipe Search: The system shall provide a recipe search screen that allows users to look up recipes based on available ingredients, cuisine type, and dietary restrictions.
  * @requirement: U017 - User Experience/User Design: The system shall have a UI/UX design that is easy for any user to navigate, boosting user engagement.
+ * @requirement: U019 - Cross-Platform Accessibility: The system shall be able to run on a web browser, an iOS application, and an Android application. The system shall be developed using React Native, allowing for simultaneous development.
  * 
  * @author: Team SWEG
  * @returns: The template page for recipes. 
