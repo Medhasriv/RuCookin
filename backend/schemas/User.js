@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
@@ -34,12 +34,14 @@ const userSchema = new mongoose.Schema(
     },
     accountType: {
       type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
-      required: true
+      enum: ["user", "admin"],
+      default: "user",
+      required: true,
     },
-  }, {
-  collection: 'UserInfo'
-});
+  },
+  {
+    collection: "UserInfo",
+  }
+);
 
 module.exports = mongoose.model("UserInfo", userSchema);

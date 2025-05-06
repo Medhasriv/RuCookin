@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const cartSchema = new mongoose.Schema(
   {
@@ -6,7 +6,7 @@ const cartSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "UserInfo",
       required: true,
-      unique: true
+      unique: true,
     },
 
     cartItems: [
@@ -14,18 +14,15 @@ const cartSchema = new mongoose.Schema(
         _id: { type: String, required: true },
         itemName: { type: String, required: true },
         quantity: { type: Number, required: true, min: 1 },
-        origin: { type: String }
-
-
-      }
-    ]
+        origin: { type: String },
+      },
+    ],
   },
   {
-    collection: 'CartInfo',
-    timestamps: true
+    collection: "CartInfo",
+    timestamps: true,
   }
 );
 
-
-//recipeUrl: { type: String } might use this later as a linked to recipeName 
+//recipeUrl: { type: String } might use this later as a linked to recipeName
 module.exports = mongoose.model("CartInfo", cartSchema);

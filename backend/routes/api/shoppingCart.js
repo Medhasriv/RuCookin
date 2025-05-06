@@ -63,10 +63,18 @@ router.post("/", async (req, res) => {
       // Create new cart if it doesn't exist
       userCart = new Cart({ userId, cartItems: items });
     } else {
-      // Filter out duplicates before pushing
+      // Check for duplicates
       const existingIds = new Set(userCart.cartItems.map((i) => i._id));
-      const newItems = items.filter((i) => !existingIds.has(i._id));
-      userCart.cartItems.push(...newItems);
+      const duplicateItems = items.filter((i) => existingIds.has(i._id));
+
+      if (duplicateItems.length > 0) {
+        return res.status(409).json({
+          message: "One or more items already exist in the cart",
+          duplicates: duplicateItems,
+        });
+      }
+
+      userCart.cartItems.push(...items);
     }
 
     await userCart.save();

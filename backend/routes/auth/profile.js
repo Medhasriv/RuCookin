@@ -32,6 +32,11 @@ router.put("/", async (req, res) => {
     }
     console.log("Request body:", req.body); // Log the request body
     const { firstName, lastName, email } = req.body;
+    if (!firstName && !lastName && !email) {
+      return res
+        .status(400)
+        .json({ message: "No fields provided for update." });
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       tokenData.id,

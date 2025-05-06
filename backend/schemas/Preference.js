@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const preferenceSchema = new mongoose.Schema(
   {
@@ -6,51 +6,117 @@ const preferenceSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "UserInfo",
       required: true,
-      unique: true
+      unique: true,
     },
     cuisineLike: {
       type: [String],
       enum: [
-        "African", "Asian", "American", "British", "Cajun", "Caribbean", "Chinese",
-        "Eastern European", "European", "French", "German", "Greek", "Indian", "Irish",
-        "Italian", "Japanese", "Jewish", "Korean", "Latin American", "Mediterranean",
-        "Mexican", "Middle Eastern", "Nordic", "Southern", "Spanish", "Thai", "Vietnamese"
+        "African",
+        "Asian",
+        "American",
+        "British",
+        "Cajun",
+        "Caribbean",
+        "Chinese",
+        "Eastern European",
+        "European",
+        "French",
+        "German",
+        "Greek",
+        "Indian",
+        "Irish",
+        "Italian",
+        "Japanese",
+        "Jewish",
+        "Korean",
+        "Latin American",
+        "Mediterranean",
+        "Mexican",
+        "Middle Eastern",
+        "Nordic",
+        "Southern",
+        "Spanish",
+        "Thai",
+        "Vietnamese",
       ],
-      default: []
+      default: [],
     },
     cuisineDislike: {
       type: [String],
       enum: [
-        "African", "Asian", "American", "British", "Cajun", "Caribbean", "Chinese",
-        "Eastern European", "European", "French", "German", "Greek", "Indian", "Irish",
-        "Italian", "Japanese", "Jewish", "Korean", "Latin American", "Mediterranean",
-        "Mexican", "Middle Eastern", "Nordic", "Southern", "Spanish", "Thai", "Vietnamese"
+        "African",
+        "Asian",
+        "American",
+        "British",
+        "Cajun",
+        "Caribbean",
+        "Chinese",
+        "Eastern European",
+        "European",
+        "French",
+        "German",
+        "Greek",
+        "Indian",
+        "Irish",
+        "Italian",
+        "Japanese",
+        "Jewish",
+        "Korean",
+        "Latin American",
+        "Mediterranean",
+        "Mexican",
+        "Middle Eastern",
+        "Nordic",
+        "Southern",
+        "Spanish",
+        "Thai",
+        "Vietnamese",
       ],
-      default: []
+      default: [],
     },
     diet: {
       type: [String],
       enum: [
-        "Gluten Free", "Ketogenic", "Vegetarian", "Lacto-Vegetarian", "Ovo-Vegetarian",
-        "Vegan", "Pescetarian", "Paleo", "Primal", "Low FODMAP", "Whole30"
+        "Gluten Free",
+        "Ketogenic",
+        "Vegetarian",
+        "Lacto-Vegetarian",
+        "Ovo-Vegetarian",
+        "Vegan",
+        "Pescetarian",
+        "Paleo",
+        "Primal",
+        "Low FODMAP",
+        "Whole30",
       ],
-      default: []
+      default: [],
     },
     intolerance: {
       type: [String],
       enum: [
-        "Dairy", "Egg", "Gluten", "Grain", "Peanut", "Seafood", "Sesame", "Shellfish",
-        "Soy", "Sulfite", "Tree Nut", "Wheat"
+        "Dairy",
+        "Egg",
+        "Gluten",
+        "Grain",
+        "Peanut",
+        "Seafood",
+        "Sesame",
+        "Shellfish",
+        "Soy",
+        "Sulfite",
+        "Tree Nut",
+        "Wheat",
       ],
-      default: []
+      default: [],
     },
     favoriteRecipes: {
       type: [Number], // Spoonacular recipe IDs are numerical
-      default: []
-    }
+      default: [],
+    },
   },
-  {  // <-- FIXED: Added comma here
-    collection: "UserPreferences"
+  {
+    // <-- FIXED: Added comma here
+    collection: "UserPreferences",
   }
 );
 
