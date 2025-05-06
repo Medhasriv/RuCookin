@@ -1,25 +1,25 @@
+//import jwt for token
 const jwt = require("jsonwebtoken");
 
+//gets user ID from Token
 const getUserIdFromToken = (req) => {
+  //Grab token from header
   const authHeader = req.headers.authorization;
-  console.log("🛡️ authHeader:", authHeader);
+  //If not found, return fail
   if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
-
+  //contains token from splitting the header
   const token = authHeader.split(" ")[1];
-  console.log("🔐 extracted token:", token);
   let decoded;
   try {
+    //get all the information from token
     decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    console.log("🔐 decoded token:", decoded);
-    console.log("🔐 id token:", decoded.id);
-    console.log("THE USERID TOKEN IS: ", decoded.id)
-    console.log("THE ACCOUNTTYPE TOKEN IS: ", decoded.accountType);
+    //return id and account tyep
     return {
       id: decoded.id,
       accountType: decoded.accountType,
     };
   } catch (err) {
-    console.error("❌ Token verification failed:", err.message);
+    console.error("Token verification failed:", err.message);
     return null;
   }
 };
