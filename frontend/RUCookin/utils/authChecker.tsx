@@ -3,8 +3,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Check if token session exist
 export async function checkAuth(router: any) {
   try {
+    // Contains token
     const token = await AsyncStorage.getItem("token");
-
+    // Token not found then return to login page
     if (!token) {
       alert("Access denied! Please log in.");
       router.replace("/Login");
@@ -15,17 +16,20 @@ export async function checkAuth(router: any) {
   }
 }
 
-// Check if token session exist
+// Check if user is an admin
 export async function checkAdmin(router: any) {
   try {
+    // Contains token
     const token = await AsyncStorage.getItem("token");
+    // Token not found then return to login page
     if (!token) {
       alert("Access denied! Please log in.");
       router.replace("/Login");
       return;
     }
+    // Get the accountType
     const accountType = await getTokenData("accountType");
-    console.log(accountType) //returns undefined
+    // Not admin change to login page
     if (accountType !== "admin") {
       alert("Access denied! Admin only!");
       router.replace("/Login");
@@ -40,6 +44,7 @@ export async function checkAdmin(router: any) {
 // Get raw token 
 export async function getToken(): Promise<string | null> {
   try {
+    // Get token
     return await AsyncStorage.getItem("token");
   } catch (error) {
     console.error("Error retrieving token:", error);
@@ -50,14 +55,16 @@ export async function getToken(): Promise<string | null> {
 //Pull token data for string  
 export async function getTokenData(key: string): Promise<any | null> {
   try {
+    // Get token
     const token = await AsyncStorage.getItem("token");
+    // Token not found then return to login page
     if (!token) {
       return null;
     }
+    // Decode the token
     const base64Url = token.split(".")[1];
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const decodedPayload = JSON.parse(atob(base64));
-    console.log("🔍 FULL decoded payload:", decodedPayload);
     return decodedPayload[key];
   }
   catch (error) {
