@@ -1,6 +1,4 @@
-
-![RuCookin Logo](https://drive.google.com/file/d/1VDDwUSAeWJqm2z3qxokwUPcFUyexgtdO/view?usp=sharing)
-
+![RuCookin Logo](https://drive.google.com/uc?id=1VDDwUSAeWJqm2z3qxokwUPcFUyexgtdO)![RuCookin Logo](https://drive.google.com/file/d/1VDDwUSAeWJqm2z3qxokwUPcFUyexgtdO/view?usp=sharing)
 
 # RUCookin
 
@@ -168,7 +166,7 @@ To run the application on an Android simulator, press `a`.\
 
 
 ## Demo
-[![Watch the video](https://img.youtube.com/vi/o1wv6IYIVzU/maxresdefault.jpg)](https://youtu.be/o1wv6IYIVzU)
+[Watch the demo video here](https://youtu.be/o1wv6IYIVzU)
 
 ## Authors
 
