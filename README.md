@@ -1,4 +1,4 @@
-![RuCookin Logo](https://drive.google.com/uc?id=1VDDwUSAeWJqm2z3qxokwUPcFUyexgtdO)![RuCookin Logo](https://drive.google.com/file/d/1VDDwUSAeWJqm2z3qxokwUPcFUyexgtdO/view?usp=sharing)
+<img src="https://drive.google.com/uc?id=1VDDwUSAeWJqm2z3qxokwUPcFUyexgtdO" alt="RuCookin Logo" width="100"/>
 
 # RUCookin
 
